@@ -99,6 +99,22 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+@theme {
+  /* Custom breakpoints for Reflect app */
+  --breakpoint-xs: 30rem; /* 480px - Small mobile */
+  --breakpoint-sm: 40rem; /* 640px - Mobile */
+  --breakpoint-md: 48rem; /* 768px - Tablet */
+  --breakpoint-lg: 64rem; /* 1024px - Desktop */
+  --breakpoint-xl: 80rem; /* 1280px - Large desktop */
+  --breakpoint-2xl: 96rem; /* 1536px - Extra large */
+
+  /* Container utilities */
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
