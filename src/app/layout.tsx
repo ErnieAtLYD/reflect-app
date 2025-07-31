@@ -1,4 +1,10 @@
 import type { Metadata } from 'next'
+import { Parkinsans } from 'next/font/google'
+
+const parkinsans = Parkinsans({
+  subsets: ['latin'],
+  variable: '--font-parkinsans',
+})
 
 export const metadata: Metadata = {
   title: 'Reflect App',
@@ -12,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={parkinsans.variable}>{children}</body>
     </html>
   )
 }
