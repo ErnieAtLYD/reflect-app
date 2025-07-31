@@ -96,7 +96,6 @@ import {
   CardFooter,
   CardAction,
 } from '@/components/ui/card'
-
 ;<Card>
   <CardHeader>
     <CardTitle>Card Title</CardTitle>
@@ -155,7 +154,6 @@ Form input components with consistent styling and accessibility.
 ```tsx
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-
 ;<div className="space-y-2">
   <Label htmlFor="email">Email Address</Label>
   <Input
