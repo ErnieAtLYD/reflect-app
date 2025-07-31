@@ -248,12 +248,55 @@ All colors are implemented as CSS custom properties in `/src/app/globals.css` an
 
 #### Tailwind Integration
 
-Colors are available through Tailwind's color system:
+All colors and design tokens are now fully integrated into the Tailwind configuration. You can use utility classes directly:
+
+**Semantic Colors:**
 
 ```html
 <div class="bg-background text-foreground">
   <button class="bg-primary text-primary-foreground">Primary Button</button>
+  <div class="bg-secondary text-secondary-foreground">Secondary Content</div>
+  <p class="text-muted-foreground">Muted text</p>
 </div>
+```
+
+**Custom Brand Colors:**
+
+```html
+<div class="bg-lavender text-dark-blue">
+  <span class="text-gray-medium">Medium gray text</span>
+  <div class="bg-sky-blue">Sky blue background</div>
+</div>
+```
+
+**Typography with Custom Fonts:**
+
+```html
+<h1 class="font-heading text-4xl font-bold">Heading with Parkinsans</h1>
+<h2 class="font-display text-2xl">Display text with Parkinsans</h2>
+<p class="font-body text-base">Body text with Inter</p>
+<code class="font-mono text-sm">Monospace code with JetBrains Mono</code>
+```
+
+**Chart Colors:**
+
+```html
+<div class="bg-chart-1">Chart series 1</div>
+<div class="bg-chart-2">Chart series 2</div>
+<div class="bg-chart-3">Chart series 3</div>
+```
+
+**Complete Typography Scale:**
+
+```html
+<p class="text-xs">Extra small text</p>
+<p class="text-sm">Small text</p>
+<p class="text-base">Base text</p>
+<p class="text-lg">Large text</p>
+<p class="text-xl leading-tight">XL text with tight line height</p>
+<p class="letter-spacing-tight text-2xl leading-snug">
+  2XL with custom spacing
+</p>
 ```
 
 #### OKLCH Color Space Benefits
