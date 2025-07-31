@@ -23,14 +23,14 @@ The application uses a comprehensive color system based on **OKLCH color space**
 
 #### Dark Theme
 
-| Purpose              | Variable                 | OKLCH Value        | Hex Equivalent | Usage                      |
-| -------------------- | ------------------------ | ------------------ | -------------- | -------------------------- |
-| Background           | `--background`           | `oklch(0.145 0 0)` | `#252525`      | Main page background       |
-| Foreground           | `--foreground`           | `oklch(0.985 0 0)` | `#fbfbfb`      | Primary text color         |
-| Primary              | `--primary`              | `oklch(0.922 0 0)` | `#ebebeb`      | Primary actions, buttons   |
-| Primary Foreground   | `--primary-foreground`   | `oklch(0.205 0 0)` | `#343434`      | Text on primary elements   |
-| Secondary            | `--secondary`            | `oklch(0.269 0 0)` | `#444444`      | Secondary backgrounds      |
-| Secondary Foreground | `--secondary-foreground` | `oklch(0.985 0 0)` | `#fbfbfb`      | Text on secondary elements |
+| Purpose      | Variable                 | OKLCH Value        | Hex Equivalent | Usage                      |
+| ------------ | ------------------------ | ------------------ | -------------- | -------------------------- |
+| Background   | `--background`           | `oklch(0.145 0 0)` | `#252525`      | Main page background       |
+| Foreground   | `--foreground`           | `oklch(0.985 0 0)` | `#fbfbfb`      | Primary text color         |
+| Primary      | `--primary`              | `oklch(0.922 0 0)` | `#ebebeb`      | Primary actions, buttons   |
+| Primary FG   | `--primary-foreground`   | `oklch(0.205 0 0)` | `#343434`      | Text on primary elements   |
+| Secondary    | `--secondary`            | `oklch(0.269 0 0)` | `#444444`      | Secondary backgrounds      |
+| Secondary FG | `--secondary-foreground` | `oklch(0.985 0 0)` | `#fbfbfb`      | Text on secondary elements |
 
 ### 2. UI Component Colors
 
@@ -73,9 +73,9 @@ The application uses a comprehensive color system based on **OKLCH color space**
 
 ### 5. Status Colors
 
-| Status      | Variable        | Light Value                 | Dark Value                  | Purpose                          |
-| ----------- | --------------- | --------------------------- | --------------------------- | -------------------------------- |
-| Destructive | `--destructive` | `oklch(0.577 0.245 27.325)` | `oklch(0.704 0.191 22.216)` | Errors, warnings, delete actions |
+| Status      | Variable        | Light Value                 | Dark Value                  | Purpose                        |
+| ----------- | --------------- | --------------------------- | --------------------------- | ------------------------------ |
+| Destructive | `--destructive` | `oklch(0.577 0.245 27.325)` | `oklch(0.704 0.191 22.216)` | Errs, warnings, delete actions |
 
 ## Accessibility Guidelines
 
