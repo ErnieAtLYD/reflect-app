@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Parkinsans, Inter, JetBrains_Mono } from 'next/font/google'
+import './globals.css'
 
 const parkinsans = Parkinsans({
   subsets: ['latin'],
@@ -9,13 +10,13 @@ const parkinsans = Parkinsans({
 
 const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-geist-sans',
+  variable: '--font-sans',
   display: 'swap',
 })
 
 const jetBrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-geist-mono',
+  variable: '--font-mono',
   display: 'swap',
 })
 
@@ -32,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${jetBrainsMono.variable} ${parkinsans.variable} font-body antialiased`}
+        className={`${inter.variable} ${jetBrainsMono.variable} ${parkinsans.variable} font-sans antialiased`}
       >
         {children}
       </body>
