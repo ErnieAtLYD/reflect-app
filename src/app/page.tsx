@@ -3,9 +3,8 @@ export default function Home() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
         <h1
-          className="mb-4 text-4xl font-bold"
+          className="font-heading mb-4 text-4xl font-bold"
           data-testid="main-heading"
-          style={{ fontFamily: 'var(--font-parkinsans)' }}
         >
           Reflect App
         </h1>
