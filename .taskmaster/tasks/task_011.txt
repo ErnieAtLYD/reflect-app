@@ -1,0 +1,11 @@
+# Task ID: 11
+# Title: Privacy-First Implementation and Messaging
+# Status: pending
+# Dependencies: 3, 5, 7
+# Priority: high
+# Description: Ensure the application follows privacy-first principles and clearly communicates this to users.
+# Details:
+Create a privacy information component that explains the app's privacy approach. Implement a privacy banner or tooltip that is always visible or easily accessible. Ensure no user data is sent to analytics without explicit consent. Use privacy-focused analytics like Plausible (if analytics are needed) instead of Google Analytics. Implement secure communication with the backend using HTTPS and proper headers. Add a detailed privacy policy page explaining data handling practices. Ensure compliance with GDPR and CCPA principles even though no PII is collected. Add visual cues (like a lock icon) to reinforce the privacy-first messaging.
+
+# Test Strategy:
+Verify that no user data is stored server-side by inspecting network requests. Check that privacy messaging is clearly visible throughout the app. Test that the privacy policy page is accessible and readable. Verify that no third-party tracking scripts are loaded without consent. Check that all communication with the backend is encrypted. Verify compliance with privacy regulations using a checklist.

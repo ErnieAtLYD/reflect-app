@@ -1,0 +1,11 @@
+# Task ID: 10
+# Title: Export Functionality
+# Status: pending
+# Dependencies: 6, 8
+# Priority: low
+# Description: Implement functionality to export reflections as Markdown or JSON.
+# Details:
+Create utility functions to format reflections as Markdown and JSON. Implement export buttons in the reflection display component. Use the FileSaver.js library (v2.0.5) for reliable file downloads across browsers. Add options to export current reflection or all saved reflections (if history is enabled). Include metadata like export date and app version in the exported files. Format Markdown with proper headings, lists, and emphasis for readability. Ensure JSON export includes a well-structured format that could be imported by other applications. Add a success notification after successful export.
+
+# Test Strategy:
+Test exporting in both Markdown and JSON formats. Verify the structure and content of exported files. Test with various reflection contents including special characters. Check that the export works across different browsers. Verify that both single and multiple reflection exports work correctly. Test the success notification appears after export.

@@ -1,0 +1,11 @@
+# Task ID: 3
+# Title: Landing Page Implementation
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Create a clean, inviting landing page with privacy messaging and a clear call-to-action.
+# Details:
+Design a minimalist landing page with a hero section explaining the app's purpose. Include a prominent 'Paste your journal entry here' text area. Display the privacy message 'Your thoughts stay yours. No accounts, no storage.' prominently. Add a dismissible tooltip explaining how the app works for first-time users, using localStorage to track if the user has seen it. Implement responsive layout using Flexbox/Grid. Use subtle animations with framer-motion (v10.16.4) for a polished feel. Include meta tags for SEO and social sharing. Add Open Graph tags for better social media sharing appearance.
+
+# Test Strategy:
+Test the landing page across different devices and browsers. Verify that the tooltip appears for first-time users and can be dismissed. Check that the privacy message is clearly visible. Test the responsive layout at various breakpoints. Verify that meta tags are correctly implemented using tools like the Facebook Sharing Debugger.
