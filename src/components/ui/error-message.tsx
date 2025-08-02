@@ -10,7 +10,8 @@ const errorMessageVariants = cva(
       variant: {
         default: 'text-destructive',
         subtle: 'text-destructive/80',
-        filled: 'bg-destructive text-white border-destructive',
+        filled:
+          'bg-destructive text-white border-destructive dark:bg-destructive/90',
       },
       size: {
         sm: 'p-2 text-xs',

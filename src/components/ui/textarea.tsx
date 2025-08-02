@@ -14,7 +14,7 @@ const textareaVariants = cva(
       },
       variant: {
         default: 'border-input bg-transparent',
-        filled: 'bg-muted border-muted',
+        filled: 'bg-muted border-muted dark:bg-muted/50',
         ghost: 'border-transparent bg-transparent hover:bg-accent',
       },
     },
