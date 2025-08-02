@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { testAccessibility } from '@/test/accessibility'
 
 describe('LoadingSpinner', () => {
   it('renders with default props', () => {
@@ -82,5 +83,32 @@ describe('LoadingSpinner', () => {
 
     const spinner = screen.getByTestId('loading-spinner')
     expect(spinner).toHaveClass('animate-spin')
+  })
+
+  // Accessibility tests
+  it('passes accessibility tests', async () => {
+    await testAccessibility(<LoadingSpinner />)
+  })
+
+  it('passes accessibility tests with custom props', async () => {
+    await testAccessibility(
+      <LoadingSpinner
+        size="lg"
+        variant="secondary"
+        aria-label="Processing your request"
+      />
+    )
+  })
+
+  it('is properly announced to screen readers', () => {
+    render(<LoadingSpinner aria-label="Loading data" />)
+
+    const spinner = screen.getByTestId('loading-spinner')
+    expect(spinner).toHaveAttribute('role', 'status')
+    expect(spinner).toHaveAttribute('aria-label', 'Loading data')
+
+    // Check for screen reader only text
+    const srText = screen.getByText('Loading data')
+    expect(srText).toHaveClass('sr-only')
   })
 })

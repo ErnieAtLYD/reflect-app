@@ -55,7 +55,7 @@
             "description": "Ensure all components are keyboard navigable and screen reader friendly by implementing proper ARIA attributes and focus management.",
             "dependencies": ["2.3"],
             "details": "Add ARIA roles, labels, and states to interactive components. Use semantic HTML elements where possible. Test keyboard navigation and focus order. Leverage @headlessui/react for accessible dialogs and toggles.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run automated accessibility tests (axe-core). Manually test with screen readers (NVDA, VoiceOver) and keyboard navigation. Validate ARIA attributes in browser dev tools."
           },
           {
