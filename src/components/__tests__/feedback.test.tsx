@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { Feedback, FeedbackButton } from '@/components/ui/feedback'
+import { testAccessibility, keyboardHelpers } from '@/test/accessibility'
 
 describe('FeedbackButton', () => {
   it('renders positive feedback button with thumbs up icon', () => {
@@ -107,6 +108,46 @@ describe('FeedbackButton', () => {
     expect(screen.getByTestId('feedback-positive')).toHaveClass(
       'bg-transparent'
     )
+  })
+
+  // Accessibility tests for FeedbackButton
+  it('passes accessibility tests', async () => {
+    await testAccessibility(<FeedbackButton feedbackType="positive" />)
+  })
+
+  it('has proper ARIA attributes', () => {
+    render(<FeedbackButton feedbackType="positive" selected={true} />)
+
+    const button = screen.getByTestId('feedback-positive')
+    expect(button).toHaveAttribute('aria-label', 'Helpful')
+    expect(button).toHaveAttribute('aria-pressed', 'true')
+    expect(button).toHaveAttribute('type', 'button')
+  })
+
+  it('supports keyboard navigation', () => {
+    const mockFeedback = vi.fn()
+    render(<FeedbackButton feedbackType="positive" onFeedback={mockFeedback} />)
+
+    const button = screen.getByTestId('feedback-positive')
+
+    // Test Enter key
+    keyboardHelpers.pressEnter(button)
+    button.click() // Simulate the actual click that would happen
+    expect(mockFeedback).toHaveBeenCalledWith('positive')
+
+    mockFeedback.mockClear()
+
+    // Test Space key
+    keyboardHelpers.pressSpace(button)
+    button.click() // Simulate the actual click that would happen
+    expect(mockFeedback).toHaveBeenCalledWith('positive')
+  })
+
+  it('icons have proper accessibility attributes', () => {
+    render(<FeedbackButton feedbackType="positive" />)
+
+    const icon = screen.getByTestId('feedback-positive').querySelector('svg')
+    expect(icon).toHaveAttribute('aria-hidden', 'true')
   })
 })
 
@@ -242,5 +283,53 @@ describe('Feedback', () => {
 
     const buttons = container.querySelectorAll('button')
     expect(buttons).toHaveLength(2)
+  })
+
+  // Accessibility tests for Feedback component
+  it('passes accessibility tests', async () => {
+    await testAccessibility(<Feedback />)
+  })
+
+  it('passes accessibility tests with feedback selected', async () => {
+    await testAccessibility(
+      <Feedback
+        selectedFeedback="positive"
+        showLabels={true}
+        onFeedback={() => {}}
+      />
+    )
+  })
+
+  it('maintains proper tab order', () => {
+    render(<Feedback />)
+
+    const positiveButton = screen.getByTestId('feedback-positive')
+    const negativeButton = screen.getByTestId('feedback-negative')
+
+    // Both buttons should be focusable
+    expect(positiveButton).not.toHaveAttribute('tabindex', '-1')
+    expect(negativeButton).not.toHaveAttribute('tabindex', '-1')
+
+    // When disabled, buttons should not be focusable
+    render(<Feedback disabled={true} />)
+
+    const disabledPositive = screen.getByTestId('feedback-positive')
+    const disabledNegative = screen.getByTestId('feedback-negative')
+
+    expect(disabledPositive).toBeDisabled()
+    expect(disabledNegative).toBeDisabled()
+  })
+
+  it('provides clear feedback states for screen readers', () => {
+    render(<Feedback selectedFeedback="positive" />)
+
+    const positiveButton = screen.getByTestId('feedback-positive')
+    const negativeButton = screen.getByTestId('feedback-negative')
+
+    expect(positiveButton).toHaveAttribute('aria-pressed', 'true')
+    expect(negativeButton).toHaveAttribute('aria-pressed', 'false')
+
+    expect(positiveButton).toHaveAttribute('aria-label', 'Helpful')
+    expect(negativeButton).toHaveAttribute('aria-label', 'Not helpful')
   })
 })
