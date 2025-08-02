@@ -44,7 +44,7 @@ This is a **Next.js 15** application with App Router using **TypeScript** and **
 src/
 ├── app/                # Next.js App Router (pages, layouts, globals)
 ├── components/         # React components
-│   ├── ui/            # shadcn/ui components (Button, Card, Input, Label)
+│   ├── ui/            # UI components (Button, Card, Input, Label, Textarea, LoadingSpinner, ErrorMessage, Feedback)
 │   └── __tests__/     # Component unit tests
 ├── lib/               # Utility functions (cn helper for className merging)
 └── test/              # Test setup files
@@ -58,10 +58,12 @@ e2e/                   # Playwright end-to-end tests
 
 ### Component Patterns
 
-- UI components follow shadcn/ui patterns with Radix UI primitives
+- UI components follow shadcn/ui patterns with class-variance-authority for variants
 - Client components use `'use client'` directive
 - Components include `data-testid` attributes for testing
 - Styling uses Tailwind utility classes with the `cn()` helper for conditional classes
+- All components support size and variant props for consistency
+- Accessibility built-in with proper ARIA attributes and semantic HTML
 
 ### Testing Strategy
 
@@ -76,6 +78,46 @@ e2e/                   # Playwright end-to-end tests
 - ESLint extends Next.js configuration
 - Prettier includes Tailwind plugin for class sorting
 - TypeScript strict mode enabled for type safety
+
+### UI Components Library
+
+#### Built-in Components
+
+- **Button** - Multi-variant button with Radix primitives
+- **Card** - Container component for content grouping
+- **Input** - Form input with validation states
+- **Label** - Form labels with proper associations
+- **Textarea** - Multi-line text input with auto-resize and variants
+
+#### Custom Components
+
+- **LoadingSpinner** - Animated loading indicator with size/color variants
+- **ErrorMessage** - Accessible error display with icons and variants
+- **Feedback** - Thumbs up/down rating component for user feedback
+
+#### Component Usage Examples
+
+```tsx
+// Textarea
+<Textarea size="lg" variant="filled" placeholder="Enter your text..." />
+<Textarea error={true} aria-describedby="error-message" />
+
+// LoadingSpinner
+<LoadingSpinner size="lg" variant="primary" aria-label="Loading content" />
+<LoadingSpinner size="sm" variant="muted" />
+
+// ErrorMessage
+<ErrorMessage message="Something went wrong" variant="filled" />
+<ErrorMessage title="Validation Error" size="lg" showIcon={false} />
+
+// Feedback
+<Feedback
+  onFeedback={(type) => console.log(type)}
+  selectedFeedback="positive"
+  showLabels={true}
+/>
+<FeedbackButton feedbackType="positive" selected={true} />
+```
 
 ### Adding New UI Components
 
