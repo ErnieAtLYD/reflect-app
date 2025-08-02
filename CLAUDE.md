@@ -170,6 +170,241 @@ it('passes accessibility tests', async () => {
 })
 ```
 
+### Dark/Light Mode Implementation
+
+This application features a comprehensive dark/light mode system using Tailwind CSS v4's native dark mode support and next-themes for state management.
+
+#### Theme System Overview
+
+The application supports three theme modes:
+
+- **Light Mode** - Default light color scheme
+- **Dark Mode** - Dark color scheme optimized for low-light viewing
+- **System Mode** - Automatically follows the user's operating system preference
+
+#### Theme Components
+
+##### ThemeProvider
+
+Wraps the entire application to provide theme context:
+
+```tsx
+import { ThemeProvider } from '@/components/theme-provider'
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+##### ThemeToggle Components
+
+Two theme toggle components are available:
+
+**Basic ThemeToggle** - Simple light/dark toggle:
+
+```tsx
+import { ThemeToggle } from '@/components/ui/theme-toggle'
+
+;<ThemeToggle />
+```
+
+**ThemeToggleAdvanced** - Cycles through all three modes:
+
+```tsx
+import { ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
+
+;<ThemeToggleAdvanced />
+```
+
+#### Creating Theme-Aware Components
+
+Use Tailwind's `dark:` prefix for dark mode styles:
+
+```tsx
+// Basic dark mode styling
+<div className="bg-white dark:bg-gray-900 text-black dark:text-white">
+  Content adapts to theme
+</div>
+
+// Using CSS variables for consistent theming
+<div className="bg-background text-foreground border border-border">
+  Automatically theme-aware using CSS variables
+</div>
+
+// Conditional icons based on theme
+const { theme } = useTheme()
+
+return (
+  <div>
+    {theme === 'dark' ? (
+      <MoonIcon className="w-4 h-4" />
+    ) : (
+      <SunIcon className="w-4 h-4" />
+    )}
+  </div>
+)
+```
+
+#### CSS Variables for Theming
+
+The application uses CSS variables defined in `globals.css` for consistent theming:
+
+```css
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --border: 214.3 31.8% 91.4%;
+  /* ... more variables */
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  /* ... more variables */
+}
+```
+
+#### Theme Hook Usage
+
+Use the `useTheme` hook for programmatic theme control:
+
+```tsx
+import { useTheme } from 'next-themes'
+
+function MyComponent() {
+  const { theme, setTheme, themes } = useTheme()
+
+  return (
+    <div>
+      <p>Current theme: {theme}</p>
+      <button onClick={() => setTheme('light')}>Light</button>
+      <button onClick={() => setTheme('dark')}>Dark</button>
+      <button onClick={() => setTheme('system')}>System</button>
+    </div>
+  )
+}
+```
+
+#### Theme-Aware Component Patterns
+
+**Conditional Rendering Based on Theme:**
+
+```tsx
+const { theme } = useTheme()
+
+return (
+  <div className="p-4">
+    {theme === 'dark' ? (
+      <div className="rounded-lg bg-gray-800 p-4 text-white">
+        Dark mode content
+      </div>
+    ) : (
+      <div className="rounded-lg bg-white p-4 text-gray-900 shadow">
+        Light mode content
+      </div>
+    )}
+  </div>
+)
+```
+
+**Using Tailwind Dark Mode Classes:**
+
+```tsx
+return (
+  <div className="border border-gray-200 bg-white text-gray-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:shadow-none">
+    <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+      Title
+    </h2>
+    <p className="text-gray-600 dark:text-gray-300">
+      Description text that adapts to theme
+    </p>
+  </div>
+)
+```
+
+**Theme-Aware Icons:**
+
+```tsx
+import { Sun, Moon } from 'lucide-react'
+
+function ThemeIcon() {
+  return (
+    <>
+      <Sun className="h-4 w-4 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+      <Moon className="absolute h-4 w-4 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+    </>
+  )
+}
+```
+
+#### Testing Dark/Light Mode
+
+Test components in both themes using the theme provider:
+
+```tsx
+import { render, screen } from '@testing-library/react'
+import { ThemeProvider } from '@/components/theme-provider'
+
+function renderWithTheme(component: React.ReactElement, theme = 'light') {
+  return render(<ThemeProvider defaultTheme={theme}>{component}</ThemeProvider>)
+}
+
+// Test in light mode
+renderWithTheme(<MyComponent />, 'light')
+
+// Test in dark mode
+renderWithTheme(<MyComponent />, 'dark')
+
+// Test theme cycling
+it('cycles through themes when clicked', async () => {
+  const user = userEvent.setup()
+  renderWithTheme(<ThemeToggleAdvanced />, 'light')
+
+  const button = screen.getByTestId('theme-toggle-advanced')
+
+  // Should start with Light theme
+  expect(screen.getByText('Light')).toBeInTheDocument()
+
+  // Click to cycle to Dark theme
+  await user.click(button)
+  await waitFor(() => {
+    expect(screen.getByText('Dark')).toBeInTheDocument()
+  })
+})
+```
+
+#### Accessibility Considerations
+
+- All theme toggle components include proper ARIA labels
+- Color contrast ratios are maintained in both light and dark modes (minimum 4.5:1)
+- Theme preferences are persisted using localStorage
+- System theme preference is respected by default
+- Focus indicators are visible in both themes
+
+#### Best Practices
+
+1. **Always test components in both light and dark modes**
+2. **Use CSS variables for consistent theming across components**
+3. **Ensure sufficient color contrast in both themes**
+4. **Provide theme toggle accessibility with proper ARIA labels**
+5. **Use the `dark:` prefix for dark-specific styles**
+6. **Consider using `theme-system` for respecting user preferences**
+7. **Test theme switching functionality with automated tests**
+
 ### Adding New UI Components
 
 Use shadcn/ui CLI: `pnpm dlx shadcn@latest add [component-name]`
