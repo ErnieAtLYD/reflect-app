@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import { ErrorMessage } from '@/components/ui/error-message'
+import { testAccessibility } from '@/test/accessibility'
 
 describe('ErrorMessage', () => {
   it('renders nothing when no message or children provided', () => {
@@ -145,5 +146,45 @@ describe('ErrorMessage', () => {
     // Content should be flexible
     const contentContainer = screen.getByTestId('error-title').parentElement
     expect(contentContainer).toHaveClass('flex-1', 'min-w-0')
+  })
+
+  // Accessibility tests
+  it('passes accessibility tests', async () => {
+    await testAccessibility(<ErrorMessage message="Test error message" />)
+  })
+
+  it('passes accessibility tests with all features', async () => {
+    await testAccessibility(
+      <ErrorMessage
+        title="Validation Error"
+        message="Please check your input and try again"
+        variant="filled"
+        size="lg"
+        showIcon={true}
+      />
+    )
+  })
+
+  it('announces errors to screen readers properly', () => {
+    render(<ErrorMessage message="Critical error occurred" announce={true} />)
+
+    const errorMessage = screen.getByTestId('error-message')
+    expect(errorMessage).toHaveAttribute('role', 'alert')
+    expect(errorMessage).toHaveAttribute('aria-live', 'polite')
+  })
+
+  it('does not announce when announce is false', () => {
+    render(<ErrorMessage message="Silent error" announce={false} />)
+
+    const errorMessage = screen.getByTestId('error-message')
+    expect(errorMessage).not.toHaveAttribute('role')
+    expect(errorMessage).not.toHaveAttribute('aria-live')
+  })
+
+  it('icon has proper accessibility attributes', () => {
+    render(<ErrorMessage message="Error with icon" />)
+
+    const icon = screen.getByTestId('error-message').querySelector('svg')
+    expect(icon).toHaveAttribute('aria-hidden', 'true')
   })
 })

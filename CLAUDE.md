@@ -94,6 +94,7 @@ e2e/                   # Playwright end-to-end tests
 - **LoadingSpinner** - Animated loading indicator with size/color variants
 - **ErrorMessage** - Accessible error display with icons and variants
 - **Feedback** - Thumbs up/down rating component for user feedback
+- **Dialog** - Accessible modal dialog using @headlessui/react
 
 #### Component Usage Examples
 
@@ -117,6 +118,56 @@ e2e/                   # Playwright end-to-end tests
   showLabels={true}
 />
 <FeedbackButton feedbackType="positive" selected={true} />
+
+// Dialog
+<Dialog
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  title="Confirmation"
+  description="Are you sure you want to continue?"
+  size="md"
+>
+  <div className="flex gap-4">
+    <button onClick={handleConfirm}>Confirm</button>
+    <button onClick={() => setIsOpen(false)}>Cancel</button>
+  </div>
+</Dialog>
+```
+
+### Accessibility Features
+
+#### Built-in Accessibility Support
+
+- **WCAG 2.1 AA compliance** - All components meet accessibility standards
+- **Screen reader support** - Proper ARIA attributes and semantic HTML
+- **Keyboard navigation** - Full keyboard accessibility for all interactive elements
+- **Focus management** - Proper focus trapping and restoration in modals
+- **High contrast** - Color combinations meet minimum contrast ratios
+- **Reduced motion** - Respects user preferences for reduced motion
+
+#### Accessibility Testing
+
+- **Automated testing** - axe-core integration for accessibility violations
+- **ESLint rules** - jsx-a11y plugin enforces accessibility best practices
+- **Manual testing** - Guidelines for screen reader and keyboard testing
+
+#### Using @headlessui/react
+
+Components like Dialog use HeadlessUI for enhanced accessibility:
+
+- Automatic focus management
+- Keyboard event handling (Escape, Tab trapping)
+- ARIA attribute management
+- Screen reader announcements
+
+#### Accessibility Testing Example
+
+```tsx
+import { testAccessibility } from '@/test/accessibility'
+
+it('passes accessibility tests', async () => {
+  await testAccessibility(<YourComponent />)
+})
 ```
 
 ### Adding New UI Components
