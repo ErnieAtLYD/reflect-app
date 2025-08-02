@@ -217,7 +217,6 @@ Two theme toggle components are available:
 
 ```tsx
 import { ThemeToggle } from '@/components/ui/theme-toggle'
-
 ;<ThemeToggle />
 ```
 
@@ -225,7 +224,6 @@ import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 ```tsx
 import { ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
-
 ;<ThemeToggleAdvanced />
 ```
 
@@ -404,6 +402,191 @@ it('cycles through themes when clicked', async () => {
 5. **Use the `dark:` prefix for dark-specific styles**
 6. **Consider using `theme-system` for respecting user preferences**
 7. **Test theme switching functionality with automated tests**
+
+### Responsive Design System
+
+This application features a comprehensive responsive design system with custom breakpoints optimized for the Reflect app's specific requirements.
+
+#### Custom Breakpoints
+
+The application uses the following custom breakpoints defined in `globals.css`:
+
+- **Mobile** - Default (< 480px) - Base mobile experience
+- **XS** - 480px+ (30rem) - Small mobile devices
+- **SM** - 640px+ (40rem) - Mobile devices
+- **MD** - 768px+ (48rem) - Tablet devices
+- **LG** - 1024px+ (64rem) - Desktop devices
+- **XL** - 1280px+ (80rem) - Large desktop
+- **2XL** - 1536px+ (96rem) - Extra large screens
+
+#### Breakpoint Configuration
+
+**CSS Variables in `globals.css`:**
+
+```css
+@theme {
+  --breakpoint-xs: 30rem; /* 480px */
+  --breakpoint-sm: 40rem; /* 640px */
+  --breakpoint-md: 48rem; /* 768px */
+  --breakpoint-lg: 64rem; /* 1024px */
+  --breakpoint-xl: 80rem; /* 1280px */
+  --breakpoint-2xl: 96rem; /* 1536px */
+}
+```
+
+**Tailwind Configuration:**
+
+```js
+// tailwind.config.ts
+theme: {
+  screens: {
+    xs: 'var(--breakpoint-xs)',
+    sm: 'var(--breakpoint-sm)',
+    md: 'var(--breakpoint-md)',
+    lg: 'var(--breakpoint-lg)',
+    xl: 'var(--breakpoint-xl)',
+    '2xl': 'var(--breakpoint-2xl)',
+  }
+}
+```
+
+#### Container System
+
+The application includes a responsive container system with predefined max-widths:
+
+- **XS containers** - 20rem (320px)
+- **SM containers** - 24rem (384px)
+- **MD containers** - 28rem (448px)
+- **LG containers** - 32rem (512px)
+- **XL containers** - 36rem (576px)
+- **2XL containers** - 42rem (672px)
+
+**Usage:**
+
+```tsx
+<div className="container mx-auto">
+  Content automatically sized for each breakpoint
+</div>
+```
+
+#### Responsive Design Patterns
+
+**Mobile-First Approach:**
+
+```tsx
+// Base styles apply to mobile, then enhanced at larger breakpoints
+<div className="xs:p-6 p-4 sm:p-8">
+  <h1 className="xs:text-3xl text-2xl lg:text-4xl">Responsive Heading</h1>
+</div>
+```
+
+**Grid Layouts:**
+
+```tsx
+// Responsive grid that adapts across all breakpoints
+<div className="xs:grid-cols-2 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+  <div>Item 1</div>
+  <div>Item 2</div>
+  // ...
+</div>
+```
+
+**Flexible Spacing:**
+
+```tsx
+// Spacing that adapts to screen size
+<div className="xs:space-y-6 space-y-4 sm:space-y-8">
+  <section>Content</section>
+  <section>Content</section>
+</div>
+```
+
+**Typography Scaling:**
+
+```tsx
+// Text that scales appropriately
+<p className="xs:text-base text-sm lg:text-lg">Responsive paragraph text</p>
+```
+
+#### Layout Examples
+
+**Header Layout:**
+
+```tsx
+// Stacks on mobile, horizontal on larger screens
+<header className="xs:flex-row xs:items-center xs:justify-between flex flex-col gap-4">
+  <div>Brand/Logo</div>
+  <nav>Navigation</nav>
+</header>
+```
+
+**Two-Column Layout:**
+
+```tsx
+// Single column on mobile/tablet, two columns on desktop
+<div className="grid gap-8 lg:grid-cols-2">
+  <div>Main content</div>
+  <div>Sidebar content</div>
+</div>
+```
+
+#### Testing Responsive Behavior
+
+**E2E Testing with Playwright:**
+
+```ts
+// Test at all breakpoints
+const breakpoints = {
+  mobile: 375,
+  xs: 480,
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+  '2xl': 1536,
+}
+
+for (const [name, width] of Object.entries(breakpoints)) {
+  await page.setViewportSize({ width, height: 800 })
+  // Test responsive behavior
+}
+```
+
+**Manual Testing:**
+
+- Use browser dev tools to test all breakpoints
+- Verify no horizontal overflow at any screen size
+- Check touch interactions on mobile devices
+- Test with real devices when possible
+
+#### Responsive Component Guidelines
+
+1. **Start with mobile-first design** - Base styles for smallest screens
+2. **Use progressive enhancement** - Add complexity at larger breakpoints
+3. **Test at all breakpoints** - Ensure smooth transitions between sizes
+4. **Consider touch targets** - Ensure interactive elements are appropriately sized
+5. **Optimize for performance** - Use responsive images and efficient layouts
+6. **Maintain accessibility** - Ensure usability across all device types
+
+#### Debugging Responsive Issues
+
+**Breakpoint Indicators:**
+The demo page includes visual indicators showing the current active breakpoint:
+
+```tsx
+<span className="bg-primary xs:block hidden rounded px-2 py-1 text-white sm:hidden">
+  XS (480px+)
+</span>
+```
+
+**Browser Dev Tools:**
+
+- Use responsive design mode
+- Test common device sizes
+- Check for overflow issues
+- Verify layout stability
+
+This responsive system ensures optimal user experience across all device types while maintaining consistent design patterns throughout the application.
 
 ### Adding New UI Components
 

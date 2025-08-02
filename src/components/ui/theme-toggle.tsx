@@ -39,7 +39,7 @@ export function ThemeToggle() {
 }
 
 export function ThemeToggleAdvanced() {
-  const { theme, setTheme, themes } = useTheme()
+  const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {

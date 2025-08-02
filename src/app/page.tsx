@@ -18,22 +18,24 @@ import { ThemeToggle, ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
 
 export default function Home() {
   return (
-    <main className="bg-background min-h-screen p-8">
-      <div className="mx-auto max-w-4xl space-y-8">
-        <header className="flex items-center justify-between">
+    <main className="bg-background xs:p-6 min-h-screen p-4 sm:p-8">
+      <div className="xs:space-y-8 container mx-auto space-y-6">
+        <header className="xs:flex-row xs:items-center xs:justify-between flex flex-col gap-4">
           <div>
-            <h1 className="text-foreground text-3xl font-bold">Reflect App</h1>
-            <p className="text-muted-foreground">
-              Dark mode implementation demo
+            <h1 className="text-foreground xs:text-3xl text-2xl font-bold">
+              Reflect App
+            </h1>
+            <p className="text-muted-foreground xs:text-base text-sm">
+              Responsive design & dark mode demo
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="xs:gap-4 flex items-center gap-2">
             <ThemeToggle />
             <ThemeToggleAdvanced />
           </div>
         </header>
 
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="xs:gap-6 grid gap-4 sm:gap-8 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle>Form Components</CardTitle>
@@ -100,13 +102,84 @@ export default function Home() {
 
         <Card>
           <CardHeader>
+            <CardTitle>Responsive Breakpoint System</CardTitle>
+            <CardDescription>
+              Custom breakpoints demonstrating adaptive layout behavior
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div
+                className="xs:grid-cols-2 xs:gap-3 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+                data-testid="breakpoint-grid"
+              >
+                <div className="bg-primary text-primary-foreground xs:text-sm rounded p-2 text-center text-xs">
+                  <div className="font-medium">XS</div>
+                  <div className="text-xs opacity-80">480px+</div>
+                </div>
+                <div className="bg-secondary text-secondary-foreground xs:text-sm rounded p-2 text-center text-xs">
+                  <div className="font-medium">SM</div>
+                  <div className="text-xs opacity-80">640px+</div>
+                </div>
+                <div className="bg-accent text-accent-foreground xs:text-sm rounded p-2 text-center text-xs">
+                  <div className="font-medium">MD</div>
+                  <div className="text-xs opacity-80">768px+</div>
+                </div>
+                <div className="bg-muted text-muted-foreground xs:text-sm rounded p-2 text-center text-xs">
+                  <div className="font-medium">LG</div>
+                  <div className="text-xs opacity-80">1024px+</div>
+                </div>
+                <div className="bg-primary/20 text-foreground xs:text-sm rounded p-2 text-center text-xs">
+                  <div className="font-medium">XL</div>
+                  <div className="text-xs opacity-80">1280px+</div>
+                </div>
+                <div className="bg-secondary/20 text-foreground xs:text-sm rounded p-2 text-center text-xs">
+                  <div className="font-medium">2XL</div>
+                  <div className="text-xs opacity-80">1536px+</div>
+                </div>
+              </div>
+
+              <div className="border-border rounded-lg border p-4">
+                <h4 className="mb-2 text-sm font-medium">
+                  Current Breakpoint Indicators:
+                </h4>
+                <div className="flex flex-wrap gap-1 text-xs">
+                  <span className="bg-destructive xs:hidden block rounded px-2 py-1 text-white">
+                    Mobile (&lt; 480px)
+                  </span>
+                  <span className="bg-chart-1 xs:block hidden rounded px-2 py-1 text-white sm:hidden">
+                    XS (480px+)
+                  </span>
+                  <span className="bg-chart-2 hidden rounded px-2 py-1 text-white sm:block md:hidden">
+                    SM (640px+)
+                  </span>
+                  <span className="bg-chart-3 hidden rounded px-2 py-1 text-white md:block lg:hidden">
+                    MD (768px+)
+                  </span>
+                  <span className="bg-chart-4 hidden rounded px-2 py-1 text-white lg:block xl:hidden">
+                    LG (1024px+)
+                  </span>
+                  <span className="bg-chart-5 hidden rounded px-2 py-1 text-white xl:block 2xl:hidden">
+                    XL (1280px+)
+                  </span>
+                  <span className="bg-primary hidden rounded px-2 py-1 text-white 2xl:block">
+                    2XL (1536px+)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle>Color Palette Test</CardTitle>
             <CardDescription>
               Semantic color tokens that adapt to theme changes
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-2">
                 <h3 className="font-medium">Background Colors</h3>
                 <div className="space-y-1">

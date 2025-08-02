@@ -64,7 +64,7 @@
             "description": "Enable dark and light mode theming using Tailwind's dark mode feature and ensure all components adapt visually and remain accessible in both modes.",
             "dependencies": ["2.1", "2.3"],
             "details": "Configure Tailwind's dark mode in the config file. Apply conditional classes to components for color and background changes. Document usage and provide examples for toggling modes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test all components in both dark and light modes. Verify color contrast and accessibility. Check mode switching on supported devices and browsers."
           },
           {

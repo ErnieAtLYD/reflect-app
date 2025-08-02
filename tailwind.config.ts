@@ -6,6 +6,26 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    screens: {
+      xs: 'var(--breakpoint-xs)',
+      sm: 'var(--breakpoint-sm)',
+      md: 'var(--breakpoint-md)',
+      lg: 'var(--breakpoint-lg)',
+      xl: 'var(--breakpoint-xl)',
+      '2xl': 'var(--breakpoint-2xl)',
+    },
+    container: {
+      center: true,
+      padding: '1rem',
+      screens: {
+        xs: 'var(--container-xs)',
+        sm: 'var(--container-sm)',
+        md: 'var(--container-md)',
+        lg: 'var(--container-lg)',
+        xl: 'var(--container-xl)',
+        '2xl': 'var(--container-2xl)',
+      },
+    },
     extend: {
       fontFamily: {
         sans: ['var(--font-inter)'],
@@ -94,14 +114,6 @@ export default {
         '7xl': 'var(--font-size-7xl)',
         '8xl': 'var(--font-size-8xl)',
         '9xl': 'var(--font-size-9xl)',
-      },
-      breakpoints: {
-        xs: 'var(--breakpoint-xs)',
-        sm: 'var(--breakpoint-sm)',
-        md: 'var(--breakpoint-md)',
-        lg: 'var(--breakpoint-lg)',
-        xl: 'var(--breakpoint-xl)',
-        '2xl': 'var(--breakpoint-2xl)',
       },
       lineHeight: {
         none: 'var(--line-height-none)',
