@@ -1,10 +1,22 @@
 import { render } from '@testing-library/react'
 import { axe } from 'jest-axe'
+import type * as React from 'react'
 
+// Declare module augmentation for custom matcher
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Vi {
+    interface JestAssertion<T = unknown> {
+      toHaveNoViolations(): T
+    }
+  }
+}
+
+// Define minimal types for axe results
 interface AxeViolation {
   id: string
   description: string
-  nodes: Array<Record<string, unknown>>
+  nodes: Array<{ target: string[]; html: string }>
 }
 
 interface AxeResults {
@@ -42,6 +54,11 @@ const toHaveNoViolations = (received: AxeResults) => {
 // Extend Vitest expect with accessibility matcher
 expect.extend({ toHaveNoViolations })
 
+interface AccessibilityTestOptions {
+  rules?: Record<string, { enabled: boolean }>
+  tags?: string[]
+}
+
 /**
  * Test a component for accessibility violations using axe-core
  * @param ui - The React component to test
@@ -49,27 +66,22 @@ expect.extend({ toHaveNoViolations })
  */
 export const testAccessibility = async (
   ui: React.ReactElement,
-  options?: {
-    rules?: Record<string, { enabled: boolean }>
-    tags?: string[]
-  }
-) => {
+  options?: AccessibilityTestOptions
+): Promise<AxeResults> => {
   const { container } = render(ui)
   const results = await axe(container, {
     rules: options?.rules,
     ...(options?.tags && { runOnly: { type: 'tag', values: options.tags } }),
   })
 
-  ;(
-    expect(results) as typeof expect & { toHaveNoViolations: () => void }
-  ).toHaveNoViolations()
+  expect(results).toHaveNoViolations()
   return results
 }
 
 /**
  * Common accessibility test configurations
  */
-export const a11yConfigs = {
+export const a11yConfigs: Record<string, AccessibilityTestOptions> = {
   // Test for WCAG 2.1 AA compliance
   wcag21aa: {
     tags: ['wcag2a', 'wcag2aa', 'wcag21aa'],
@@ -98,12 +110,14 @@ export const a11yConfigs = {
   forms: {
     tags: ['cat.forms'],
   },
-}
+} as const
 
 /**
  * Test component with multiple accessibility configurations
  */
-export const testFullAccessibility = async (ui: React.ReactElement) => {
+export const testFullAccessibility = async (
+  ui: React.ReactElement
+): Promise<AxeResults[]> => {
   const results = await Promise.all([
     testAccessibility(ui, a11yConfigs.wcag21aa),
     testAccessibility(ui, a11yConfigs.keyboard),
