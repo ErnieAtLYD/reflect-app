@@ -46,7 +46,7 @@
             "description": "Build the Button, TextArea, Card, LoadingSpinner, ErrorMessage, and Feedback (thumbs up/down) components using Tailwind CSS and @headlessui/react for accessible primitives.",
             "dependencies": ["2.1", "2.2"],
             "details": "Implement each component as a functional React component, applying Tailwind utility classes for styling. Use @headlessui/react for dialogs and toggles where needed. Ensure components are modular and support props for customization.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test each component in isolation with React Testing Library. Check prop handling, visual states, and integration with Tailwind classes."
           },
           {
