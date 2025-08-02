@@ -1,0 +1,11 @@
+# Task ID: 15
+# Title: Analytics and Metrics Collection
+# Status: pending
+# Dependencies: 7, 9, 11
+# Priority: low
+# Description: Implement privacy-respecting analytics to track usage patterns and success metrics.
+# Details:
+Set up a privacy-focused analytics solution like Plausible, Simple Analytics, or a self-hosted option. Track key events: page views, reflection generations, feedback submissions, local history toggle usage, export events, and errors. Implement anonymous session IDs that reset between visits. Create a dashboard to visualize key metrics. Set up automated reports for weekly/monthly statistics. Ensure no personally identifiable information is collected. Add an optional analytics opt-out. Implement custom events to track user engagement without tracking individuals.
+
+# Test Strategy:
+Verify that analytics events are correctly triggered for key user actions. Check that no PII is included in analytics data. Test the opt-out functionality. Verify that session IDs reset appropriately. Test the dashboard with sample data. Check that all required metrics from the PRD are being tracked. Verify compliance with privacy regulations for analytics data.

@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Reflection Display Component
+# Status: pending
+# Dependencies: 2, 5
+# Priority: high
+# Description: Create the component to display AI-generated reflections with summary, pattern/theme, and prompt sections.
+# Details:
+Design a card-based layout to display the reflection results. Create three distinct sections with appropriate headings: Summary, Pattern/Theme, and Prompt/Suggestion. Implement a loading state using a skeleton UI pattern while waiting for the AI response. Add subtle animations for the transition from loading to results using framer-motion. Include a copy button to allow users to copy the entire reflection to clipboard using the clipboard API. Ensure the component is responsive and maintains readability on all device sizes. Use appropriate typography with sufficient line height and spacing for readability. Implement error states for failed AI requests with friendly error messages and retry options.
+
+# Test Strategy:
+Test the component with various AI response formats and lengths. Verify loading states appear and disappear appropriately. Test the copy functionality across different browsers. Check responsive behavior on different screen sizes. Test error states by simulating API failures. Verify accessibility of all interactive elements.

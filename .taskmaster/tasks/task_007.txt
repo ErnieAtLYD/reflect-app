@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Core Application Flow Implementation
+# Status: pending
+# Dependencies: 4, 5, 6
+# Priority: high
+# Description: Connect the input and reflection components to create the main application flow with proper state management.
+# Details:
+Implement state management using React Context API or Redux Toolkit (v1.9.7) if more complex state is needed. Create a main application component that orchestrates the flow between input and reflection display. Implement the 'Reflect Now' button functionality to trigger the AI processing. Handle the loading state during API calls. Manage error states and provide user-friendly error messages. Implement a clear/reset function to start a new reflection. Use React Query (v5.0.0) or SWR (v2.2.4) for efficient data fetching and caching. Implement debouncing for the submit button to prevent multiple submissions.
+
+# Test Strategy:
+Test the end-to-end flow from input to reflection display. Verify state transitions between input, loading, and results. Test error handling by simulating API failures. Check that the reset functionality works correctly. Test with various input lengths and content types. Verify that multiple rapid submissions are properly debounced.
