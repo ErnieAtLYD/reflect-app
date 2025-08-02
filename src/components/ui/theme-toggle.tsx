@@ -56,9 +56,12 @@ export function ThemeToggleAdvanced() {
   }
 
   const cycleTheme = () => {
-    const currentIndex = themes.indexOf(theme || 'system')
-    const nextIndex = (currentIndex + 1) % themes.length
-    setTheme(themes[nextIndex])
+    const themeOrder = ['light', 'dark', 'system'] as const
+    const currentIndex = themeOrder.indexOf(
+      (theme as (typeof themeOrder)[number]) || 'system'
+    )
+    const nextIndex = (currentIndex + 1) % themeOrder.length
+    setTheme(themeOrder[nextIndex])
   }
 
   const getThemeIcon = () => {
