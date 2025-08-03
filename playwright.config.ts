@@ -1,5 +1,17 @@
 import { defineConfig, devices } from '@playwright/test'
 
+/**
+ * Playwright configuration for PRODUCTION environment
+ *
+ * Use this config when:
+ * - Running tests against a production build
+ * - CI/CD environments
+ * - Final testing before deployment
+ * - You want to test the built application
+ *
+ * This config automatically builds and starts the production server
+ * Usage: playwright test (default config)
+ */
 const baseURL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000'
 
 export default defineConfig({

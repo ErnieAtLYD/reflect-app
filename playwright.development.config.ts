@@ -1,5 +1,15 @@
 import { defineConfig, devices } from '@playwright/test'
 
+/**
+ * Playwright configuration for DEVELOPMENT environment
+ *
+ * Use this config when:
+ * - Running tests against a live development server (pnpm dev)
+ * - The dev server is already running on port 3002
+ * - You want to test against real-time code changes
+ *
+ * Usage: playwright test --config=playwright.development.config.ts
+ */
 const baseURL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3002'
 
 export default defineConfig({
@@ -31,5 +41,6 @@ export default defineConfig({
     },
   ],
 
-  // Skip webServer since we have dev server running
+  // No webServer - assumes development server is already running
+  // Start your dev server first: pnpm dev --port 3002
 })
