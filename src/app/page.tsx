@@ -22,7 +22,7 @@ export default function Home() {
       <div className="xs:space-y-8 container mx-auto space-y-6">
         <header className="xs:flex-row xs:items-center xs:justify-between flex flex-col gap-4">
           <div>
-            <h1 className="text-foreground xs:text-3xl text-2xl font-bold">
+            <h1 className="font-heading text-foreground xs:text-3xl text-2xl font-bold">
               Reflect App
             </h1>
             <p className="text-muted-foreground xs:text-base text-sm">
