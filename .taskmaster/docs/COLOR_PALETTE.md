@@ -6,6 +6,15 @@ This document outlines the color system used in the Reflect App, including acces
 
 The application uses a comprehensive color system based on **OKLCH color space** with CSS custom properties for optimal color management and accessibility. The system supports both light and dark themes with automatic contrast optimization.
 
+### Recent Improvements (Consolidated System)
+
+The color system has been consolidated for better maintainability:
+
+- **Removed redundant color mappings**: Eliminated duplicate `--color-*` references in favor of direct semantic tokens
+- **Added semantic status colors**: New `success`, `warning`, and `info` color tokens with proper foreground variants
+- **Updated component implementations**: All UI components now use semantic color tokens instead of hardcoded colors
+- **Streamlined Tailwind configuration**: Direct references to CSS custom properties for cleaner configuration
+
 ## Core Color Categories
 
 ### 1. Semantic Colors
@@ -73,9 +82,16 @@ The application uses a comprehensive color system based on **OKLCH color space**
 
 ### 5. Status Colors
 
-| Status      | Variable        | Light Value                 | Dark Value                  | Purpose                        |
-| ----------- | --------------- | --------------------------- | --------------------------- | ------------------------------ |
-| Destructive | `--destructive` | `oklch(0.577 0.245 27.325)` | `oklch(0.704 0.191 22.216)` | Errs, warnings, delete actions |
+| Status         | Variable                   | Light Value              | Dark Value               | Purpose                       |
+| -------------- | -------------------------- | ------------------------ | ------------------------ | ----------------------------- |
+| Success        | `--success`                | `oklch(0.65 0.15 145)`   | `oklch(0.7 0.18 145)`    | Success states, confirmations |
+| Success FG     | `--success-foreground`     | `oklch(0.98 0.01 145)`   | `oklch(0.15 0.02 145)`   | Text on success elements      |
+| Warning        | `--warning`                | `oklch(0.75 0.15 85)`    | `oklch(0.8 0.18 85)`     | Warning states, cautions      |
+| Warning FG     | `--warning-foreground`     | `oklch(0.2 0.02 85)`     | `oklch(0.15 0.02 85)`    | Text on warning elements      |
+| Info           | `--info`                   | `var(--color-sky-blue)`  | `var(--color-sky-blue)`  | Info states, tips             |
+| Info FG        | `--info-foreground`        | `var(--color-dark-blue)` | `var(--color-dark-blue)` | Text on info elements         |
+| Destructive    | `--destructive`            | `oklch(0.65 0.22 25)`    | `oklch(0.7 0.25 25)`     | Errors, warnings, deletions   |
+| Destructive FG | `--destructive-foreground` | `oklch(0.98 0.01 25)`    | `oklch(0.98 0.01 25)`    | Text on destructive elements  |
 
 ## Accessibility Guidelines
 
@@ -257,6 +273,12 @@ All colors and design tokens are now fully integrated into the Tailwind configur
   <button class="bg-primary text-primary-foreground">Primary Button</button>
   <div class="bg-secondary text-secondary-foreground">Secondary Content</div>
   <p class="text-muted-foreground">Muted text</p>
+
+  <!-- Status colors -->
+  <div class="bg-success text-success-foreground">Success message</div>
+  <div class="bg-warning text-warning-foreground">Warning message</div>
+  <div class="bg-info text-info-foreground">Info message</div>
+  <div class="bg-destructive text-destructive-foreground">Error message</div>
 </div>
 ```
 

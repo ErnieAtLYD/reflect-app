@@ -19,10 +19,9 @@ const feedbackVariants = cva(
       },
       state: {
         default: '',
-        positive:
-          'bg-green-50 border-green-200 text-green-700 dark:bg-green-950/20 dark:border-green-800 dark:text-green-400',
+        positive: 'bg-success/10 border-success text-success-foreground',
         negative:
-          'bg-red-50 border-red-200 text-red-700 dark:bg-red-950/20 dark:border-red-800 dark:text-red-400',
+          'bg-destructive/10 border-destructive text-destructive-foreground',
       },
     },
     defaultVariants: {
