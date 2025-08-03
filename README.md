@@ -102,11 +102,7 @@ e2e/                   # Playwright tests
 
 - **ESLint**: Extends Next.js config
 - **Prettier**: Includes Tailwind plugin for class sorting
-- **Tailwind**: v4 with comprehensive theme configuration
-  - Custom color palette with CSS variables
-  - Extended font families (Parkinsans, Inter, JetBrains Mono)
-  - Complete typography scale (sizes, weights, spacing)
-  - Accessible color system with OKLCH values
+- **Tailwind**: v4 with CSS variables for theming
 - **TypeScript**: Strict mode enabled
 - **Path Aliases**: `@/*` maps to `src/*`
 
