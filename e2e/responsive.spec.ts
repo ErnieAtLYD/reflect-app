@@ -210,7 +210,7 @@ test.describe('Responsive Design System', () => {
     await expect(page.locator('button').first()).toBeVisible()
 
     // Test feedback component is accessible
-    await expect(page.getByTestId('feedback-button-positive')).toBeVisible()
-    await expect(page.getByTestId('feedback-button-negative')).toBeVisible()
+    await expect(page.getByTestId('feedback-positive')).toBeVisible()
+    await expect(page.getByTestId('feedback-negative')).toBeVisible()
   })
 })

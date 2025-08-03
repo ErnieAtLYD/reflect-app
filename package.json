@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:e2e": "next dev --port 3002",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
@@ -17,6 +18,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
+    "test:e2e:dev": "playwright test --config=playwright.development.config.ts",
+    "test:e2e:dev:ui": "playwright test --config=playwright.development.config.ts --ui",
+    "test:e2e:dev:debug": "playwright test --config=playwright.development.config.ts --debug",
     "prepare": "husky"
   },
   "dependencies": {

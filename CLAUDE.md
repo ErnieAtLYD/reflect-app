@@ -9,6 +9,7 @@ This project uses **pnpm** as the package manager.
 ### Core Commands
 
 - `pnpm dev` - Start development server on http://localhost:3000
+- `pnpm dev:e2e` - Start development server on http://localhost:3002 (for e2e testing)
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
@@ -20,9 +21,85 @@ This project uses **pnpm** as the package manager.
 - `pnpm test` - Run unit tests with Vitest
 - `pnpm test:ui` - Run unit tests with Vitest UI
 - `pnpm test:coverage` - Run unit tests with coverage report
-- `pnpm test:e2e` - Run Playwright end-to-end tests
-- `pnpm test:e2e:ui` - Run e2e tests with Playwright UI
-- `pnpm test:e2e:debug` - Debug e2e tests with Playwright
+- `pnpm test:e2e` - Run Playwright end-to-end tests (production build)
+- `pnpm test:e2e:ui` - Run e2e tests with Playwright UI (production build)
+- `pnpm test:e2e:debug` - Debug e2e tests with Playwright (production build)
+- `pnpm test:e2e:dev` - Run e2e tests against live development server
+- `pnpm test:e2e:dev:ui` - Run e2e development tests with Playwright UI
+- `pnpm test:e2e:dev:debug` - Debug e2e development tests with Playwright
+
+## Port Configuration
+
+This project uses standardized ports to avoid conflicts and ensure consistent behavior across different environments.
+
+### Port Allocation
+
+| Port      | Service | Environment | Usage                                             |
+| --------- | ------- | ----------- | ------------------------------------------------- |
+| **3000**  | Next.js | Development | Default development server (`pnpm dev`)           |
+| **3001**  | Next.js | Production  | Production server when run locally                |
+| **3002**  | Next.js | E2E Testing | Development server for e2e tests (`pnpm dev:e2e`) |
+| **11434** | Ollama  | External    | AI service for .taskmaster functionality          |
+
+### Configuration Files
+
+- **`src/config/ports.ts`** - Centralized port constants and utilities
+- **`playwright.config.ts`** - Production e2e testing (builds and starts server on port 3000)
+- **`playwright.development.config.ts`** - Development e2e testing (assumes server running on port 3002)
+- **`.env.example`** - Environment variable examples and documentation
+
+### Development Workflows
+
+#### Standard Development
+
+```bash
+# Start development server (port 3000)
+pnpm dev
+
+# In another terminal, run unit tests
+pnpm test
+```
+
+#### Development with E2E Testing
+
+```bash
+# Terminal 1: Start development server for e2e tests (port 3002)
+pnpm dev:e2e
+
+# Terminal 2: Run e2e tests against live development server
+pnpm test:e2e:dev
+```
+
+#### Production Testing
+
+```bash
+# Build and test production build (port 3000)
+pnpm test:e2e
+```
+
+### Environment Variables
+
+- **`PORT`** - Override Next.js development server port
+- **`PLAYWRIGHT_TEST_BASE_URL`** - Override Playwright test target URL
+- **`OLLAMA_BASE_URL`** - Override Ollama AI service URL
+
+See `.env.example` for complete environment variable documentation.
+
+### Playwright Configuration Usage
+
+**When to use `playwright.config.ts` (default):**
+
+- CI/CD environments
+- Final testing before deployment
+- Testing production builds
+- Automated testing pipelines
+
+**When to use `playwright.development.config.ts`:**
+
+- Local development with real-time testing
+- Testing against live development server
+- Debugging with immediate code changes
+- Interactive development workflows
 
 ## Architecture Overview
 
@@ -599,3 +676,7 @@ Use shadcn/ui CLI: `pnpm dlx shadcn@latest add [component-name]`
 3. Write tests for new components/features
 4. Run `pnpm lint` and `pnpm format` before committing
 5. Pre-commit hooks will automatically run linting and formatting
+
+## Memories
+
+- `add to memory` placeholder added in initial version
