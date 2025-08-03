@@ -301,7 +301,7 @@ describe('Feedback', () => {
   })
 
   it('maintains proper tab order', () => {
-    render(<Feedback />)
+    const { unmount } = render(<Feedback />)
 
     const positiveButton = screen.getByTestId('feedback-positive')
     const negativeButton = screen.getByTestId('feedback-negative')
@@ -309,6 +309,9 @@ describe('Feedback', () => {
     // Both buttons should be focusable
     expect(positiveButton).not.toHaveAttribute('tabindex', '-1')
     expect(negativeButton).not.toHaveAttribute('tabindex', '-1')
+
+    // Clean up first render
+    unmount()
 
     // When disabled, buttons should not be focusable
     render(<Feedback disabled={true} />)
