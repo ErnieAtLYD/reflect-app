@@ -37,61 +37,87 @@ export default {
         quote: ['var(--font-parkinsans)'],
       },
       colors: {
+        // Custom brand colors
         lavender: 'var(--color-lavender)',
         'gray-light': 'var(--color-gray-light)',
         'gray-medium': 'var(--color-gray-medium)',
         'dark-blue': 'var(--color-dark-blue)',
         'sky-blue': 'var(--color-sky-blue)',
-        background: 'var(--color-background)',
-        foreground: 'var(--color-foreground)',
+
+        // Semantic UI colors
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
         card: {
-          DEFAULT: 'var(--color-card)',
-          foreground: 'var(--color-card-foreground)',
+          DEFAULT: 'var(--card)',
+          foreground: 'var(--card-foreground)',
         },
         popover: {
-          DEFAULT: 'var(--color-popover)',
-          foreground: 'var(--color-popover-foreground)',
+          DEFAULT: 'var(--popover)',
+          foreground: 'var(--popover-foreground)',
         },
         primary: {
-          DEFAULT: 'var(--color-primary)',
-          foreground: 'var(--color-primary-foreground)',
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)',
         },
         secondary: {
-          DEFAULT: 'var(--color-secondary)',
-          foreground: 'var(--color-secondary-foreground)',
+          DEFAULT: 'var(--secondary)',
+          foreground: 'var(--secondary-foreground)',
         },
         muted: {
-          DEFAULT: 'var(--color-muted)',
-          foreground: 'var(--color-muted-foreground)',
+          DEFAULT: 'var(--muted)',
+          foreground: 'var(--muted-foreground)',
         },
         accent: {
-          DEFAULT: 'var(--color-accent)',
-          foreground: 'var(--color-accent-foreground)',
+          DEFAULT: 'var(--accent)',
+          foreground: 'var(--accent-foreground)',
         },
-        destructive: 'var(--color-destructive)',
-        border: 'var(--color-border)',
-        input: 'var(--color-input)',
-        ring: 'var(--color-ring)',
+        destructive: {
+          DEFAULT: 'var(--destructive)',
+          foreground: 'var(--destructive-foreground)',
+        },
+
+        // Status colors
+        success: {
+          DEFAULT: 'var(--success)',
+          foreground: 'var(--success-foreground)',
+        },
+        warning: {
+          DEFAULT: 'var(--warning)',
+          foreground: 'var(--warning-foreground)',
+        },
+        info: {
+          DEFAULT: 'var(--info)',
+          foreground: 'var(--info-foreground)',
+        },
+
+        // Form elements
+        border: 'var(--border)',
+        input: 'var(--input)',
+        ring: 'var(--ring)',
+
+        // Chart colors
         chart: {
-          '1': 'var(--color-chart-1)',
-          '2': 'var(--color-chart-2)',
-          '3': 'var(--color-chart-3)',
-          '4': 'var(--color-chart-4)',
-          '5': 'var(--color-chart-5)',
+          '1': 'var(--chart-1)',
+          '2': 'var(--chart-2)',
+          '3': 'var(--chart-3)',
+          '4': 'var(--chart-4)',
+          '5': 'var(--chart-5)',
         },
+
+        // Sidebar colors
         sidebar: {
-          DEFAULT: 'var(--color-sidebar)',
-          foreground: 'var(--color-sidebar-foreground)',
+          DEFAULT: 'var(--sidebar)',
+          foreground: 'var(--sidebar-foreground)',
           primary: {
-            DEFAULT: 'var(--color-sidebar-primary)',
-            foreground: 'var(--color-sidebar-primary-foreground)',
+            DEFAULT: 'var(--sidebar-primary)',
+            foreground: 'var(--sidebar-primary-foreground)',
           },
           accent: {
-            DEFAULT: 'var(--color-sidebar-accent)',
-            foreground: 'var(--color-sidebar-accent-foreground)',
+            DEFAULT: 'var(--sidebar-accent)',
+            foreground: 'var(--sidebar-accent-foreground)',
           },
-          border: 'var(--color-sidebar-border)',
-          ring: 'var(--color-sidebar-ring)',
+          border: 'var(--sidebar-border)',
+          ring: 'var(--sidebar-ring)',
         },
       },
       borderRadius: {

@@ -3,9 +3,6 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-
   /* Font Families */
   --font-sans:
     var(--font-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
@@ -58,40 +55,8 @@
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
   --font-weight-black: 900;
-  --color-lavender: #e8e9f3;
-  --color-gray-light: #cecece;
-  --color-gray-medium: #a6a6a8;
-  --color-dark-blue: #272635;
-  --color-sky-blue: #b1e5f2;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
+
+  /* Border Radius */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -115,80 +80,113 @@
   --container-xl: 36rem;
   --container-2xl: 42rem;
 }
-
 :root {
+  /* Your custom color palette */
+  --color-lavender: #e8e9f3;
+  --color-gray-light: #cecece;
+  --color-gray-medium: #a6a6a8;
+  --color-dark-blue: #272635;
+  --color-sky-blue: #b1e5f2;
+
+  /* Design system variables */
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Light theme */
+  --background: var(--color-lavender); /* Soft lavender background */
+  --foreground: var(--color-dark-blue); /* Dark blue text */
+  --card: oklch(0.98 0.005 280); /* Very light lavender for cards */
+  --card-foreground: var(--color-dark-blue); /* Dark blue text on cards */
+  --popover: oklch(0.99 0.003 280); /* Nearly white with lavender hint */
+  --popover-foreground: var(--color-dark-blue); /* Dark blue text */
+  --primary: var(--color-dark-blue); /* Dark blue primary */
+  --primary-foreground: oklch(0.95 0.01 280); /* Light lavender on dark blue */
+  --secondary: var(--color-sky-blue); /* Sky blue secondary */
+  --secondary-foreground: var(--color-dark-blue); /* Dark blue on sky blue */
+  --muted: oklch(0.85 0.01 280); /* Muted lavender */
+  --muted-foreground: var(--color-gray-medium); /* Gray medium text */
+  --accent: var(--color-sky-blue); /* Sky blue accent */
+  --accent-foreground: var(--color-dark-blue); /* Dark blue on sky blue */
+  --destructive: oklch(0.65 0.22 25); /* Error red */
+  --destructive-foreground: oklch(0.98 0.01 25); /* Light text on red */
+  --border: var(--color-gray-light); /* Light gray borders */
+  --input: oklch(0.99 0.003 280); /* Nearly white inputs */
+  --ring: var(--color-sky-blue); /* Sky blue focus ring */
+
+  /* Chart colors using your palette as base */
+  --chart-1: var(--color-dark-blue); /* Dark blue */
+  --chart-2: var(--color-sky-blue); /* Sky blue */
+  --chart-3: var(--color-gray-medium); /* Gray medium */
+  --chart-4: oklch(0.75 0.08 280); /* Lavender variant */
+  --chart-5: oklch(0.55 0.15 220); /* Blue variant */
+
+  /* Status colors for semantic UI states */
+  --success: oklch(0.65 0.15 145); /* Green for success states */
+  --success-foreground: oklch(0.98 0.01 145); /* Light text on success */
+  --warning: oklch(0.75 0.15 85); /* Orange for warning states */
+  --warning-foreground: oklch(0.2 0.02 85); /* Dark text on warning */
+  --info: var(--color-sky-blue); /* Sky blue for info states */
+  --info-foreground: var(--color-dark-blue); /* Dark text on info */
+
+  /* Sidebar colors */
+  --sidebar: oklch(0.96 0.008 280); /* Light lavender sidebar */
+  --sidebar-foreground: var(--color-dark-blue); /* Dark blue text */
+  --sidebar-primary: var(--color-dark-blue); /* Dark blue primary */
+  --sidebar-primary-foreground: oklch(0.95 0.01 280); /* Light lavender text */
+  --sidebar-accent: var(--color-sky-blue); /* Sky blue accent */
+  --sidebar-accent-foreground: var(--color-dark-blue); /* Dark blue text */
+  --sidebar-border: var(--color-gray-light); /* Light gray border */
+  --sidebar-ring: var(--color-sky-blue); /* Sky blue focus ring */
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark theme using your palette */
+  --background: var(--color-dark-blue); /* Dark blue background */
+  --foreground: var(--color-lavender); /* Lavender text */
+  --card: oklch(0.25 0.02 255); /* Darker blue for cards */
+  --card-foreground: var(--color-lavender); /* Lavender text on cards */
+  --popover: oklch(0.22 0.02 255); /* Dark blue popover */
+  --popover-foreground: var(--color-lavender); /* Lavender text */
+  --primary: var(--color-sky-blue); /* Sky blue primary in dark */
+  --primary-foreground: var(--color-dark-blue); /* Dark blue text on sky blue */
+  --secondary: oklch(0.35 0.03 255); /* Muted blue secondary */
+  --secondary-foreground: var(--color-lavender); /* Lavender text */
+  --muted: oklch(0.3 0.02 255); /* Muted dark blue */
+  --muted-foreground: var(--color-gray-light); /* Light gray text */
+  --accent: var(--color-sky-blue); /* Sky blue accent */
+  --accent-foreground: var(--color-dark-blue); /* Dark blue text */
+  --destructive: oklch(0.7 0.25 25); /* Brighter red for dark mode */
+  --destructive-foreground: oklch(0.98 0.01 25); /* Light text */
+  --border: oklch(0.4 0.03 255); /* Subtle blue border */
+  --input: oklch(0.25 0.02 255); /* Dark blue input */
+  --ring: var(--color-sky-blue); /* Sky blue focus ring */
+
+  /* Dark chart colors */
+  --chart-1: var(--color-sky-blue); /* Sky blue */
+  --chart-2: var(--color-lavender); /* Lavender */
+  --chart-3: var(--color-gray-light); /* Light gray */
+  --chart-4: oklch(0.65 0.12 280); /* Bright lavender */
+  --chart-5: oklch(0.75 0.15 200); /* Bright blue */
+
+  /* Dark status colors */
+  --success: oklch(0.7 0.18 145); /* Brighter green for dark mode */
+  --success-foreground: oklch(0.15 0.02 145); /* Dark text on success */
+  --warning: oklch(0.8 0.18 85); /* Brighter orange for dark mode */
+  --warning-foreground: oklch(0.15 0.02 85); /* Dark text on warning */
+  --info: var(--color-sky-blue); /* Sky blue for info states */
+  --info-foreground: var(--color-dark-blue); /* Dark text on info */
+
+  /* Dark sidebar colors */
+  --sidebar: oklch(0.2 0.02 255); /* Dark blue sidebar */
+  --sidebar-foreground: var(--color-lavender); /* Lavender text */
+  --sidebar-primary: var(--color-sky-blue); /* Sky blue primary */
+  --sidebar-primary-foreground: var(--color-dark-blue); /* Dark blue text */
+  --sidebar-accent: oklch(0.3 0.02 255); /* Muted blue accent */
+  --sidebar-accent-foreground: var(--color-lavender); /* Lavender text */
+  --sidebar-border: oklch(0.4 0.03 255); /* Subtle border */
+  --sidebar-ring: var(--color-sky-blue); /* Sky blue focus ring */
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
   body {
     @apply bg-background text-foreground;
   }

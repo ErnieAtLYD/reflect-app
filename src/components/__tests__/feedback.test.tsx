@@ -32,9 +32,9 @@ describe('FeedbackButton', () => {
     const button = screen.getByTestId('feedback-positive')
     expect(button).toHaveAttribute('aria-pressed', 'true')
     expect(button).toHaveClass(
-      'bg-green-50',
-      'border-green-200',
-      'text-green-700'
+      'bg-success/10',
+      'border-success',
+      'text-success-foreground'
     )
   })
 
@@ -181,7 +181,7 @@ describe('Feedback', () => {
 
     expect(positiveButton).toHaveAttribute('aria-pressed', 'true')
     expect(negativeButton).toHaveAttribute('aria-pressed', 'false')
-    expect(positiveButton).toHaveClass('bg-green-50')
+    expect(positiveButton).toHaveClass('bg-success/10')
   })
 
   it('shows negative selected feedback correctly', () => {
@@ -192,7 +192,7 @@ describe('Feedback', () => {
 
     expect(positiveButton).toHaveAttribute('aria-pressed', 'false')
     expect(negativeButton).toHaveAttribute('aria-pressed', 'true')
-    expect(negativeButton).toHaveClass('bg-red-50')
+    expect(negativeButton).toHaveClass('bg-destructive/10')
   })
 
   it('disables both buttons when disabled prop is true', () => {
@@ -301,7 +301,7 @@ describe('Feedback', () => {
   })
 
   it('maintains proper tab order', () => {
-    render(<Feedback />)
+    const { unmount } = render(<Feedback />)
 
     const positiveButton = screen.getByTestId('feedback-positive')
     const negativeButton = screen.getByTestId('feedback-negative')
@@ -309,6 +309,9 @@ describe('Feedback', () => {
     // Both buttons should be focusable
     expect(positiveButton).not.toHaveAttribute('tabindex', '-1')
     expect(negativeButton).not.toHaveAttribute('tabindex', '-1')
+
+    // Clean up first render
+    unmount()
 
     // When disabled, buttons should not be focusable
     render(<Feedback disabled={true} />)

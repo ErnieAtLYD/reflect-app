@@ -174,7 +174,7 @@ describe('Textarea', () => {
 
   // Accessibility tests
   it('passes accessibility tests', async () => {
-    await testAccessibility(<Textarea />)
+    await testAccessibility(<Textarea aria-label="Basic textarea" />)
   })
 
   it('passes accessibility tests with all features', async () => {
