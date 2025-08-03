@@ -12,14 +12,14 @@ The application uses a comprehensive color system based on **OKLCH color space**
 
 #### Light Theme
 
-| Purpose              | Variable                 | OKLCH Value        | Hex Equivalent | Usage                      |
-| -------------------- | ------------------------ | ------------------ | -------------- | -------------------------- |
-| Background           | `--background`           | `oklch(1 0 0)`     | `#ffffff`      | Main page background       |
-| Foreground           | `--foreground`           | `oklch(0.145 0 0)` | `#252525`      | Primary text color         |
-| Primary              | `--primary`              | `oklch(0.205 0 0)` | `#343434`      | Primary actions, buttons   |
-| Primary Foreground   | `--primary-foreground`   | `oklch(0.985 0 0)` | `#fbfbfb`      | Text on primary elements   |
-| Secondary            | `--secondary`            | `oklch(0.97 0 0)`  | `#f7f7f7`      | Secondary backgrounds      |
-| Secondary Foreground | `--secondary-foreground` | `oklch(0.205 0 0)` | `#343434`      | Text on secondary elements |
+| Purpose      | Variable                 | OKLCH Value        | Hex Value | Usage                      |
+| ------------ | ------------------------ | ------------------ | --------- | -------------------------- |
+| Background   | `--background`           | `oklch(1 0 0)`     | `#ffffff` | Main page background       |
+| Foreground   | `--foreground`           | `oklch(0.145 0 0)` | `#252525` | Primary text color         |
+| Primary      | `--primary`              | `oklch(0.205 0 0)` | `#343434` | Primary actions, buttons   |
+| Primary FG   | `--primary-foreground`   | `oklch(0.985 0 0)` | `#fbfbfb` | Text on primary elements   |
+| Secondary    | `--secondary`            | `oklch(0.97 0 0)`  | `#f7f7f7` | Secondary backgrounds      |
+| Secondary FG | `--secondary-foreground` | `oklch(0.205 0 0)` | `#343434` | Text on secondary elements |
 
 #### Dark Theme
 
@@ -53,13 +53,13 @@ The application uses a comprehensive color system based on **OKLCH color space**
 
 ### 3. Custom Brand Colors
 
-| Color Name  | Variable              | Hex Value | Usage                     |
-| ----------- | --------------------- | --------- | ------------------------- |
-| Lavender    | `--color-lavender`    | `#e8e9f3` | Soft accent, backgrounds  |
-| Gray Light  | `--color-gray-light`  | `#cecece` | Light text, borders       |
-| Gray Medium | `--color-gray-medium` | `#a6a6a8` | Medium text, icons        |
-| Dark Blue   | `--color-dark-blue`   | `#272635` | Dark accents, headers     |
-| Sky Blue    | `--color-sky-blue`    | `#b1e5f2` | Highlights, active states |
+| Color Name  | Coloor         | Variable              | Hex Value | Usage                     |
+| ----------- | -------------- | --------------------- | --------- | ------------------------- |
+| Lavender    | Ghost White    | `--color-lavender`    | `#e8e9f3` | Soft accent, backgrounds  |
+| Gray Light  | Silver         | `--color-gray-light`  | `#cecece` | Light text, borders       |
+| Gray Medium | French gray    | `--color-gray-medium` | `#a6a6a8` | Medium text, icons        |
+| Dark Blue   | Raisin black   | `--color-dark-blue`   | `#272635` | Dark accents, headers     |
+| Sky Blue    | Non photo blue | `--color-sky-blue`    | `#b1e5f2` | Highlights, active states |
 
 ### 4. Data Visualization Colors
 

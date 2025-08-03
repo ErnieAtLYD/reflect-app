@@ -23,8 +23,65 @@ const jetBrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Reflect App',
-  description: 'A Next.js application with TypeScript and Tailwind CSS',
+  title: 'Reflect - A Space for Your Thoughts',
+  description:
+    'A simple, private journaling app where your thoughts stay yours. No accounts, no storage, just you and your reflections.',
+  keywords: [
+    'journal',
+    'journaling',
+    'reflection',
+    'thoughts',
+    'private',
+    'notes',
+    'writing',
+  ],
+  authors: [{ name: 'Reflect App' }],
+  creator: 'Reflect App',
+  publisher: 'Reflect App',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://reflect-app.vercel.app'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Reflect - A Space for Your Thoughts',
+    description:
+      'A simple, private journaling app where your thoughts stay yours. No accounts, no storage, just you and your reflections.',
+    url: 'https://reflect-app.vercel.app',
+    siteName: 'Reflect',
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Reflect - A Space for Your Thoughts',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Reflect - A Space for Your Thoughts',
+    description:
+      'A simple, private journaling app where your thoughts stay yours. No accounts, no storage, just you and your reflections.',
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 }
 
 export default function RootLayout({

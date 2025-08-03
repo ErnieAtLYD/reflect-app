@@ -113,7 +113,12 @@ describe('Dialog', () => {
       <Dialog
         isOpen={true}
         onClose={() => {}}
-        panelProps={{ 'data-custom': 'test-value', id: 'custom-dialog' }}
+        panelProps={
+          {
+            'data-custom': 'test-value',
+            id: 'custom-dialog',
+          } as React.HTMLAttributes<HTMLDivElement> & { 'data-custom'?: string }
+        }
       >
         <p>Content</p>
       </Dialog>
@@ -178,7 +183,11 @@ describe('Dialog', () => {
     render(
       <div>
         <button ref={buttonRef}>Trigger</button>
-        <Dialog isOpen={true} onClose={() => {}} initialFocus={buttonRef}>
+        <Dialog
+          isOpen={true}
+          onClose={() => {}}
+          initialFocus={buttonRef as React.RefObject<HTMLElement>}
+        >
           <button>Dialog Button</button>
         </Dialog>
       </div>
