@@ -245,4 +245,90 @@ describe('FirstTimeTooltip', () => {
       'true'
     )
   })
+
+  // Error handling tests
+  it('shows tooltip when localStorage.getItem throws an error', async () => {
+    mockLocalStorage.getItem.mockImplementation(() => {
+      throw new Error('localStorage not available')
+    })
+
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    render(<FirstTimeTooltip {...defaultProps} />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('first-time-tooltip')).toBeInTheDocument()
+    })
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'localStorage not available, showing tooltip by default:',
+      expect.any(Error)
+    )
+
+    consoleSpy.mockRestore()
+  })
+
+  it('still hides tooltip when localStorage.setItem throws an error', async () => {
+    const user = userEvent.setup()
+    mockLocalStorage.getItem.mockReturnValue(null)
+    mockLocalStorage.setItem.mockImplementation(() => {
+      throw new Error('localStorage not available')
+    })
+
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    render(<FirstTimeTooltip {...defaultProps} />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('first-time-tooltip')).toBeInTheDocument()
+    })
+
+    const dismissButton = screen.getByTestId('tooltip-dismiss-button')
+    await user.click(dismissButton)
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Could not save tooltip dismissal to localStorage:',
+      expect.any(Error)
+    )
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('first-time-tooltip')).not.toBeInTheDocument()
+    })
+
+    consoleSpy.mockRestore()
+  })
+
+  it('handles complete localStorage unavailability gracefully', async () => {
+    const user = userEvent.setup()
+
+    // Mock both getItem and setItem to throw errors
+    mockLocalStorage.getItem.mockImplementation(() => {
+      throw new Error('localStorage blocked')
+    })
+    mockLocalStorage.setItem.mockImplementation(() => {
+      throw new Error('localStorage blocked')
+    })
+
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    render(<FirstTimeTooltip {...defaultProps} />)
+
+    // Should show tooltip due to getItem error
+    await waitFor(() => {
+      expect(screen.getByTestId('first-time-tooltip')).toBeInTheDocument()
+    })
+
+    // Should still be able to dismiss
+    const dismissButton = screen.getByTestId('tooltip-dismiss-button')
+    await user.click(dismissButton)
+
+    // Should hide tooltip despite setItem error
+    await waitFor(() => {
+      expect(screen.queryByTestId('first-time-tooltip')).not.toBeInTheDocument()
+    })
+
+    expect(consoleSpy).toHaveBeenCalledTimes(2) // Both getItem and setItem errors
+
+    consoleSpy.mockRestore()
+  })
 })

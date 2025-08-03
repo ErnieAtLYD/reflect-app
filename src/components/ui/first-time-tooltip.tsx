@@ -22,14 +22,32 @@ export function FirstTimeTooltip({
 
   useEffect(() => {
     setIsClient(true)
-    const hasSeenTooltip = localStorage.getItem(storageKey)
-    if (!hasSeenTooltip) {
+
+    try {
+      const hasSeenTooltip = localStorage.getItem(storageKey)
+      if (!hasSeenTooltip) {
+        setIsVisible(true)
+      }
+    } catch (error) {
+      // If localStorage is not available (e.g., private browsing, disabled storage),
+      // show the tooltip by default to ensure users don't miss important information
+      console.warn(
+        'localStorage not available, showing tooltip by default:',
+        error
+      )
       setIsVisible(true)
     }
   }, [storageKey])
 
   const handleDismiss = () => {
-    localStorage.setItem(storageKey, 'true')
+    try {
+      localStorage.setItem(storageKey, 'true')
+    } catch (error) {
+      // If localStorage is not available, we can't persist the dismissal,
+      // but we still hide the tooltip for the current session
+      console.warn('Could not save tooltip dismissal to localStorage:', error)
+    }
+
     setIsVisible(false)
   }
 

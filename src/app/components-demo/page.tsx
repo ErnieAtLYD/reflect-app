@@ -93,7 +93,9 @@ export default function ComponentsDemo() {
                 <p className="text-muted-foreground text-sm">Rate this demo:</p>
                 <Feedback
                   showLabels={true}
-                  onFeedback={(type) => console.log('Feedback:', type)}
+                  onFeedback={() => {
+                    // Feedback received
+                  }}
                 />
               </div>
             </CardContent>
