@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 const parkinsans = Parkinsans({
   subsets: ['latin'],
   variable: '--font-parkinsans',
+  weight: ['400', '600', '700'],
   display: 'swap',
 })
 
