@@ -34,6 +34,16 @@ interface TextareaProps
   error?: boolean
 }
 
+/**
+ * Textarea component
+ * @param props - The props for the Textarea component
+ * @param props.className - The className for the Textarea component
+ * @param props.size - The size for the Textarea component (sm, default, lg)
+ * @param props.variant - The variant for the Textarea component (default, filled, ghost)
+ * @param props.error - The error for the Textarea component
+ * @param props.ref - The ref for the Textarea component
+ * @returns The Textarea component
+ */
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, size, variant, error, ...props }, ref) => {
     return (
