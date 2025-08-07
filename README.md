@@ -1,18 +1,27 @@
-# Production-Ready Next.js TypeScript Starter
+# Reflect App
 
-A modern, production-ready Next.js starter template with TypeScript, excellent developer experience, and all the tools you need to build scalable applications.
+A modern journaling application with AI-powered reflection capabilities. Built with Next.js, TypeScript, and OpenAI integration to provide users with meaningful insights into their journal entries.
 
 ## 🚀 Features
 
+### Core Functionality
+
+- **AI-Powered Journaling** - Get automated reflections, pattern detection, and actionable suggestions
+- **Journal Entry Input** - Enhanced textarea with auto-resize, validation, and character counting
+- **Real-time Feedback** - Instant validation and feedback on journal entries
+- **Responsive Design** - Optimized experience across all devices and screen sizes
+- **Dark/Light Mode** - Full theme support with system preference detection
+
+### Technical Features
+
 - **Next.js 15** with App Router
+- **OpenAI Integration** - GPT-4 Turbo with GPT-3.5 Turbo fallback
 - **TypeScript** for type safety
-- **Tailwind CSS** for styling
+- **Tailwind CSS v4** with CSS variables for theming
 - **shadcn/ui** for beautiful, accessible UI components
-- **Vitest** + **@testing-library/react** for unit testing
-- **Playwright** for end-to-end testing
-- **ESLint** for code linting
-- **Prettier** for code formatting
-- **Husky** + **lint-staged** for git hooks
+- **Rate Limiting & Caching** - Optimized AI API usage with cost reduction
+- **Comprehensive Testing** - Unit tests with Vitest + E2E tests with Playwright
+- **Code Quality** - ESLint, Prettier, Husky pre-commit hooks
 - **Path aliases** (@/\*) configured
 - **Vercel** deployment ready
 
@@ -22,15 +31,54 @@ This project uses **pnpm** for faster, more efficient dependency management.
 
 ## 🛠️ Getting Started
 
+### Prerequisites
+
+- Node.js 18+ and pnpm
+- OpenAI API key (required for AI features)
+
 ### Installation
 
 ```bash
 # Install dependencies
 pnpm install
 
+# Set up environment variables
+cp .env.example .env.local
+
+# Add your OpenAI API key to .env.local
+echo "OPENAI_API_KEY=your_openai_api_key_here" >> .env.local
+
 # Start development server
 pnpm dev
 ```
+
+### Environment Setup
+
+The application requires several environment variables for full functionality:
+
+**Required:**
+
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+**Optional (with defaults):**
+
+```bash
+# AI Model Configuration
+OPENAI_MODEL=gpt-4-1106-preview
+OPENAI_FALLBACK_MODEL=gpt-3.5-turbo-1106
+OPENAI_MAX_TOKENS=500
+OPENAI_TEMPERATURE=0.7
+
+# Rate Limiting
+AI_RATE_LIMIT_RPM=10
+
+# Caching
+AI_CACHE_TTL=3600
+```
+
+Get your OpenAI API key from: https://platform.openai.com/api-keys
 
 ### Available Scripts
 
@@ -71,14 +119,21 @@ pnpm test:e2e:debug   # Debug e2e tests
 
 ## 🎨 UI Components
 
-This starter includes **shadcn/ui** components:
+This application includes custom and **shadcn/ui** components:
 
-- Button
-- Card
-- Input
-- Label
+### Custom Components
 
-Add more components with:
+- **JournalEntryInput** - Enhanced textarea for journal writing with auto-resize, validation, and character counting
+- **LoadingSpinner** - Animated loading indicators with size/color variants
+- **ErrorMessage** - Accessible error display with icons and variants
+- **Feedback** - Thumbs up/down rating component for user feedback
+- **ThemeToggle** - Light/dark/system mode switching
+
+### shadcn/ui Components
+
+- Button, Card, Input, Label, Textarea, Dialog
+
+Add more shadcn/ui components with:
 
 ```bash
 pnpm dlx shadcn@latest add [component-name]
@@ -88,14 +143,24 @@ pnpm dlx shadcn@latest add [component-name]
 
 ```
 src/
-├── app/                # Next.js App Router
-├── components/         # React components
-│   ├── ui/            # shadcn/ui components
-│   └── __tests__/     # Component tests
-├── lib/               # Utility functions
-└── test/              # Test setup
+├── app/
+│   ├── api/
+│   │   └── reflect/           # AI processing endpoint
+│   ├── components-demo/       # Component showcase page
+│   └── page.tsx              # Main application page
+├── components/
+│   ├── ui/                   # UI components (buttons, inputs, etc.)
+│   └── __tests__/           # Component unit tests
+├── lib/
+│   ├── openai.ts            # OpenAI service utilities
+│   ├── ai-client.ts         # Client-side AI utilities
+│   └── utils.ts             # General utilities
+├── types/
+│   └── ai.ts                # AI service type definitions
+└── test/                    # Test setup and utilities
 
-e2e/                   # Playwright tests
+e2e/                         # Playwright end-to-end tests
+.taskmaster/                 # Project task management
 ```
 
 ## 🔧 Configuration
@@ -106,19 +171,50 @@ e2e/                   # Playwright tests
 - **TypeScript**: Strict mode enabled
 - **Path Aliases**: `@/*` maps to `src/*`
 
+## 🤖 AI Integration
+
+The app uses OpenAI's API to provide intelligent reflections on journal entries:
+
+### API Endpoint
+
+- **POST** `/api/reflect` - Process journal entries with AI
+
+### Features
+
+- **Dual Model Support** - GPT-4 Turbo primary, GPT-3.5 Turbo fallback
+- **Rate Limiting** - 10 requests/minute per IP (configurable)
+- **Caching** - Reduces API costs for similar entries
+- **Error Handling** - Comprehensive error types and recovery
+- **Response Format** - Summary, pattern detection, actionable suggestions
+
+### Client Usage
+
+```typescript
+import { aiClient } from '@/lib/ai-client'
+
+const response = await aiClient.processEntry({
+  content: 'Your journal entry here...',
+})
+
+console.log(response.summary) // Brief summary
+console.log(response.pattern) // Detected pattern/theme
+console.log(response.suggestion) // Actionable suggestion
+```
+
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
 
-This project is optimized for Vercel deployment:
-
 1. Push to GitHub
 2. Import project in Vercel
-3. Deploy automatically
+3. Add environment variables:
+   - `OPENAI_API_KEY` (required)
+   - Other optional AI configuration variables
+4. Deploy automatically
 
 ### Other Platforms
 
-The project includes a `vercel.json` for platform-specific settings, but works on any platform supporting Next.js.
+Works on any platform supporting Next.js. Ensure environment variables are configured properly.
 
 ## 🛡️ Code Quality
 
