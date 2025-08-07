@@ -177,6 +177,7 @@ const JournalEntryInput = React.forwardRef<
 >(
   (
     {
+      id,
       className,
       size,
       variant,
@@ -195,6 +196,8 @@ const JournalEntryInput = React.forwardRef<
     },
     ref
   ) => {
+    const generatedId = React.useId()
+    const textareaId = id || `journal-entry-${generatedId}`
     const currentLength = value.length
     const remainingChars = minLength - currentLength
     const meetsMinimum = currentLength >= minLength
@@ -230,6 +233,7 @@ const JournalEntryInput = React.forwardRef<
     return (
       <div className="relative">
         <TextareaAutosize
+          id={textareaId}
           ref={ref}
           value={value}
           onChange={handleChange}
