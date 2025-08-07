@@ -807,6 +807,117 @@ The demo page includes visual indicators showing the current active breakpoint:
 
 This responsive system ensures optimal user experience across all device types while maintaining consistent design patterns throughout the application.
 
+### AI Integration Service
+
+The application includes a comprehensive AI integration service for processing journal entries with OpenAI's API. This service provides automated reflection, pattern detection, and actionable suggestions.
+
+#### API Endpoint
+
+**POST `/api/reflect`** - Process journal entries with AI
+
+Request format:
+
+```json
+{
+  "content": "Your journal entry content here...",
+  "preferences": {
+    "tone": "supportive",
+    "focusAreas": ["emotions", "growth"]
+  }
+}
+```
+
+Response format:
+
+```json
+{
+  "summary": "Brief 1-2 sentence summary",
+  "pattern": "Detected theme or pattern",
+  "suggestion": "Actionable suggestion or prompt",
+  "metadata": {
+    "model": "gpt-4-1106-preview",
+    "processedAt": "2024-01-01T12:00:00Z",
+    "processingTimeMs": 1500
+  }
+}
+```
+
+#### Environment Configuration
+
+Required environment variables:
+
+```bash
+# OpenAI API Key (required)
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Model Configuration (optional)
+OPENAI_MODEL=gpt-4-1106-preview
+OPENAI_FALLBACK_MODEL=gpt-3.5-turbo-1106
+OPENAI_MAX_TOKENS=500
+OPENAI_TEMPERATURE=0.7
+
+# Rate Limiting (optional)
+AI_RATE_LIMIT_RPM=10
+
+# Caching (optional)
+AI_CACHE_TTL=3600
+```
+
+#### Client Usage
+
+```tsx
+import { aiClient, AIReflectionError } from '@/lib/ai-client'
+
+try {
+  const response = await aiClient.processEntry({
+    content: 'Today was challenging but rewarding...',
+  })
+
+  console.log('Summary:', response.summary)
+  console.log('Pattern:', response.pattern)
+  console.log('Suggestion:', response.suggestion)
+} catch (error) {
+  if (error instanceof AIReflectionError) {
+    if (error.isRateLimited()) {
+      console.log(`Rate limited. Retry after ${error.retryAfter}s`)
+    } else if (error.isContentPolicyViolation()) {
+      console.log('Content violates usage policies')
+    }
+  }
+}
+```
+
+#### Features
+
+- **Dual Model Support** - GPT-4 Turbo primary, GPT-3.5 Turbo fallback
+- **Rate Limiting** - 10 requests/minute per IP (configurable)
+- **Content Caching** - Reduces API costs for similar entries
+- **Error Handling** - Comprehensive error types and recovery
+- **Content Validation** - Input sanitization and length limits
+- **Type Safety** - Full TypeScript support with detailed types
+
+#### File Structure
+
+- `src/app/api/reflect/route.ts` - Main API endpoint
+- `src/lib/openai.ts` - OpenAI service utilities
+- `src/lib/ai-client.ts` - Client-side utilities
+- `src/types/ai.ts` - TypeScript definitions
+- `src/app/api/reflect/__tests__/route.test.ts` - Unit tests
+
+#### Testing
+
+Run AI service tests:
+
+```bash
+# Unit tests for API route
+pnpm test src/app/api/reflect
+
+# Test with example content
+node -e "import('./src/lib/ai-client.js').then(m => m.exampleUsage())"
+```
+
+The service is designed for <3 second response times and handles all OpenAI API edge cases including timeouts, rate limits, and content policy violations.
+
 ### Adding New UI Components
 
 Use shadcn/ui CLI: `pnpm dlx shadcn@latest add [component-name]`
