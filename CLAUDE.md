@@ -172,6 +172,7 @@ e2e/                   # Playwright end-to-end tests
 - **ErrorMessage** - Accessible error display with icons and variants
 - **Feedback** - Thumbs up/down rating component for user feedback
 - **Dialog** - Accessible modal dialog using @headlessui/react
+- **JournalEntryInput** - Enhanced textarea for journal writing with auto-resize, validation, and character counting
 
 #### Component Usage Examples
 
@@ -179,6 +180,23 @@ e2e/                   # Playwright end-to-end tests
 // Textarea
 <Textarea size="lg" variant="filled" placeholder="Enter your text..." />
 <Textarea error={true} aria-describedby="error-message" />
+
+// JournalEntryInput - Enhanced textarea for journal writing
+<JournalEntryInput
+  value={journalEntry}
+  onChange={setJournalEntry}
+  placeholder="Share what's on your mind today..."
+  minLength={20}
+  showCharacterCount={true}
+  showClearButton={true}
+  onClear={() => setJournalEntry('')}
+  onValidationChange={(isValid) => setIsValid(isValid)}
+  showValidationErrors={showErrors}
+  minRows={5}
+  maxRows={25}
+  size="lg"
+  variant="filled"
+/>
 
 // LoadingSpinner
 <LoadingSpinner size="lg" variant="primary" aria-label="Loading content" />
@@ -210,6 +228,130 @@ e2e/                   # Playwright end-to-end tests
   </div>
 </Dialog>
 ```
+
+### JournalEntryInput Component
+
+The **JournalEntryInput** is a specialized textarea component designed specifically for journal writing applications. It extends the basic textarea functionality with advanced features for content creation and validation.
+
+#### Key Features
+
+- **Auto-resize functionality** - Automatically grows and shrinks based on content using `react-textarea-autosize`
+- **Character count display** - Shows progress toward minimum length requirement and total character count
+- **Real-time validation** - Validates minimum length (default: 20 characters) and prevents empty/whitespace-only entries
+- **Clear button** - Optional button to quickly reset all content
+- **Error messaging** - Contextual validation errors with accessibility support
+- **Theme integration** - Fully compatible with light/dark mode theming
+- **Responsive design** - Adapts to all screen sizes and breakpoints
+
+#### Props Reference
+
+| Prop                   | Type                               | Default     | Description                                           |
+| ---------------------- | ---------------------------------- | ----------- | ----------------------------------------------------- |
+| `value`                | `string`                           | `''`        | Current input value (controlled component)            |
+| `onChange`             | `(value: string) => void`          | -           | Callback when value changes, receives string directly |
+| `onValidationChange`   | `(isValid: boolean) => void`       | -           | Callback when validation state changes                |
+| `onClear`              | `() => void`                       | -           | Callback when clear button is clicked                 |
+| `minLength`            | `number`                           | `20`        | Minimum character requirement for validation          |
+| `minRows`              | `number`                           | `3`         | Minimum visible rows when empty                       |
+| `maxRows`              | `number`                           | `20`        | Maximum rows before scrolling                         |
+| `showCharacterCount`   | `boolean`                          | `true`      | Whether to display character count indicator          |
+| `showClearButton`      | `boolean`                          | `false`     | Whether to show clear button when content exists      |
+| `showValidationErrors` | `boolean`                          | `false`     | Whether to display validation error messages          |
+| `size`                 | `'sm' \| 'default' \| 'lg'`        | `'default'` | Size variant                                          |
+| `variant`              | `'default' \| 'filled' \| 'ghost'` | `'default'` | Style variant                                         |
+| `error`                | `boolean`                          | `false`     | Whether to apply error styling                        |
+
+#### Usage Patterns
+
+**Basic Usage:**
+
+```tsx
+const [entry, setEntry] = useState('')
+
+<JournalEntryInput
+  value={entry}
+  onChange={setEntry}
+  placeholder="Write your thoughts..."
+/>
+```
+
+**With Validation:**
+
+```tsx
+const [entry, setEntry] = useState('')
+const [isValid, setIsValid] = useState(false)
+const [showErrors, setShowErrors] = useState(false)
+
+<JournalEntryInput
+  value={entry}
+  onChange={setEntry}
+  onValidationChange={setIsValid}
+  showValidationErrors={showErrors}
+  minLength={50}
+/>
+
+<Button
+  disabled={!isValid}
+  onClick={() => setShowErrors(true)}
+>
+  Submit Entry
+</Button>
+```
+
+**Full-Featured:**
+
+```tsx
+const [entry, setEntry] = useState('')
+const [isValid, setIsValid] = useState(false)
+const [showErrors, setShowErrors] = useState(false)
+
+<JournalEntryInput
+  value={entry}
+  onChange={setEntry}
+  onClear={() => setEntry('')}
+  onValidationChange={setIsValid}
+  showValidationErrors={showErrors}
+  showClearButton
+  minLength={20}
+  minRows={8}
+  maxRows={30}
+  size="lg"
+  variant="filled"
+  placeholder="Share what's on your mind today..."
+/>
+```
+
+#### Validation Rules
+
+1. **Minimum Length**: Entry must meet the specified minimum character count (default: 20)
+2. **Content Validation**: Prevents empty entries or entries containing only whitespace
+3. **Real-time Feedback**: Character count updates as user types with color-coded indicators
+4. **Progressive Disclosure**: Validation errors only appear when `showValidationErrors` is true
+
+#### Accessibility Features
+
+- **ARIA Support**: Includes `aria-invalid`, `aria-describedby`, and `aria-live` attributes
+- **Screen Reader**: Character count and validation messages announced to screen readers
+- **Keyboard Navigation**: Full keyboard accessibility for all interactive elements
+- **Focus Management**: Proper focus handling for clear button and validation states
+- **Color Contrast**: WCAG 2.1 AA compliant color schemes in both light and dark modes
+
+#### Visual States
+
+- **Character Count**:
+  - Orange text when below minimum requirement
+  - Muted text when requirement is met
+  - Format: "X more needed (current/minimum)" or "X characters"
+
+- **Validation Errors**:
+  - Red border when validation fails
+  - Error messages with warning icons
+  - Clear, actionable error text
+
+- **Clear Button**:
+  - Appears only when content exists
+  - Positioned in top-right corner
+  - Hover and focus states for better UX
 
 ### Accessibility Features
 

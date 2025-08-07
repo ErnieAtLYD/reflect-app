@@ -79,6 +79,48 @@
   --container-lg: 32rem;
   --container-xl: 36rem;
   --container-2xl: 42rem;
+
+  /* Colors for Tailwind utilities - referencing existing variables */
+  --color-background: light-dark(var(--background), var(--background));
+  --color-foreground: light-dark(var(--foreground), var(--foreground));
+  --color-card: light-dark(var(--card), var(--card));
+  --color-card-foreground: light-dark(
+    var(--card-foreground),
+    var(--card-foreground)
+  );
+  --color-popover: light-dark(var(--popover), var(--popover));
+  --color-popover-foreground: light-dark(
+    var(--popover-foreground),
+    var(--popover-foreground)
+  );
+  --color-primary: light-dark(var(--primary), var(--primary));
+  --color-primary-foreground: light-dark(
+    var(--primary-foreground),
+    var(--primary-foreground)
+  );
+  --color-secondary: light-dark(var(--secondary), var(--secondary));
+  --color-secondary-foreground: light-dark(
+    var(--secondary-foreground),
+    var(--secondary-foreground)
+  );
+  --color-muted: light-dark(var(--muted), var(--muted));
+  --color-muted-foreground: light-dark(
+    var(--muted-foreground),
+    var(--muted-foreground)
+  );
+  --color-accent: light-dark(var(--accent), var(--accent));
+  --color-accent-foreground: light-dark(
+    var(--accent-foreground),
+    var(--accent-foreground)
+  );
+  --color-destructive: light-dark(var(--destructive), var(--destructive));
+  --color-destructive-foreground: light-dark(
+    var(--destructive-foreground),
+    var(--destructive-foreground)
+  );
+  --color-border: light-dark(var(--border), var(--border));
+  --color-input: light-dark(var(--input), var(--input));
+  --color-ring: light-dark(var(--ring), var(--ring));
 }
 :root {
   /* Your custom color palette */

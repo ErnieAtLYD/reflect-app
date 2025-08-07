@@ -3,12 +3,38 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { FirstTimeTooltip } from '@/components/ui/first-time-tooltip'
-import { Textarea } from '@/components/ui/textarea'
+import { JournalEntryInput } from '@/components/ui/journal-entry-input'
 import { ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
 
 export default function Home() {
   const [journalEntry, setJournalEntry] = useState('')
+  const [isValidEntry, setIsValidEntry] = useState(false)
+  const [showValidationErrors, setShowValidationErrors] = useState(false)
+
+  const handleReflectNow = () => {
+    if (isValidEntry) {
+      // TODO: Implement reflection functionality
+      console.log('Reflecting on entry:', journalEntry)
+    } else {
+      // Show validation errors when user tries to submit invalid entry
+      setShowValidationErrors(true)
+    }
+  }
+
+  const handleClearInput = () => {
+    setJournalEntry('')
+    setShowValidationErrors(false)
+  }
+
+  const handleValidationChange = (isValid: boolean) => {
+    setIsValidEntry(isValid)
+    // Hide errors when entry becomes valid
+    if (isValid) {
+      setShowValidationErrors(false)
+    }
+  }
 
   return (
     <main className="bg-background min-h-screen">
@@ -20,7 +46,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-foreground text-3xl font-bold sm:text-4xl lg:text-5xl">
+            <h1 className="text-foreground font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
               Reflect
             </h1>
             <p className="text-muted-foreground mt-2 text-sm sm:text-base">
@@ -43,7 +69,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h2 className="text-foreground mb-6 text-4xl font-bold sm:text-5xl lg:text-6xl">
+            <h2 className="text-foreground font-heading mb-6 text-4xl font-bold sm:text-5xl lg:text-6xl">
               Capture Your Thoughts
             </h2>
           </motion.div>
@@ -71,15 +97,40 @@ export default function Home() {
                 content="Welcome to Reflect! This is your private space to write and organize thoughts. Everything stays on your device—no accounts or cloud storage needed."
                 storageKey="reflect-first-time-tooltip"
               >
-                <Textarea
+                <JournalEntryInput
                   value={journalEntry}
-                  onChange={(e) => setJournalEntry(e.target.value)}
-                  placeholder="Paste your journal entry here..."
-                  className="min-h-[400px] resize-none text-lg leading-relaxed"
+                  onChange={setJournalEntry}
+                  onClear={handleClearInput}
+                  onValidationChange={handleValidationChange}
+                  showValidationErrors={showValidationErrors}
+                  placeholder="Share what's on your mind today... What are you grateful for? What's challenging you? What made you smile?"
+                  className="min-h-[400px] text-lg leading-relaxed"
                   size="lg"
-                  data-testid="journal-entry-textarea"
+                  variant="filled"
+                  minRows={10}
+                  maxRows={30}
+                  showClearButton={true}
                 />
               </FirstTimeTooltip>
+            </div>
+
+            {/* Reflect Now Button */}
+            <div className="mb-8 flex justify-center">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.5 }}
+              >
+                <Button
+                  onClick={handleReflectNow}
+                  disabled={!isValidEntry}
+                  size="lg"
+                  className="px-8 py-3 text-base font-semibold"
+                  data-testid="reflect-now-button"
+                >
+                  Reflect Now
+                </Button>
+              </motion.div>
             </div>
 
             {/* Privacy Message */}
