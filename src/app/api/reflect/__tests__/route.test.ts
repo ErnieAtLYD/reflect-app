@@ -6,12 +6,13 @@
  */
 
 import { NextRequest } from 'next/server'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import { POST, GET } from '../route'
 
 // Mock OpenAI to avoid actual API calls in tests
-jest.mock('@/lib/openai', () => ({
-  getOpenAIConfig: jest.fn(() => ({
+vi.mock('@/lib/openai', () => ({
+  getOpenAIConfig: vi.fn(() => ({
     apiKey: 'test-key',
     model: 'gpt-4-1106-preview',
     fallbackModel: 'gpt-3.5-turbo-1106',
@@ -19,8 +20,8 @@ jest.mock('@/lib/openai', () => ({
     temperature: 0.7,
     timeout: 30000,
   })),
-  createOpenAIClient: jest.fn(() => ({})),
-  processJournalEntry: jest.fn(async () => ({
+  createOpenAIClient: vi.fn(() => ({})),
+  processJournalEntry: vi.fn(async () => ({
     summary: 'This is a test summary of the journal entry.',
     pattern: 'The user seems to be reflecting on their daily experiences.',
     suggestion:
@@ -31,7 +32,7 @@ jest.mock('@/lib/openai', () => ({
       processingTimeMs: 1500,
     },
   })),
-  validateJournalContent: jest.fn((content: string) => {
+  validateJournalContent: vi.fn((content: string) => {
     if (!content || content.length < 10) {
       return {
         isValid: false,
@@ -40,14 +41,14 @@ jest.mock('@/lib/openai', () => ({
     }
     return { isValid: true }
   }),
-  generateContentHash: jest.fn((content: string) => {
+  generateContentHash: vi.fn((content: string) => {
     return Buffer.from(content).toString('base64').slice(0, 10)
   }),
 }))
 
 describe('/api/reflect', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Clear environment variables
     delete process.env.OPENAI_API_KEY
   })
@@ -95,6 +96,14 @@ describe('/api/reflect', () => {
     })
 
     it('should handle missing OpenAI API key', async () => {
+      // Import the actual OpenAI lib for this test
+      const { getOpenAIConfig } = await import('@/lib/openai')
+
+      // Mock getOpenAIConfig to throw error when API key is missing
+      vi.mocked(getOpenAIConfig).mockImplementationOnce(() => {
+        throw new Error('OPENAI_API_KEY environment variable is required')
+      })
+
       const request = new NextRequest('http://localhost:3000/api/reflect', {
         method: 'POST',
         body: JSON.stringify({
@@ -103,9 +112,6 @@ describe('/api/reflect', () => {
         }),
         headers: { 'Content-Type': 'application/json' },
       })
-
-      // Remove API key to trigger error
-      delete process.env.OPENAI_API_KEY
 
       const response = await POST(request)
       expect(response.status).toBe(500)

@@ -18,51 +18,45 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Setup axe-core for accessibility testing with error handling
 if (typeof window !== 'undefined') {
-  // Flag to prevent multiple initialization attempts
-  let axeCoreInitialized = false
+  // Global flag to prevent multiple initialization attempts across all test files
+  if (!(globalThis as { __axeInitialized?: boolean }).__axeInitialized) {
+    ;(globalThis as { __axeInitialized?: boolean }).__axeInitialized = true
 
-  // Use dynamic imports for browser-only packages with error handling
-  void import('@axe-core/react')
-    .then((axeModule) => {
-      if (axeCoreInitialized) {
-        return
-      }
+    // Use dynamic imports for browser-only packages with error handling
+    void import('@axe-core/react')
+      .then((axeModule) => {
+        void Promise.all([import('react'), import('react-dom')])
+          .then(([reactModule, reactDomModule]) => {
+            try {
+              // Only initialize if React.createElement hasn't been modified
+              const React = reactModule.default || reactModule
+              const originalDescriptor = Object.getOwnPropertyDescriptor(
+                React,
+                'createElement'
+              )
 
-      void Promise.all([import('react'), import('react-dom')])
-        .then(([reactModule, reactDomModule]) => {
-          try {
-            // Check if React.createElement is already redefined
-            const originalCreateElement = reactModule.createElement
-            if (
-              originalCreateElement &&
-              typeof originalCreateElement === 'function'
-            ) {
+              if (!originalDescriptor?.configurable) {
+                // createElement is already non-configurable, skip axe initialization
+                return
+              }
+
               axeModule.default(reactModule, reactDomModule, 1000)
-              axeCoreInitialized = true
+            } catch (error) {
+              // Silently ignore createElement redefinition errors
+              // This is expected when axe-core tries to instrument React
+              if (!(error as Error)?.message?.includes('createElement')) {
+                console.warn('axe-core initialization error:', error)
+              }
             }
-          } catch (error) {
-            // Silently handle the createElement redefinition error
-            // This allows tests to continue running without the axe-core React integration
-            console.warn(
-              'axe-core React integration could not be initialized:',
-              error instanceof Error ? error.message : String(error)
-            )
-            axeCoreInitialized = true // Mark as initialized to prevent retries
-          }
-        })
-        .catch((error) => {
-          console.warn(
-            'Failed to load React modules for axe-core:',
-            error instanceof Error ? error.message : String(error)
-          )
-        })
-    })
-    .catch((error) => {
-      console.warn(
-        'Failed to load @axe-core/react:',
-        error instanceof Error ? error.message : String(error)
-      )
-    })
+          })
+          .catch(() => {
+            // Silently ignore import errors in test environment
+          })
+      })
+      .catch(() => {
+        // Silently ignore @axe-core/react import errors
+      })
+  }
 }
 
 // Mock ResizeObserver for HeadlessUI components
