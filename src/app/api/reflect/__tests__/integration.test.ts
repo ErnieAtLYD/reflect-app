@@ -233,13 +233,14 @@ export function validateResponseFormat(data: unknown): ValidationResult {
 // Removed unused defaultTestSetup
 
 /**
- * Helper function to make API request with error handling
+ * Helper function to make API request with rate limiting awareness
  */
 export async function makeApiRequest(
   content: string,
-  preferences?: Record<string, unknown>
+  preferences?: Record<string, unknown>,
+  retryCount = 0
 ): Promise<Response> {
-  return await fetch(`${BASE_URL}/api/reflect`, {
+  const response = await fetch(`${BASE_URL}/api/reflect`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -252,6 +253,29 @@ export async function makeApiRequest(
       },
     }),
   })
+
+  // If rate limited and we haven't retried too many times, wait and retry
+  if (response.status === 429 && retryCount < 2) {
+    const data = await response.json()
+    const retryAfter = (data.retryAfter || 10) + 2 // Add 2 seconds buffer
+    console.log(
+      `Rate limited, waiting ${retryAfter}s before retry ${retryCount + 1}/2`
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000))
+    return makeApiRequest(content, preferences, retryCount + 1)
+  }
+
+  return response
+}
+
+/**
+ * Rate-aware delay between test requests
+ */
+export async function rateLimitDelay(baseDelay = 3000): Promise<void> {
+  // Add some randomness to avoid thundering herd
+  const jitter = Math.random() * 1000
+  await new Promise((resolve) => setTimeout(resolve, baseDelay + jitter))
 }
 
 /**
@@ -357,8 +381,8 @@ describe('AI API Integration Tests', () => {
             serviceUnavailableCount++
         }
 
-        // Small delay to avoid overwhelming the API
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        // Rate-aware delay to avoid overwhelming the API
+        await rateLimitDelay()
       }
 
       const successfulResults = results.filter((r) => r.success)

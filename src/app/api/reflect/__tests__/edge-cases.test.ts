@@ -276,9 +276,18 @@ export function analyzeTextQuality(
   return { score: Math.max(0, score), issues }
 }
 
-// Helper function to make API requests for edge case testing
+/**
+ * Rate-aware delay between edge case test requests
+ */
+async function rateLimitDelay(baseDelay = 2000): Promise<void> {
+  const jitter = Math.random() * 500
+  await new Promise((resolve) => setTimeout(resolve, baseDelay + jitter))
+}
+
+// Helper function to make API requests for edge case testing with rate limiting
 async function makeEdgeCaseRequest(
-  content: string
+  content: string,
+  retryCount = 0
 ): Promise<{ response: Response; data: unknown; duration: number }> {
   const startTime = Date.now()
 
@@ -291,13 +300,23 @@ async function makeEdgeCaseRequest(
   const data = await response.json()
   const duration = Date.now() - startTime
 
+  // If rate limited and we haven't retried too many times, wait and retry
+  if (response.status === 429 && retryCount < 1) {
+    const retryAfter =
+      ((data as Record<string, unknown>).retryAfter as number) || 10
+    console.log(
+      `Edge case test rate limited, waiting ${retryAfter + 2}s before retry`
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, (retryAfter + 2) * 1000))
+    return makeEdgeCaseRequest(content, retryCount + 1)
+  }
+
   return { response, data, duration }
 }
 
 // Helper function to validate API response structure for edge cases
-function expectValidApiResponse(
-  data: unknown
-): asserts data is {
+function expectValidApiResponse(data: unknown): asserts data is {
   summary: string
   pattern: string
   suggestion: string
@@ -589,8 +608,8 @@ describe('AI API Edge Cases Tests', () => {
             }
           }
 
-          // Small delay between tests to avoid overwhelming API
-          await new Promise((resolve) => setTimeout(resolve, 500))
+          // Rate-aware delay between tests to avoid overwhelming API
+          await rateLimitDelay()
         } catch {
           results.failed++
         }

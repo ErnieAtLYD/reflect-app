@@ -37,9 +37,18 @@ const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 const testContent =
   "Today I learned something important about patience. While working on a difficult problem, I found myself getting frustrated when the solution didn't come immediately. I took a step back, breathed deeply, and approached it with fresh eyes. The breakthrough came when I stopped forcing it and allowed my mind to work naturally. This experience reminded me that sometimes the best approach is to trust the process and give things time to unfold."
 
-// Helper function to make API requests
+/**
+ * Rate-aware delay between caching test requests
+ */
+async function rateLimitDelay(baseDelay = 2500): Promise<void> {
+  const jitter = Math.random() * 500
+  await new Promise((resolve) => setTimeout(resolve, baseDelay + jitter))
+}
+
+// Helper function to make API requests with rate limiting awareness
 async function makeApiRequest(
-  content: string
+  content: string,
+  retryCount = 0
 ): Promise<{ response: Response; data: unknown; duration: number }> {
   const start = Date.now()
 
@@ -51,6 +60,18 @@ async function makeApiRequest(
 
   const data = await response.json()
   const duration = Date.now() - start
+
+  // If rate limited and we haven't retried too many times, wait and retry
+  if (response.status === 429 && retryCount < 1) {
+    const retryAfter =
+      ((data as Record<string, unknown>).retryAfter as number) || 10
+    console.log(
+      `Caching test rate limited, waiting ${retryAfter + 2}s before retry`
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, (retryAfter + 2) * 1000))
+    return makeApiRequest(content, retryCount + 1)
+  }
 
   return { response, data, duration }
 }
@@ -314,8 +335,8 @@ describe('AI API Caching Tests', () => {
           })
         }
 
-        // Small delay between requests
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+        // Rate-aware delay between requests
+        await rateLimitDelay()
       }
 
       const successfulResults = results.filter((r) => r.success)
