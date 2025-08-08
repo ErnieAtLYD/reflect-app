@@ -32,6 +32,7 @@ const cache = new Map<string, CacheEntry>()
 const rateLimitStore = new Map<string, RateLimitState>()
 
 // Configuration
+const RATE_LIMIT_ENABLED = process.env.AI_RATE_LIMIT_ENABLED !== 'false'
 const RATE_LIMIT_RPM = parseInt(process.env.AI_RATE_LIMIT_RPM || '10', 10)
 const CACHE_TTL_MS = parseInt(process.env.AI_CACHE_TTL || '3600', 10) * 1000 // Convert seconds to milliseconds
 const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
@@ -46,17 +47,19 @@ export async function POST(
     // Get client IP for rate limiting
     const clientIP = getClientIP(request)
 
-    // Check rate limit
-    const rateLimitResult = checkRateLimit(clientIP)
-    if (!rateLimitResult.allowed) {
-      return NextResponse.json<ReflectionError>(
-        {
-          error: 'rate_limit',
-          message: 'Too many requests. Please try again later.',
-          retryAfter: rateLimitResult.retryAfter,
-        },
-        { status: 429 }
-      )
+    // Check rate limit (configurable)
+    if (RATE_LIMIT_ENABLED) {
+      const rateLimitResult = checkRateLimit(clientIP)
+      if (!rateLimitResult.allowed) {
+        return NextResponse.json<ReflectionError>(
+          {
+            error: 'rate_limit',
+            message: 'Too many requests. Please try again later.',
+            retryAfter: rateLimitResult.retryAfter,
+          },
+          { status: 429 }
+        )
+      }
     }
 
     // Parse request body

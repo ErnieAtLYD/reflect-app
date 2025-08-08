@@ -9,3 +9,41 @@ Implement state management using React Context API or Redux Toolkit (v1.9.7) if 
 
 # Test Strategy:
 Test the end-to-end flow from input to reflection display. Verify state transitions between input, loading, and results. Test error handling by simulating API failures. Check that the reset functionality works correctly. Test with various input lengths and content types. Verify that multiple rapid submissions are properly debounced.
+
+# Subtasks:
+## 1. Create Main Application Component with State [pending]
+### Dependencies: None
+### Description: Implement a main App component that manages the state between input and reflection display using useState hooks.
+### Details:
+Create a new App.jsx component that will serve as the main container. Implement useState hooks for managing the application state including: userInput (string), reflectionResult (object), isLoading (boolean), and error (string). Structure the component to render both the input component and reflection display component. Pass the necessary state and handler functions as props to child components.
+
+## 2. Implement Reflect Now Button Functionality [done]
+### Dependencies: 7.1
+### Description: Add functionality to the Reflect Now button that processes user input and triggers the API call to generate a reflection.
+### Details:
+Create a handleSubmit function that validates user input (checking for empty input), sets isLoading to true, and makes the API call to the reflection service. Implement basic error handling to catch and display any API errors. Pass the handleSubmit function to the input component as a prop. Add debouncing to prevent multiple submissions by disabling the button during API calls.
+
+## 3. Handle Loading and Error States [done]
+### Dependencies: 7.2
+### Description: Implement visual feedback for loading states and error handling with user-friendly messages.
+### Details:
+Create conditional rendering in the App component to show appropriate loading indicators when isLoading is true. Pass the loading state to the reflection display component. Implement error handling that displays user-friendly error messages when API calls fail. Create a simple error message component or use inline messaging that clearly communicates what went wrong and suggests next steps.
+
+## 4. Implement Reset Functionality [done]
+### Dependencies: 7.3
+### Description: Add a clear/reset function that allows users to start a new reflection by clearing all current state.
+### Details:
+Create a handleReset function that resets all state variables to their initial values (clearing userInput, reflectionResult, error states). Add a Reset or New Reflection button component that calls this function when clicked. Position this button in an intuitive location, such as below the reflection results or in a header area. Ensure the reset function provides a clean slate for starting a new reflection.
+
+## 5. Friendly Error Mapping and Stale Error Clearing [done]
+### Dependencies: None
+### Description: Provide concise, user-friendly error messages and clear stale errors when the user edits input.
+### Details:
+Implement a function to normalize API errors into human-readable messages (content policy, rate limit, retryable API error, default). Clear error state when the user resumes editing after an error to return to idle. Keep solution minimal and accessible.
+
+## 6. Rate-Limit Resilience and Abortable Requests [done]
+### Dependencies: None
+### Description: Improve resilience against 429s and allow canceling in-flight requests.
+### Details:
+On 429, show retry-after countdown and retry once automatically; disable the button during wait. Wire requests through AbortController and pass signal to fetch so they can be canceled (e.g., on reset).
+
