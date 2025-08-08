@@ -6,26 +6,75 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { FirstTimeTooltip } from '@/components/ui/first-time-tooltip'
 import { JournalEntryInput } from '@/components/ui/journal-entry-input'
+import { ReflectionDisplay } from '@/components/ui/reflection-display'
 import { ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
+import { aiClient, AIReflectionError } from '@/lib/ai-client'
+import type { ReflectionResponse } from '@/types/ai'
 
 export default function Home() {
   const [journalEntry, setJournalEntry] = useState('')
   const [isValidEntry, setIsValidEntry] = useState(false)
   const [showValidationErrors, setShowValidationErrors] = useState(false)
 
-  const handleReflectNow = () => {
-    if (isValidEntry) {
-      // TODO: Implement reflection functionality
-      console.log('Reflecting on entry:', journalEntry)
-    } else {
-      // Show validation errors when user tries to submit invalid entry
+  // Reflection state management
+  const [reflectionState, setReflectionState] = useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle')
+  const [reflectionData, setReflectionData] = useState<
+    ReflectionResponse | undefined
+  >()
+  const [reflectionError, setReflectionError] = useState<string | undefined>()
+
+  const handleReflectNow = async () => {
+    if (!isValidEntry) {
       setShowValidationErrors(true)
+      return
     }
+
+    try {
+      setReflectionState('loading')
+      setReflectionError(undefined)
+
+      const response = await aiClient.processEntry({
+        content: journalEntry,
+        preferences: {
+          tone: 'supportive',
+          focusAreas: ['emotions', 'growth', 'patterns'],
+        },
+      })
+
+      setReflectionData(response)
+      setReflectionState('success')
+    } catch (error) {
+      let errorMessage = 'Unable to generate reflection at this time'
+
+      if (error instanceof AIReflectionError) {
+        if (error.isRateLimited()) {
+          errorMessage = `Too many requests. Please try again ${error.retryAfter ? `in ${error.retryAfter} seconds` : 'later'}.`
+        } else if (error.isContentPolicyViolation()) {
+          errorMessage =
+            'Your entry cannot be processed due to content policy restrictions. Please try a different approach.'
+        } else {
+          errorMessage = error.message
+        }
+      }
+
+      setReflectionError(errorMessage)
+      setReflectionState('error')
+    }
+  }
+
+  const handleReflectionRetry = () => {
+    handleReflectNow()
   }
 
   const handleClearInput = () => {
     setJournalEntry('')
     setShowValidationErrors(false)
+    // Reset reflection state when clearing input
+    setReflectionState('idle')
+    setReflectionData(undefined)
+    setReflectionError(undefined)
   }
 
   const handleValidationChange = (isValid: boolean) => {
@@ -123,12 +172,14 @@ export default function Home() {
               >
                 <Button
                   onClick={handleReflectNow}
-                  disabled={!isValidEntry}
+                  disabled={!isValidEntry || reflectionState === 'loading'}
                   size="lg"
                   className="px-8 py-3 text-base font-semibold"
                   data-testid="reflect-now-button"
                 >
-                  Reflect Now
+                  {reflectionState === 'loading'
+                    ? 'Reflecting...'
+                    : 'Reflect Now'}
                 </Button>
               </motion.div>
             </div>
@@ -140,6 +191,14 @@ export default function Home() {
               </p>
             </div>
           </motion.div>
+
+          {/* Reflection Display */}
+          <ReflectionDisplay
+            state={reflectionState}
+            data={reflectionData}
+            error={reflectionError}
+            onRetry={handleReflectionRetry}
+          />
         </div>
       </div>
     </main>

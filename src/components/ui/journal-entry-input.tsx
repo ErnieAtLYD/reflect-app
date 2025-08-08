@@ -168,6 +168,18 @@ interface JournalEntryInputProps
  * - WCAG 2.1 AA compliant color contrast
  *
  * @param props - JournalEntryInputProps
+ * @param props.id - The id for the JournalEntryInput component
+ * @param props.className - The className for the JournalEntryInput component
+ * @param props.size - The size for the JournalEntryInput component (sm, default, lg)
+ * @param props.variant - The variant for the JournalEntryInput component (default, filled, ghost)
+ * @param props.error - The error for the JournalEntryInput component
+ * @param props.onChange - The onChange for the JournalEntryInput component
+ * @param props.value - The value for the JournalEntryInput component
+ * @param props.minRows - The minRows for the JournalEntryInput component
+ * @param props.maxRows - The maxRows for the JournalEntryInput component
+ * @param props.minLength - The minLength for the JournalEntryInput component
+ * @param props.showCharacterCount - The showCharacterCount for the JournalEntryInput component
+ * @param props.showClearButton - The showClearButton for the JournalEntryInput component
  * @param ref - Forwarded ref to the textarea element
  * @returns JSX.Element
  */
