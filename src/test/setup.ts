@@ -1,5 +1,11 @@
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { cleanup } from '@testing-library/react'
+import { afterEach, vi } from 'vitest'
+
+// Ensure DOM is cleaned between tests to avoid duplicate elements across renders
+afterEach(() => {
+  cleanup()
+})
 
 // Mock window.matchMedia for next-themes
 Object.defineProperty(window, 'matchMedia', {

@@ -32,6 +32,7 @@ const cache = new Map<string, CacheEntry>()
 const rateLimitStore = new Map<string, RateLimitState>()
 
 // Configuration
+const RATE_LIMIT_ENABLED = process.env.AI_RATE_LIMIT_ENABLED !== 'false'
 const RATE_LIMIT_RPM = parseInt(process.env.AI_RATE_LIMIT_RPM || '10', 10)
 const CACHE_TTL_MS = parseInt(process.env.AI_CACHE_TTL || '3600', 10) * 1000 // Convert seconds to milliseconds
 const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
@@ -46,17 +47,19 @@ export async function POST(
     // Get client IP for rate limiting
     const clientIP = getClientIP(request)
 
-    // Check rate limit
-    const rateLimitResult = checkRateLimit(clientIP)
-    if (!rateLimitResult.allowed) {
-      return NextResponse.json<ReflectionError>(
-        {
-          error: 'rate_limit',
-          message: 'Too many requests. Please try again later.',
-          retryAfter: rateLimitResult.retryAfter,
-        },
-        { status: 429 }
-      )
+    // Check rate limit (configurable)
+    if (RATE_LIMIT_ENABLED) {
+      const rateLimitResult = checkRateLimit(clientIP)
+      if (!rateLimitResult.allowed) {
+        return NextResponse.json<ReflectionError>(
+          {
+            error: 'rate_limit',
+            message: 'Too many requests. Please try again later.',
+            retryAfter: rateLimitResult.retryAfter,
+          },
+          { status: 429 }
+        )
+      }
     }
 
     // Parse request body
@@ -323,22 +326,49 @@ function setCachedResponse(
 
 /**
  * Periodic cleanup for rate limiting store
+ * Note: In production, consider using a more robust solution like Redis
+ * or implementing proper cleanup on server shutdown
  */
-setInterval(() => {
-  const now = Date.now()
-  const windowStart = now - RATE_LIMIT_WINDOW_MS
+let cleanupInterval: NodeJS.Timeout | null = null
 
-  for (const [ip, state] of rateLimitStore.entries()) {
-    state.requests = state.requests.filter(
-      (timestamp) => timestamp > windowStart
-    )
-
-    // Remove empty entries
-    if (
-      state.requests.length === 0 &&
-      now - state.lastReset > RATE_LIMIT_WINDOW_MS
-    ) {
-      rateLimitStore.delete(ip)
-    }
+function startCleanupInterval(): void {
+  if (cleanupInterval) {
+    clearInterval(cleanupInterval)
   }
-}, RATE_LIMIT_WINDOW_MS) // Clean up every minute
+
+  cleanupInterval = setInterval(() => {
+    const now = Date.now()
+    const windowStart = now - RATE_LIMIT_WINDOW_MS
+
+    for (const [ip, state] of rateLimitStore.entries()) {
+      state.requests = state.requests.filter(
+        (timestamp) => timestamp > windowStart
+      )
+
+      // Remove empty entries
+      if (
+        state.requests.length === 0 &&
+        now - state.lastReset > RATE_LIMIT_WINDOW_MS
+      ) {
+        rateLimitStore.delete(ip)
+      }
+    }
+  }, RATE_LIMIT_WINDOW_MS) // Clean up every minute
+}
+
+function stopCleanupInterval(): void {
+  if (cleanupInterval) {
+    clearInterval(cleanupInterval)
+    cleanupInterval = null
+  }
+}
+
+// Start cleanup interval
+startCleanupInterval()
+
+// Cleanup on process exit (Node.js specific)
+if (typeof process !== 'undefined') {
+  process.on('exit', stopCleanupInterval)
+  process.on('SIGINT', stopCleanupInterval)
+  process.on('SIGTERM', stopCleanupInterval)
+}
