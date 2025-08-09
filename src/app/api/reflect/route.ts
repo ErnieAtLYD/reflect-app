@@ -12,6 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 
+import { AI_CONFIG } from '@/constants'
 import {
   getOpenAIConfig,
   createOpenAIClient,
@@ -31,11 +32,14 @@ import type {
 const cache = new Map<string, CacheEntry>()
 const rateLimitStore = new Map<string, RateLimitState>()
 
-// Configuration
-const RATE_LIMIT_ENABLED = process.env.AI_RATE_LIMIT_ENABLED !== 'false'
-const RATE_LIMIT_RPM = parseInt(process.env.AI_RATE_LIMIT_RPM || '10', 10)
-const CACHE_TTL_MS = parseInt(process.env.AI_CACHE_TTL || '3600', 10) * 1000 // Convert seconds to milliseconds
-const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
+// Configuration from constants
+const {
+  RATE_LIMIT_ENABLED,
+  RATE_LIMIT_RPM,
+  CACHE_TTL_MS,
+  RATE_LIMIT_WINDOW_MS,
+  OPENAI_TIMEOUT_MS,
+} = AI_CONFIG
 
 /**
  * Handle POST requests to process journal entries
@@ -138,7 +142,7 @@ export async function POST(
             {
               error: 'timeout',
               message: 'Request timed out. Please try again.',
-              retryAfter: 30,
+              retryAfter: Math.ceil(OPENAI_TIMEOUT_MS / 1000), // Convert to seconds
             },
             { status: 504 }
           )

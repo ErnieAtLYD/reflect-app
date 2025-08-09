@@ -7,6 +7,7 @@
 
 import OpenAI from 'openai'
 
+import { AI_CONFIG } from '@/constants'
 import type {
   OpenAIConfig,
   ReflectionResponse,
@@ -18,18 +19,18 @@ import type {
  * Get OpenAI configuration from environment variables
  */
 export function getOpenAIConfig(): OpenAIConfig {
-  const apiKey = process.env.OPENAI_API_KEY
+  const apiKey = AI_CONFIG.OPENAI_API_KEY
   if (!apiKey) {
     throw new Error('OPENAI_API_KEY environment variable is required')
   }
 
   return {
     apiKey,
-    model: process.env.OPENAI_MODEL || 'gpt-4-1106-preview',
-    fallbackModel: process.env.OPENAI_FALLBACK_MODEL || 'gpt-3.5-turbo-1106',
-    maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || '500', 10),
-    temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.7'),
-    timeout: parseInt(process.env.OPENAI_TIMEOUT || '30000', 10),
+    model: AI_CONFIG.OPENAI_MODEL,
+    fallbackModel: AI_CONFIG.OPENAI_FALLBACK_MODEL,
+    maxTokens: AI_CONFIG.OPENAI_MAX_TOKENS,
+    temperature: AI_CONFIG.OPENAI_TEMPERATURE,
+    timeout: AI_CONFIG.OPENAI_TIMEOUT_MS,
   }
 }
 
