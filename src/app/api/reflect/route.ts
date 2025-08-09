@@ -326,22 +326,49 @@ function setCachedResponse(
 
 /**
  * Periodic cleanup for rate limiting store
+ * Note: In production, consider using a more robust solution like Redis
+ * or implementing proper cleanup on server shutdown
  */
-setInterval(() => {
-  const now = Date.now()
-  const windowStart = now - RATE_LIMIT_WINDOW_MS
+let cleanupInterval: NodeJS.Timeout | null = null
 
-  for (const [ip, state] of rateLimitStore.entries()) {
-    state.requests = state.requests.filter(
-      (timestamp) => timestamp > windowStart
-    )
-
-    // Remove empty entries
-    if (
-      state.requests.length === 0 &&
-      now - state.lastReset > RATE_LIMIT_WINDOW_MS
-    ) {
-      rateLimitStore.delete(ip)
-    }
+function startCleanupInterval(): void {
+  if (cleanupInterval) {
+    clearInterval(cleanupInterval)
   }
-}, RATE_LIMIT_WINDOW_MS) // Clean up every minute
+
+  cleanupInterval = setInterval(() => {
+    const now = Date.now()
+    const windowStart = now - RATE_LIMIT_WINDOW_MS
+
+    for (const [ip, state] of rateLimitStore.entries()) {
+      state.requests = state.requests.filter(
+        (timestamp) => timestamp > windowStart
+      )
+
+      // Remove empty entries
+      if (
+        state.requests.length === 0 &&
+        now - state.lastReset > RATE_LIMIT_WINDOW_MS
+      ) {
+        rateLimitStore.delete(ip)
+      }
+    }
+  }, RATE_LIMIT_WINDOW_MS) // Clean up every minute
+}
+
+function stopCleanupInterval(): void {
+  if (cleanupInterval) {
+    clearInterval(cleanupInterval)
+    cleanupInterval = null
+  }
+}
+
+// Start cleanup interval
+startCleanupInterval()
+
+// Cleanup on process exit (Node.js specific)
+if (typeof process !== 'undefined') {
+  process.on('exit', stopCleanupInterval)
+  process.on('SIGINT', stopCleanupInterval)
+  process.on('SIGTERM', stopCleanupInterval)
+}
