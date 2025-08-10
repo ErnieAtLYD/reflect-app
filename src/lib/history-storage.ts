@@ -10,6 +10,42 @@ export interface HistoryEntry {
 const STORAGE_KEY = 'reflect-history'
 const MAX_ENTRIES = 5
 
+const validateHistoryEntry = (entry: unknown): entry is HistoryEntry => {
+  if (typeof entry !== 'object' || entry === null) {
+    return false
+  }
+
+  const obj = entry as Record<string, unknown>
+
+  // Validate required fields
+  if (typeof obj.id !== 'string' || obj.id.length === 0) {
+    return false
+  }
+
+  if (typeof obj.timestamp !== 'number' || !Number.isFinite(obj.timestamp)) {
+    return false
+  }
+
+  if (typeof obj.journalEntry !== 'string') {
+    return false
+  }
+
+  // Validate optional reflection field
+  if (obj.reflection !== undefined) {
+    if (typeof obj.reflection !== 'object' || obj.reflection === null) {
+      return false
+    }
+
+    const reflection = obj.reflection as Record<string, unknown>
+    // Basic validation for reflection structure - should have at least summary
+    if (typeof reflection.summary !== 'string') {
+      return false
+    }
+  }
+
+  return true
+}
+
 export const historyStorage = {
   isEnabled(): boolean {
     try {
@@ -60,9 +96,32 @@ export const historyStorage = {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (!stored) return []
 
-      const entries = JSON.parse(stored) as HistoryEntry[]
-      return Array.isArray(entries) ? entries : []
+      const parsed = JSON.parse(stored)
+      if (!Array.isArray(parsed)) {
+        // Invalid data format, clear corrupted storage
+        localStorage.removeItem(STORAGE_KEY)
+        return []
+      }
+
+      // Filter out invalid entries and keep only valid ones
+      const validEntries = parsed.filter(validateHistoryEntry)
+
+      // If we had to filter out invalid entries, save the cleaned data
+      if (validEntries.length !== parsed.length && validEntries.length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(validEntries))
+      } else if (validEntries.length === 0 && parsed.length > 0) {
+        // All entries were invalid, clear storage
+        localStorage.removeItem(STORAGE_KEY)
+      }
+
+      return validEntries
     } catch {
+      // JSON parsing failed or other error, clear corrupted storage
+      try {
+        localStorage.removeItem(STORAGE_KEY)
+      } catch {
+        // Ignore if we can't clear storage
+      }
       return []
     }
   },
