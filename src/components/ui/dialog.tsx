@@ -5,7 +5,7 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 const dialogVariants = cva(
-  'relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all',
+  'relative transform overflow-hidden rounded-lg bg-background border border-border shadow-xl transition-all text-left p-6',
   {
     variants: {
       size: {
@@ -117,7 +117,7 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
                   {title && (
                     <HeadlessDialog.Title
                       as="h3"
-                      className="mb-2 text-lg leading-6 font-medium text-gray-900"
+                      className="text-foreground mb-2 text-lg leading-6 font-medium"
                       data-testid="dialog-title"
                     >
                       {title}
@@ -126,7 +126,7 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
 
                   {description && (
                     <HeadlessDialog.Description
-                      className="mb-4 text-sm text-gray-500"
+                      className="text-muted-foreground mb-4 text-sm"
                       data-testid="dialog-description"
                     >
                       {description}

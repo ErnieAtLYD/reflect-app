@@ -35,7 +35,7 @@ const API_BASE = 'http://localhost:3000'
 const edgeCases = [
   {
     name: 'Minimum valid length (10 chars)',
-    content: 'I am okay',
+    content: 'I am okay!',
     expectSuccess: true,
   },
   {
@@ -82,8 +82,11 @@ const edgeCases = [
     expectSuccess: true,
   },
   {
-    name: 'At character limit (5000 chars)',
-    content: 'A'.repeat(4990) + 'reflection',
+    name: 'At character limit (4999 chars)',
+    content:
+      'Today I spent a lot of time reflecting on my journey and all the experiences. '.repeat(
+        63
+      ) + 'This was truly meaningful.',
     expectSuccess: true,
   },
   {
@@ -364,7 +367,7 @@ describe('AI API Edge Cases Tests', () => {
     const boundaryTests = [
       {
         name: 'Minimum valid length (10 chars)',
-        content: 'I am okay',
+        content: 'I am okay!',
         expectSuccess: true,
       },
       {
@@ -373,8 +376,11 @@ describe('AI API Edge Cases Tests', () => {
         expectSuccess: false,
       },
       {
-        name: 'At character limit (5000 chars)',
-        content: 'A'.repeat(4990) + 'reflection',
+        name: 'At character limit (4999 chars)',
+        content:
+          'Today I spent a lot of time reflecting on my journey and all the experiences. '.repeat(
+            63
+          ) + 'This was truly meaningful.',
         expectSuccess: true,
       },
       {

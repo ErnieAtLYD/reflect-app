@@ -19,14 +19,20 @@ export function HistoryView({ onLoadEntry }: HistoryViewProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showClearDialog, setShowClearDialog] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [isHistoryEnabled, setIsHistoryEnabled] = useState(false)
 
   const loadEntries = () => {
     setEntries(historyStorage.getEntries())
+    setIsHistoryEnabled(historyStorage.isEnabled())
   }
 
   useEffect(() => {
     setIsClient(true)
     loadEntries()
+
+    // Poll for changes in history state every second
+    const interval = setInterval(loadEntries, 1000)
+    return () => clearInterval(interval)
   }, [])
 
   const handleLoadEntry = (entry: HistoryEntry) => {
@@ -53,7 +59,7 @@ export function HistoryView({ onLoadEntry }: HistoryViewProps) {
     })
   }
 
-  if (!isClient || !historyStorage.isEnabled() || entries.length === 0) {
+  if (!isClient || !isHistoryEnabled || entries.length === 0) {
     return null
   }
 
@@ -143,8 +149,9 @@ export function HistoryView({ onLoadEntry }: HistoryViewProps) {
         onClose={() => setShowClearDialog(false)}
         title="Clear History"
         description="Are you sure you want to delete all saved entries? This action cannot be undone."
+        size="default"
       >
-        <div className="flex justify-end gap-4">
+        <div className="mt-4 flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setShowClearDialog(false)}>
             Cancel
           </Button>

@@ -37,7 +37,11 @@ export function HistoryToggle({ className }: HistoryToggleProps) {
       onClick={handleToggle}
       className={className}
       data-testid="history-toggle"
-      title={`History storage: ${isEnabled ? 'enabled' : 'disabled'}`}
+      title={`${
+        isEnabled
+          ? 'History storage is enabled - Your journal entries and AI reflections are being saved locally in your browser for easy access'
+          : 'History storage is disabled - Click to enable saving your journal entries and reflections locally in your browser'
+      }`}
     >
       {isEnabled ? (
         <Database className="h-4 w-4" />
