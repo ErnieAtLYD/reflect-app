@@ -10,6 +10,81 @@ export interface HistoryEntry {
 const STORAGE_KEY = 'reflect-history'
 const MAX_ENTRIES = 5
 
+const validateReflectionResponse = (
+  reflection: unknown
+): reflection is ReflectionResponse => {
+  if (typeof reflection !== 'object' || reflection === null) {
+    return false
+  }
+
+  const obj = reflection as Record<string, unknown>
+
+  // Validate required string fields
+  if (typeof obj.summary !== 'string' || obj.summary.length === 0) {
+    return false
+  }
+
+  if (typeof obj.pattern !== 'string' || obj.pattern.length === 0) {
+    return false
+  }
+
+  if (typeof obj.suggestion !== 'string' || obj.suggestion.length === 0) {
+    return false
+  }
+
+  // Validate metadata object
+  if (typeof obj.metadata !== 'object' || obj.metadata === null) {
+    return false
+  }
+
+  const metadata = obj.metadata as Record<string, unknown>
+
+  if (typeof metadata.model !== 'string' || metadata.model.length === 0) {
+    return false
+  }
+
+  if (
+    typeof metadata.processedAt !== 'string' ||
+    metadata.processedAt.length === 0
+  ) {
+    return false
+  }
+
+  if (
+    typeof metadata.processingTimeMs !== 'number' ||
+    !Number.isFinite(metadata.processingTimeMs) ||
+    metadata.processingTimeMs < 0
+  ) {
+    return false
+  }
+
+  // Ensure no unexpected properties in ReflectionResponse
+  const allowedKeys = new Set(['summary', 'pattern', 'suggestion', 'metadata'])
+  const objKeys = Object.keys(obj)
+
+  for (const key of objKeys) {
+    if (!allowedKeys.has(key)) {
+      return false
+    }
+  }
+
+  // Ensure no unexpected properties in metadata
+  const allowedMetadataKeys = new Set([
+    'model',
+    'processedAt',
+    'processingTimeMs',
+  ])
+  const metadataKeys = Object.keys(metadata)
+
+  for (const key of metadataKeys) {
+    if (!allowedMetadataKeys.has(key)) {
+      return false
+    }
+  }
+
+  return true
+}
+
 const validateHistoryEntry = (entry: unknown): entry is HistoryEntry => {
   if (typeof entry !== 'object' || entry === null) {
     return false
@@ -17,28 +92,48 @@ const validateHistoryEntry = (entry: unknown): entry is HistoryEntry => {
 
   const obj = entry as Record<string, unknown>
 
-  // Validate required fields
+  // Validate required id field - must be non-empty string
   if (typeof obj.id !== 'string' || obj.id.length === 0) {
     return false
   }
 
-  if (typeof obj.timestamp !== 'number' || !Number.isFinite(obj.timestamp)) {
+  // Validate timestamp - must be a finite number and reasonable (not negative, not too far in future)
+  if (
+    typeof obj.timestamp !== 'number' ||
+    !Number.isFinite(obj.timestamp) ||
+    obj.timestamp < 0
+  ) {
     return false
   }
 
-  if (typeof obj.journalEntry !== 'string') {
+  // Additional timestamp validation - should not be too far in the future
+  const now = Date.now()
+  const oneYearFromNow = now + 365 * 24 * 60 * 60 * 1000
+  if (obj.timestamp > oneYearFromNow) {
     return false
   }
 
-  // Validate optional reflection field
+  // Validate journal entry - must be non-empty string when trimmed
+  if (
+    typeof obj.journalEntry !== 'string' ||
+    obj.journalEntry.trim().length === 0
+  ) {
+    return false
+  }
+
+  // Validate optional reflection field with complete ReflectionResponse validation
   if (obj.reflection !== undefined) {
-    if (typeof obj.reflection !== 'object' || obj.reflection === null) {
+    if (!validateReflectionResponse(obj.reflection)) {
       return false
     }
+  }
 
-    const reflection = obj.reflection as Record<string, unknown>
-    // Basic validation for reflection structure - should have at least summary
-    if (typeof reflection.summary !== 'string') {
+  // Ensure no unexpected properties (only allow known HistoryEntry fields)
+  const allowedKeys = new Set(['id', 'timestamp', 'journalEntry', 'reflection'])
+  const objKeys = Object.keys(obj)
+
+  for (const key of objKeys) {
+    if (!allowedKeys.has(key)) {
       return false
     }
   }
