@@ -1,11 +1,11 @@
 # Task ID: 4
 # Title: Journal Entry Input Component
-# Status: completed
+# Status: pending
 # Dependencies: 2
 # Priority: high
 # Description: Develop the text input area for users to paste or type their journal entries with validation.
 # Details:
-Create a TextArea component with auto-resize functionality using react-textarea-autosize (v8.5.3). Implement character count display that shows remaining/total characters. Add input validation to ensure a minimum of 20 characters before enabling the 'Reflect Now' button. Implement error messages for empty or too-short entries. Add placeholder text with an example or prompt to help users get started. Include a clear button to reset the input field. Ensure the component is fully accessible with proper labels and ARIA attributes.
+Create a TextArea component with auto-resize functionality using react-textarea-autosize (v8.5.3). Implement character count display that shows remaining/total characters. Add input validation to ensure a minimum of 20 characters before enabling the 'Reflect Now' button. Implement error messages for empty or too-short entries. Add placeholder text with an example or prompt to help users get started. Include a clear button to reset the input field. Ensure the component is fully accessible with proper labels and ARIA attributes. Implement autofocus for desktop users.
 
 # Test Strategy:
 Test input validation with various text lengths. Verify error messages appear appropriately. Test auto-resize functionality with different content lengths. Check accessibility using screen readers. Test the clear button functionality. Verify that the character count updates correctly as the user types.
