@@ -10,6 +10,22 @@ export interface HistoryEntry {
 const STORAGE_KEY = 'reflect-history'
 const MAX_ENTRIES = 5
 
+// Custom event types for history changes
+export const HISTORY_EVENTS = {
+  ENABLED_CHANGED: 'reflect-history-enabled-changed',
+  ENTRIES_CHANGED: 'reflect-history-entries-changed',
+} as const
+
+// Helper to dispatch custom events
+const dispatchHistoryEvent = (
+  eventType: string,
+  data?: Record<string, unknown>
+) => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(eventType, { detail: data }))
+  }
+}
+
 const validateReflectionResponse = (
   reflection: unknown
 ): reflection is ReflectionResponse => {
@@ -150,14 +166,24 @@ export const historyStorage = {
     }
   },
 
+  /**
+   * Enable or disable history storage.
+   * @param enabled - Whether to enable or disable history storage.
+   */
   setEnabled(enabled: boolean): void {
     try {
       localStorage.setItem('reflect-history-enabled', enabled.toString())
+      dispatchHistoryEvent(HISTORY_EVENTS.ENABLED_CHANGED, { enabled })
     } catch {
       // Fail silently if localStorage is not available
     }
   },
 
+  /**
+   * Save a new entry to the history.
+   * @param journalEntry - The journal entry to save.
+   * @param reflection - The reflection to save.
+   */
   saveEntry(journalEntry: string, reflection?: ReflectionResponse): void {
     if (!this.isEnabled()) return
 
@@ -181,6 +207,7 @@ export const historyStorage = {
       }
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(entries))
+      dispatchHistoryEvent(HISTORY_EVENTS.ENTRIES_CHANGED, { entries })
     } catch {
       // Fail silently if localStorage is not available
     }
@@ -226,6 +253,7 @@ export const historyStorage = {
   clearHistory(): void {
     try {
       localStorage.removeItem(STORAGE_KEY)
+      dispatchHistoryEvent(HISTORY_EVENTS.ENTRIES_CHANGED, { entries: [] })
     } catch {
       // Fail silently if localStorage is not available
     }

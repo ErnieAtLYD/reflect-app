@@ -4,7 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Clock, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
-import { historyStorage, type HistoryEntry } from '@/lib/history-storage'
+import {
+  historyStorage,
+  HISTORY_EVENTS,
+  type HistoryEntry,
+} from '@/lib/history-storage'
 
 import { Button } from './button'
 import { Card } from './card'
@@ -30,9 +34,28 @@ export function HistoryView({ onLoadEntry }: HistoryViewProps) {
     setIsClient(true)
     loadEntries()
 
-    // Poll for changes in history state every second
-    const interval = setInterval(loadEntries, 1000)
-    return () => clearInterval(interval)
+    // Listen for history storage events instead of polling
+    const handleEnabledChange = () => {
+      setIsHistoryEnabled(historyStorage.isEnabled())
+    }
+
+    const handleEntriesChange = () => {
+      setEntries(historyStorage.getEntries())
+    }
+
+    window.addEventListener(HISTORY_EVENTS.ENABLED_CHANGED, handleEnabledChange)
+    window.addEventListener(HISTORY_EVENTS.ENTRIES_CHANGED, handleEntriesChange)
+
+    return () => {
+      window.removeEventListener(
+        HISTORY_EVENTS.ENABLED_CHANGED,
+        handleEnabledChange
+      )
+      window.removeEventListener(
+        HISTORY_EVENTS.ENTRIES_CHANGED,
+        handleEntriesChange
+      )
+    }
   }, [])
 
   const handleLoadEntry = (entry: HistoryEntry) => {

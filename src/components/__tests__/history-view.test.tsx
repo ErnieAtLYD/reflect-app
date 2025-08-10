@@ -10,6 +10,10 @@ vi.mock('@/lib/history-storage', () => ({
     getEntries: vi.fn(),
     clearHistory: vi.fn(),
   },
+  HISTORY_EVENTS: {
+    ENABLED_CHANGED: 'reflect-history-enabled-changed',
+    ENTRIES_CHANGED: 'reflect-history-entries-changed',
+  },
   type: {
     HistoryEntry: {},
   },
