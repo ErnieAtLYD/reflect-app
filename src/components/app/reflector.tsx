@@ -5,11 +5,14 @@ import React, { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { FirstTimeTooltip } from '@/components/ui/first-time-tooltip'
+import { HistoryToggle } from '@/components/ui/history-toggle'
+import { HistoryView } from '@/components/ui/history-view'
 import { JournalEntryInput } from '@/components/ui/journal-entry-input'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { ReflectionDisplay } from '@/components/ui/reflection-display'
 import { ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
 import { aiClient, AIReflectionError } from '@/lib/ai-client'
+import { historyStorage } from '@/lib/history-storage'
 import type { ReflectionResponse } from '@/types/ai'
 
 export const Reflector = () => {
@@ -79,6 +82,9 @@ export const Reflector = () => {
       setReflectionData(response)
       setReflectionState('success')
       setAbortController(null)
+
+      // Save to history if enabled
+      historyStorage.saveEntry(journalEntry, response)
     } catch (error) {
       let errorMessage = getFriendlyErrorMessage(error)
 
@@ -123,8 +129,11 @@ export const Reflector = () => {
             setReflectionData(response)
             setReflectionState('success')
             setAbortController(null)
+
+            // Save to history if enabled
+            historyStorage.saveEntry(journalEntry, response)
             return
-          } catch (retryError) {
+          } catch {
             // Fall through to standard error handling
           }
         }
@@ -168,6 +177,14 @@ export const Reflector = () => {
     }
   }
 
+  const handleLoadHistoryEntry = (entry: string) => {
+    setJournalEntry(entry)
+    setReflectionState('idle')
+    setReflectionData(undefined)
+    setReflectionError(undefined)
+    setShowValidationErrors(false)
+  }
+
   return (
     <div
       className="container mx-auto px-4 py-8 sm:px-6 lg:px-8"
@@ -192,7 +209,10 @@ export const Reflector = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <ThemeToggleAdvanced />
+          <div className="flex items-center gap-2">
+            <HistoryToggle />
+            <ThemeToggleAdvanced />
+          </div>
         </motion.div>
       </div>
 
@@ -295,6 +315,9 @@ export const Reflector = () => {
             )}
           </div>
         </motion.div>
+
+        {/* History View */}
+        <HistoryView onLoadEntry={handleLoadHistoryEntry} />
 
         {/* Reflection Display */}
         <ReflectionDisplay
