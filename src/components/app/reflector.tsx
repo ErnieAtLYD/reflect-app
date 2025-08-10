@@ -84,7 +84,9 @@ export const Reflector = () => {
       setAbortController(null)
 
       // Save to history if enabled
-      historyStorage.saveEntry(journalEntry, response)
+      if (historyStorage.isEnabled()) {
+        historyStorage.saveEntry(journalEntry, response)
+      }
     } catch (error) {
       let errorMessage = getFriendlyErrorMessage(error)
 
@@ -131,7 +133,9 @@ export const Reflector = () => {
             setAbortController(null)
 
             // Save to history if enabled
-            historyStorage.saveEntry(journalEntry, response)
+            if (historyStorage.isEnabled()) {
+              historyStorage.saveEntry(journalEntry, response)
+            }
             return
           } catch {
             // Fall through to standard error handling

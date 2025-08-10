@@ -164,7 +164,9 @@ export const historyStorage = {
     try {
       const entries = this.getEntries()
       const newEntry: HistoryEntry = {
-        id: Date.now().toString(),
+        id:
+          crypto.randomUUID() ||
+          `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
         timestamp: Date.now(),
         journalEntry,
         reflection,
