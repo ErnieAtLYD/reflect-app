@@ -3,6 +3,7 @@ import { Parkinsans, Inter, JetBrains_Mono } from 'next/font/google'
 
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
+import { SkipNavigation, SkipLink } from '@/components/ui/skip-link'
 
 const parkinsans = Parkinsans({
   subsets: ['latin'],
@@ -95,6 +96,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetBrainsMono.variable} ${parkinsans.variable} font-sans antialiased`}
       >
+        <SkipNavigation>
+          <SkipLink href="#main-content">Skip to main content</SkipLink>
+          <SkipLink href="#main-navigation">Skip to navigation</SkipLink>
+        </SkipNavigation>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

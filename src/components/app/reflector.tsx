@@ -198,7 +198,11 @@ export const Reflector = () => {
       aria-busy={reflectionState === 'loading'}
     >
       {/* Header */}
-      <div className="mb-12 flex items-center justify-between">
+      <header
+        id="main-navigation"
+        className="mb-12 flex items-center justify-between"
+        role="banner"
+      >
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -221,7 +225,7 @@ export const Reflector = () => {
             <ThemeToggleAdvanced />
           </div>
         </motion.div>
-      </div>
+      </header>
 
       {/* Hero Section */}
       <section className="mb-16 text-center">
@@ -247,7 +251,7 @@ export const Reflector = () => {
       </section>
 
       {/* Main Journal Entry Area */}
-      <div className="mx-auto max-w-4xl">
+      <main id="main-content" className="mx-auto max-w-4xl" role="main">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -337,7 +341,7 @@ export const Reflector = () => {
           }
           onRetry={handleReflectionRetry}
         />
-      </div>
+      </main>
     </div>
   )
 }
