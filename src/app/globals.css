@@ -126,7 +126,7 @@
   /* Your custom color palette */
   --color-lavender: #e8e9f3;
   --color-gray-light: #cecece;
-  --color-gray-medium: #a6a6a8;
+  --color-gray-medium: #666668; /* Further darkened for WCAG 2.1 AA compliance */
   --color-dark-blue: #272635;
   --color-sky-blue: #b1e5f2;
 
@@ -148,8 +148,6 @@
   --muted-foreground: var(--color-gray-medium); /* Gray medium text */
   --accent: var(--color-sky-blue); /* Sky blue accent */
   --accent-foreground: var(--color-dark-blue); /* Dark blue on sky blue */
-  --destructive: oklch(0.65 0.22 25); /* Error red */
-  --destructive-foreground: oklch(0.98 0.01 25); /* Light text on red */
   --border: var(--color-gray-light); /* Light gray borders */
   --input: oklch(0.99 0.003 280); /* Nearly white inputs */
   --ring: var(--color-sky-blue); /* Sky blue focus ring */
@@ -162,12 +160,14 @@
   --chart-5: oklch(0.55 0.15 220); /* Blue variant */
 
   /* Status colors for semantic UI states */
-  --success: oklch(0.65 0.15 145); /* Green for success states */
+  --success: oklch(0.5 0.2 145); /* Even darker green for WCAG compliance */
   --success-foreground: oklch(0.98 0.01 145); /* Light text on success */
   --warning: oklch(0.75 0.15 85); /* Orange for warning states */
   --warning-foreground: oklch(0.2 0.02 85); /* Dark text on warning */
   --info: var(--color-sky-blue); /* Sky blue for info states */
   --info-foreground: var(--color-dark-blue); /* Dark text on info */
+  --destructive: oklch(0.5 0.28 25); /* Even darker red for WCAG compliance */
+  --destructive-foreground: oklch(0.98 0.01 25); /* Light text on red */
 
   /* Sidebar colors */
   --sidebar: oklch(0.96 0.008 280); /* Light lavender sidebar */
@@ -196,8 +196,10 @@
   --muted-foreground: var(--color-gray-light); /* Light gray text */
   --accent: var(--color-sky-blue); /* Sky blue accent */
   --accent-foreground: var(--color-dark-blue); /* Dark blue text */
-  --destructive: oklch(0.7 0.25 25); /* Brighter red for dark mode */
-  --destructive-foreground: oklch(0.98 0.01 25); /* Light text */
+  --destructive: oklch(0.65 0.22 25); /* Adjusted red for dark mode contrast */
+  --destructive-foreground: oklch(
+    0.15 0.02 25
+  ); /* Dark text for better contrast */
   --border: oklch(0.4 0.03 255); /* Subtle blue border */
   --input: oklch(0.25 0.02 255); /* Dark blue input */
   --ring: var(--color-sky-blue); /* Sky blue focus ring */
@@ -258,5 +260,56 @@
     overflow: visible;
     clip: auto;
     white-space: normal;
+  }
+}
+
+/* High contrast mode support for WCAG compliance */
+@media (prefers-contrast: high) {
+  :root {
+    /* Enhanced contrast for high contrast mode */
+    --foreground: #000000;
+    --background: #ffffff;
+    --primary: #000000;
+    --primary-foreground: #ffffff;
+    --muted-foreground: #333333;
+    --border: #000000;
+    --ring: #000000;
+    --destructive: #cc0000;
+    --success: #006600;
+    --warning: #cc6600;
+  }
+
+  .dark {
+    --foreground: #ffffff;
+    --background: #000000;
+    --primary: #ffffff;
+    --primary-foreground: #000000;
+    --muted-foreground: #cccccc;
+    --border: #ffffff;
+    --ring: #ffffff;
+    --destructive: #ff4444;
+    --success: #44ff44;
+    --warning: #ffaa44;
+  }
+}
+
+/* Forced colors mode (Windows high contrast) */
+@media (forced-colors: active) {
+  * {
+    forced-color-adjust: auto;
+  }
+
+  /* Preserve custom focus indicators */
+  .focus\:ring-2 {
+    forced-color-adjust: none;
+    outline: 2px solid ButtonText;
+  }
+
+  /* Ensure skip links work in high contrast */
+  .sr-only:focus {
+    forced-color-adjust: none;
+    background: ButtonFace !important;
+    color: ButtonText !important;
+    border: 2px solid ButtonText !important;
   }
 }
