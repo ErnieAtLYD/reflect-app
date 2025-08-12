@@ -19,11 +19,24 @@ vi.mock('lucide-react', () => ({
   DatabaseZap: ({ className }: { className?: string }) => (
     <div data-testid="database-zap-icon" className={className} />
   ),
+  X: ({ className }: { className?: string }) => (
+    <div data-testid="x-icon" className={className} />
+  ),
 }))
 
 describe('HistoryToggle', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Mock localStorage for FirstTimeTooltip
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        getItem: vi.fn(() => null),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
+      },
+      writable: true,
+    })
   })
 
   it('renders with disabled state initially', async () => {
