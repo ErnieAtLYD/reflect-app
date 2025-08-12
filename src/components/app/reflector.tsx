@@ -62,6 +62,9 @@ export const Reflector = () => {
       return
     }
 
+    // Check if history is enabled at save time
+    const shouldSaveToHistory = historyStorage.isEnabled()
+
     try {
       setReflectionState('loading')
       setReflectionError(undefined)
@@ -83,8 +86,8 @@ export const Reflector = () => {
       setReflectionState('success')
       setAbortController(null)
 
-      // Save to history if enabled
-      if (historyStorage.isEnabled()) {
+      // Save to history if enabled at the time processing started
+      if (shouldSaveToHistory) {
         historyStorage.saveEntry(journalEntry, response)
       }
     } catch (error) {
@@ -132,8 +135,8 @@ export const Reflector = () => {
             setReflectionState('success')
             setAbortController(null)
 
-            // Save to history if enabled
-            if (historyStorage.isEnabled()) {
+            // Save to history if enabled at the time processing started
+            if (shouldSaveToHistory) {
               historyStorage.saveEntry(journalEntry, response)
             }
             return

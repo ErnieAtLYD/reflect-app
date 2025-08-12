@@ -18,6 +18,10 @@ interface HistoryViewProps {
   onLoadEntry?: (entry: string) => void
 }
 
+/**
+ * HistoryView component
+ * @param onLoadEntry - Callback function to load an entry
+ */
 export function HistoryView({ onLoadEntry }: HistoryViewProps) {
   const [entries, setEntries] = useState<HistoryEntry[]>([])
   const [isExpanded, setIsExpanded] = useState(false)
@@ -38,7 +42,6 @@ export function HistoryView({ onLoadEntry }: HistoryViewProps) {
     const handleEnabledChange = () => {
       setIsHistoryEnabled(historyStorage.isEnabled())
     }
-
     const handleEntriesChange = () => {
       setEntries(historyStorage.getEntries())
     }
