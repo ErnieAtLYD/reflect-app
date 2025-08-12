@@ -126,7 +126,7 @@
   /* Your custom color palette */
   --color-lavender: #e8e9f3;
   --color-gray-light: #cecece;
-  --color-gray-medium: #a6a6a8;
+  --color-gray-medium: #5a5a5c; /* Even further darkened for perfect WCAG 2.1 AA compliance */
   --color-dark-blue: #272635;
   --color-sky-blue: #b1e5f2;
 
@@ -148,8 +148,6 @@
   --muted-foreground: var(--color-gray-medium); /* Gray medium text */
   --accent: var(--color-sky-blue); /* Sky blue accent */
   --accent-foreground: var(--color-dark-blue); /* Dark blue on sky blue */
-  --destructive: oklch(0.65 0.22 25); /* Error red */
-  --destructive-foreground: oklch(0.98 0.01 25); /* Light text on red */
   --border: var(--color-gray-light); /* Light gray borders */
   --input: oklch(0.99 0.003 280); /* Nearly white inputs */
   --ring: var(--color-sky-blue); /* Sky blue focus ring */
@@ -162,12 +160,14 @@
   --chart-5: oklch(0.55 0.15 220); /* Blue variant */
 
   /* Status colors for semantic UI states */
-  --success: oklch(0.65 0.15 145); /* Green for success states */
+  --success: oklch(0.5 0.2 145); /* Even darker green for WCAG compliance */
   --success-foreground: oklch(0.98 0.01 145); /* Light text on success */
   --warning: oklch(0.75 0.15 85); /* Orange for warning states */
   --warning-foreground: oklch(0.2 0.02 85); /* Dark text on warning */
   --info: var(--color-sky-blue); /* Sky blue for info states */
   --info-foreground: var(--color-dark-blue); /* Dark text on info */
+  --destructive: oklch(0.5 0.28 25); /* Even darker red for WCAG compliance */
+  --destructive-foreground: oklch(0.98 0.01 25); /* Light text on red */
 
   /* Sidebar colors */
   --sidebar: oklch(0.96 0.008 280); /* Light lavender sidebar */
@@ -196,8 +196,10 @@
   --muted-foreground: var(--color-gray-light); /* Light gray text */
   --accent: var(--color-sky-blue); /* Sky blue accent */
   --accent-foreground: var(--color-dark-blue); /* Dark blue text */
-  --destructive: oklch(0.7 0.25 25); /* Brighter red for dark mode */
-  --destructive-foreground: oklch(0.98 0.01 25); /* Light text */
+  --destructive: oklch(0.65 0.22 25); /* Adjusted red for dark mode contrast */
+  --destructive-foreground: oklch(
+    0.15 0.02 25
+  ); /* Dark text for better contrast */
   --border: oklch(0.4 0.03 255); /* Subtle blue border */
   --input: oklch(0.25 0.02 255); /* Dark blue input */
   --ring: var(--color-sky-blue); /* Sky blue focus ring */
@@ -231,5 +233,233 @@
 @layer base {
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Screen reader only class for accessibility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Reverse screen reader only - makes element visible when focused */
+  .not-sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+}
+
+/* High contrast mode support for WCAG compliance */
+@media (prefers-contrast: high) {
+  :root {
+    /* Enhanced contrast for high contrast mode */
+    --foreground: #000000;
+    --background: #ffffff;
+    --primary: #000000;
+    --primary-foreground: #ffffff;
+    --muted-foreground: #333333;
+    --border: #000000;
+    --ring: #000000;
+    --destructive: #cc0000;
+    --success: #006600;
+    --warning: #cc6600;
+  }
+
+  .dark {
+    --foreground: #ffffff;
+    --background: #000000;
+    --primary: #ffffff;
+    --primary-foreground: #000000;
+    --muted-foreground: #cccccc;
+    --border: #ffffff;
+    --ring: #ffffff;
+    --destructive: #ff4444;
+    --success: #44ff44;
+    --warning: #ffaa44;
+  }
+}
+
+/* Enhanced Focus Management Styles */
+
+/* Focus visible utilities */
+.sr-only-focusable:focus,
+.sr-only-focusable:focus-within {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Enhanced focus indicators */
+.focus-enhanced {
+  transition: all 0.2s ease-in-out;
+}
+
+.focus-enhanced:focus-visible {
+  outline: none;
+  ring: 2px solid hsl(var(--ring));
+  ring-offset: 2px;
+  ring-offset-color: hsl(var(--background));
+  shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transform: scale(1.02);
+}
+
+/* Roving tabindex styles */
+.roving-tabindex-container [tabindex="-1"] {
+  outline: none;
+}
+
+.roving-tabindex-container [tabindex="0"]:focus {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Skip link animations */
+.skip-link {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.skip-link:focus {
+  animation: skip-link-appear 0.3s ease-out;
+}
+
+@keyframes skip-link-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Focus trap indicator */
+.focus-trap-active {
+  position: relative;
+}
+
+.focus-trap-active::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 2px solid hsl(var(--primary));
+  border-radius: inherit;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Dynamic content focus indicators */
+.dynamic-content-new {
+  animation: content-highlight 2s ease-out;
+}
+
+@keyframes content-highlight {
+  0% {
+    background-color: rgba(59, 130, 246, 0.1);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+  }
+  100% {
+    background-color: transparent;
+    border: 2px solid transparent;
+  }
+}
+
+/* Interactive element focus states */
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="menuitem"]:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  background-color: hsl(var(--accent));
+}
+
+/* Custom focus visible indicator */
+[data-focus-visible="true"] {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transform: scale(1.01);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Focus management for loading states */
+[aria-busy="true"] {
+  pointer-events: none;
+}
+
+[aria-busy="true"]:focus-within {
+  outline: 2px dashed hsl(var(--muted-foreground));
+  outline-offset: 2px;
+}
+
+/* Reduce motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .focus-enhanced:focus-visible,
+  [data-focus-visible="true"],
+  .skip-link:focus {
+    transition: none;
+    animation: none;
+    transform: none;
+  }
+  
+  .dynamic-content-new {
+    animation: none;
+  }
+}
+
+/* Forced colors mode (Windows high contrast) */
+@media (forced-colors: active) {
+  * {
+    forced-color-adjust: auto;
+  }
+
+  /* Preserve custom focus indicators */
+  .focus\:ring-2,
+  [data-focus-visible="true"],
+  .focus-enhanced:focus-visible {
+    forced-color-adjust: none;
+    outline: 2px solid ButtonText;
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* Ensure skip links work in high contrast */
+  .sr-only:focus,
+  .skip-link:focus {
+    forced-color-adjust: none;
+    background: ButtonFace !important;
+    color: ButtonText !important;
+    border: 2px solid ButtonText !important;
+  }
+  
+  /* Focus trap indicators */
+  .focus-trap-active::before {
+    border-color: ButtonText;
+  }
+  
+  /* Dynamic content indicators */
+  .dynamic-content-new {
+    background-color: Mark;
+    border-color: ButtonText;
   }
 }

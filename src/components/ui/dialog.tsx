@@ -2,6 +2,8 @@ import { Dialog as HeadlessDialog, Transition } from '@headlessui/react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 
+import { useFocusRestoration, useFocusTrap } from '@/hooks/use-focus-management'
+import { liveRegions } from '@/lib/live-regions'
 import { cn } from '@/lib/utils'
 
 const dialogVariants = cva(
@@ -44,6 +46,14 @@ interface DialogProps extends VariantProps<typeof dialogVariants> {
    */
   initialFocus?: React.RefObject<HTMLElement>
   /**
+   * Whether to restore focus when the dialog closes
+   */
+  restoreFocus?: boolean
+  /**
+   * Whether to announce the dialog to screen readers
+   */
+  announceToScreenReader?: boolean
+  /**
    * Additional props for the dialog panel
    */
   panelProps?: React.HTMLAttributes<HTMLDivElement>
@@ -65,6 +75,8 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
       title,
       description,
       initialFocus,
+      restoreFocus = true,
+      announceToScreenReader = true,
       size,
       className,
       panelProps,
@@ -73,12 +85,53 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
     },
     ref
   ) => {
+    const { saveFocus, restoreFocus: performFocusRestoration } = useFocusRestoration()
+    const { containerRef } = useFocusTrap(false)
+
+    // Save focus when dialog opens
+    React.useEffect(() => {
+      if (isOpen) {
+        saveFocus()
+        
+        if (announceToScreenReader && title) {
+          liveRegions.announceNavigation(`Dialog opened: ${title}`)
+        }
+      }
+    }, [isOpen, saveFocus, announceToScreenReader, title])
+
+    // Handle focus restoration when dialog closes
+    const handleClose = React.useCallback(() => {
+      if (restoreFocus) {
+        // Small delay to ensure dialog is fully closed before restoring focus
+        setTimeout(() => {
+          performFocusRestoration()
+        }, 100)
+      }
+      
+      if (announceToScreenReader) {
+        liveRegions.announceNavigation('Dialog closed')
+      }
+      
+      onClose()
+    }, [restoreFocus, performFocusRestoration, announceToScreenReader, onClose])
+
+    // Merge refs for focus trap
+    const mergedRef = React.useCallback((node: HTMLDivElement | null) => {
+      if (containerRef) {
+        containerRef.current = node
+      }
+      if (typeof ref === 'function') {
+        ref(node)
+      } else if (ref) {
+        ref.current = node
+      }
+    }, [ref, containerRef])
     return (
       <Transition appear show={isOpen} as={React.Fragment}>
         <HeadlessDialog
           as="div"
           className="relative z-50"
-          onClose={onClose}
+          onClose={handleClose}
           initialFocus={initialFocus}
           data-testid="dialog"
         >
@@ -108,7 +161,7 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
                 leaveTo="opacity-0 scale-95"
               >
                 <HeadlessDialog.Panel
-                  ref={ref}
+                  ref={mergedRef}
                   className={cn(dialogVariants({ size, className }))}
                   data-testid="dialog-panel"
                   {...panelProps}

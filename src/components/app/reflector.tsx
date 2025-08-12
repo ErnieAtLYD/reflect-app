@@ -3,8 +3,9 @@
 import { motion } from 'framer-motion'
 import React, { useState } from 'react'
 
-import { Button } from '@/components/ui/button'
+import { DynamicContent } from '@/components/ui/dynamic-content'
 import { FirstTimeTooltip } from '@/components/ui/first-time-tooltip'
+import { FocusableButton } from '@/components/ui/focusable-button'
 import { HistoryToggle } from '@/components/ui/history-toggle'
 import { HistoryView } from '@/components/ui/history-view'
 import { JournalEntryInput } from '@/components/ui/journal-entry-input'
@@ -13,6 +14,7 @@ import { ReflectionDisplay } from '@/components/ui/reflection-display'
 import { ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
 import { aiClient, AIReflectionError } from '@/lib/ai-client'
 import { historyStorage } from '@/lib/history-storage'
+import { useLiveRegions } from '@/lib/live-regions'
 import type { ReflectionResponse } from '@/types/ai'
 
 export const Reflector = () => {
@@ -30,6 +32,8 @@ export const Reflector = () => {
   const [retryCountdown, setRetryCountdown] = useState<number | null>(null)
   const [abortController, setAbortController] =
     useState<AbortController | null>(null)
+
+  const liveRegions = useLiveRegions()
 
   const getFriendlyErrorMessage = (unknownError: unknown): string => {
     let errorMessage = 'Unable to generate reflection at this time'
@@ -71,6 +75,11 @@ export const Reflector = () => {
       const controller = new AbortController()
       setAbortController(controller)
 
+      // Announce loading state
+      liveRegions.announceLoading(
+        'Generating reflection for your journal entry...'
+      )
+
       const response = await aiClient.processEntry(
         {
           content: journalEntry,
@@ -85,6 +94,10 @@ export const Reflector = () => {
       setReflectionData(response)
       setReflectionState('success')
       setAbortController(null)
+
+      // Announce success
+      liveRegions.announceLoading('', false) // Clear loading message
+      liveRegions.announceSuccess('Reflection generated successfully!')
 
       // Save to history if enabled at the time processing started
       if (shouldSaveToHistory) {
@@ -149,6 +162,10 @@ export const Reflector = () => {
       setReflectionError(errorMessage)
       setReflectionState('error')
       setAbortController(null)
+
+      // Announce error
+      liveRegions.announceLoading('', false) // Clear loading message
+      liveRegions.announceError(errorMessage)
     }
   }
 
@@ -198,7 +215,11 @@ export const Reflector = () => {
       aria-busy={reflectionState === 'loading'}
     >
       {/* Header */}
-      <div className="mb-12 flex items-center justify-between">
+      <header
+        id="main-navigation"
+        className="mb-12 flex items-center justify-between"
+        role="banner"
+      >
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -221,7 +242,7 @@ export const Reflector = () => {
             <ThemeToggleAdvanced />
           </div>
         </motion.div>
-      </div>
+      </header>
 
       {/* Hero Section */}
       <section className="mb-16 text-center">
@@ -247,7 +268,7 @@ export const Reflector = () => {
       </section>
 
       {/* Main Journal Entry Area */}
-      <div className="mx-auto max-w-4xl">
+      <main id="main-content" className="mx-auto max-w-4xl" role="main">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -282,11 +303,14 @@ export const Reflector = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.5 }}
             >
-              <Button
+              <FocusableButton
                 onClick={handleReflectNow}
                 disabled={!isValidEntry || reflectionState === 'loading'}
                 size="lg"
                 className="px-8 py-3 text-base font-semibold"
+                focusMode="enhanced"
+                announceFocus={true}
+                focusAnnouncement="Generate reflection for your journal entry"
                 data-testid="reflect-now-button"
               >
                 {reflectionState === 'loading' ? (
@@ -301,7 +325,7 @@ export const Reflector = () => {
                 ) : (
                   'Reflect Now'
                 )}
-              </Button>
+              </FocusableButton>
             </motion.div>
           </div>
 
@@ -326,18 +350,32 @@ export const Reflector = () => {
         {/* History View */}
         <HistoryView onLoadEntry={handleLoadHistoryEntry} />
 
-        {/* Reflection Display */}
-        <ReflectionDisplay
-          state={reflectionState}
-          data={reflectionData}
-          error={
-            retryCountdown !== null && reflectionState === 'loading'
-              ? `Retrying in ${retryCountdown}s...`
-              : reflectionError
+        {/* Reflection Display with Dynamic Focus Management */}
+        <DynamicContent
+          state={reflectionState === 'loading' ? 'loading' : reflectionState === 'error' ? 'error' : 'success'}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus={true}
+          announceChanges={true}
+          changeAnnouncement={
+            reflectionState === 'success' 
+              ? 'Your reflection has been generated' 
+              : reflectionState === 'error' 
+                ? 'An error occurred while generating your reflection'
+                : undefined
           }
-          onRetry={handleReflectionRetry}
-        />
-      </div>
+        >
+          <ReflectionDisplay
+            state={reflectionState}
+            data={reflectionData}
+            error={
+              retryCountdown !== null && reflectionState === 'loading'
+                ? `Retrying in ${retryCountdown}s...`
+                : reflectionError
+            }
+            onRetry={handleReflectionRetry}
+          />
+        </DynamicContent>
+      </main>
     </div>
   )
 }
