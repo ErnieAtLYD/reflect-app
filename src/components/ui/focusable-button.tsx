@@ -362,8 +362,8 @@ export const FocusableButtonGroup: React.FC<FocusableButtonGroupProps> = ({
 
   // Clone children to add roving tabindex props
   const enhancedChildren = React.Children.map(children, (child, index) => {
-    if (React.isValidElement(child) && child.type === FocusableButton) {
-      return React.cloneElement(child, {
+    if (React.isValidElement<FocusableButtonProps>(child) && child.type === FocusableButton) {
+      return React.cloneElement<FocusableButtonProps>(child, {
         rovingTabindex: true,
         isActiveInGroup: index === activeIndex,
         tabindexPosition: index,
