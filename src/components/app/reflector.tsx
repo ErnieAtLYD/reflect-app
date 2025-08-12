@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import React, { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -243,6 +244,12 @@ export const Reflector = () => {
             A simple, private space to journal, reflect, and organize your
             ideas. No sign-ups, no storage, just you and your thoughts.
           </p>
+          <div className="bg-primary/5 border-primary/10 mx-auto flex w-fit items-center gap-2 rounded-full border px-4 py-2">
+            <span className="text-primary">🔒</span>
+            <span className="text-primary text-sm font-medium">
+              Privacy-first by design
+            </span>
+          </div>
         </motion.div>
       </section>
 
@@ -309,6 +316,14 @@ export const Reflector = () => {
           <div className="text-center">
             <p className="text-muted-foreground text-sm sm:text-base">
               🔒 Your thoughts stay yours. No accounts, no storage.
+            </p>
+            <p className="text-muted-foreground mt-1 text-xs">
+              <Link
+                href="/privacy"
+                className="hover:text-foreground underline underline-offset-2 transition-colors"
+              >
+                Privacy Policy
+              </Link>
             </p>
             {reflectionState === 'loading' && (
               <p
