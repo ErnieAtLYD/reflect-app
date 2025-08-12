@@ -3,7 +3,7 @@
   "devCommand": "pnpm dev",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "regions": ["all"],
+  "regions": ["iad1", "sfo1", "lhr1"],
   "functions": {
     "src/app/api/reflect/route.ts": {
       "maxDuration": 30
