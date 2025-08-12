@@ -13,6 +13,7 @@ import { ReflectionDisplay } from '@/components/ui/reflection-display'
 import { ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
 import { aiClient, AIReflectionError } from '@/lib/ai-client'
 import { historyStorage } from '@/lib/history-storage'
+import { useLiveRegions } from '@/lib/live-regions'
 import type { ReflectionResponse } from '@/types/ai'
 
 export const Reflector = () => {
@@ -30,6 +31,8 @@ export const Reflector = () => {
   const [retryCountdown, setRetryCountdown] = useState<number | null>(null)
   const [abortController, setAbortController] =
     useState<AbortController | null>(null)
+
+  const liveRegions = useLiveRegions()
 
   const getFriendlyErrorMessage = (unknownError: unknown): string => {
     let errorMessage = 'Unable to generate reflection at this time'
@@ -71,6 +74,11 @@ export const Reflector = () => {
       const controller = new AbortController()
       setAbortController(controller)
 
+      // Announce loading state
+      liveRegions.announceLoading(
+        'Generating reflection for your journal entry...'
+      )
+
       const response = await aiClient.processEntry(
         {
           content: journalEntry,
@@ -85,6 +93,10 @@ export const Reflector = () => {
       setReflectionData(response)
       setReflectionState('success')
       setAbortController(null)
+
+      // Announce success
+      liveRegions.announceLoading('', false) // Clear loading message
+      liveRegions.announceSuccess('Reflection generated successfully!')
 
       // Save to history if enabled at the time processing started
       if (shouldSaveToHistory) {
@@ -149,6 +161,10 @@ export const Reflector = () => {
       setReflectionError(errorMessage)
       setReflectionState('error')
       setAbortController(null)
+
+      // Announce error
+      liveRegions.announceLoading('', false) // Clear loading message
+      liveRegions.announceError(errorMessage)
     }
   }
 

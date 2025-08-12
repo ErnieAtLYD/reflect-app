@@ -126,7 +126,7 @@
   /* Your custom color palette */
   --color-lavender: #e8e9f3;
   --color-gray-light: #cecece;
-  --color-gray-medium: #666668; /* Further darkened for WCAG 2.1 AA compliance */
+  --color-gray-medium: #5a5a5c; /* Even further darkened for perfect WCAG 2.1 AA compliance */
   --color-dark-blue: #272635;
   --color-sky-blue: #b1e5f2;
 

@@ -102,7 +102,7 @@ export const APP_COLORS = {
   // Base palette
   lavender: '#e8e9f3',
   grayLight: '#cecece',
-  grayMedium: '#666668', // Updated for WCAG 2.1 AA compliance
+  grayMedium: '#5a5a5c', // Even further darkened for perfect WCAG 2.1 AA compliance
   darkBlue: '#272635',
   skyBlue: '#b1e5f2',
 

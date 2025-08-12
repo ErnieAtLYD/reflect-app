@@ -41,6 +41,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 import TextareaAutosize from 'react-textarea-autosize'
 
+import { useLiveRegions } from '@/lib/live-regions'
 import { cn } from '@/lib/utils'
 
 const journalInputVariants = cva(
@@ -213,20 +214,39 @@ const JournalEntryInput = React.forwardRef<
     const currentLength = value.length
     const remainingChars = minLength - currentLength
     const meetsMinimum = currentLength >= minLength
+    const liveRegions = useLiveRegions()
 
     // Validation logic - prioritize whitespace error over length error
-    const validationErrors: string[] = []
-    if (value.trim().length === 0 && currentLength > 0) {
-      validationErrors.push('Entry cannot be empty or contain only whitespace')
-    } else if (currentLength > 0 && currentLength < minLength) {
-      validationErrors.push(
-        `Entry must be at least ${minLength} characters long`
-      )
-    }
+    const validationErrors = React.useMemo(() => {
+      const errors: string[] = []
+      if (value.trim().length === 0 && currentLength > 0) {
+        errors.push('Entry cannot be empty or contain only whitespace')
+      } else if (currentLength > 0 && currentLength < minLength) {
+        errors.push(`Entry must be at least ${minLength} characters long`)
+      }
+      return errors
+    }, [value, currentLength, minLength])
 
     const isValid = validationErrors.length === 0 && meetsMinimum
     const hasValidationError =
       showValidationErrors && validationErrors.length > 0
+
+    // Announce validation errors to screen readers
+    React.useEffect(() => {
+      if (hasValidationError && validationErrors.length > 0) {
+        liveRegions.announceError(validationErrors[0], 'Journal entry')
+      }
+    }, [hasValidationError, validationErrors, liveRegions])
+
+    // Announce milestone achievements
+    React.useEffect(() => {
+      if (currentLength === minLength && !isValid) {
+        // Only announce when reaching minimum for the first time
+        liveRegions.announceSuccess(
+          `Minimum length reached! Entry is now ${currentLength} characters.`
+        )
+      }
+    }, [currentLength, minLength, isValid, liveRegions])
 
     // Notify parent of validation state changes
     React.useEffect(() => {
@@ -239,6 +259,7 @@ const JournalEntryInput = React.forwardRef<
     }
 
     const handleClear = () => {
+      liveRegions.announceSuccess('Journal entry cleared')
       onClear?.()
     }
 
