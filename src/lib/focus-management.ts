@@ -26,14 +26,19 @@ const FOCUSABLE_SELECTOR = [
 /**
  * Get all focusable elements within a container
  */
-export function getFocusableElements(container: HTMLElement): FocusableElement[] {
+export function getFocusableElements(
+  container: HTMLElement
+): FocusableElement[] {
   const elements = Array.from(
     container.querySelectorAll<FocusableElement>(FOCUSABLE_SELECTOR)
   )
 
   return elements.filter((element) => {
     // Check if element is not disabled
-    if (element.hasAttribute('disabled') || element.getAttribute('aria-disabled') === 'true') {
+    if (
+      element.hasAttribute('disabled') ||
+      element.getAttribute('aria-disabled') === 'true'
+    ) {
       return false
     }
 
@@ -44,7 +49,7 @@ export function getFocusableElements(container: HTMLElement): FocusableElement[]
       return false
     }
 
-    // For test environments or when offsetParent is not reliable, 
+    // For test environments or when offsetParent is not reliable,
     // check if element is connected to document
     if (element.offsetParent === null) {
       // Element might still be focusable if it's just not positioned
@@ -79,7 +84,9 @@ export function getLastFocusableElement(
  * Check if an element is focusable
  */
 export function isFocusable(element: HTMLElement): boolean {
-  const focusableElements = getFocusableElements(element.parentElement || document.body)
+  const focusableElements = getFocusableElements(
+    element.parentElement || document.body
+  )
   return focusableElements.includes(element as FocusableElement)
 }
 
@@ -143,9 +150,9 @@ export class FocusTrap {
 
     this.previousActiveElement = document.activeElement
     this.isActive = true
-    
+
     document.addEventListener('keydown', this.handleKeyDown)
-    
+
     if (focusFirst) {
       this.updateFocusableElements()
       if (this.firstFocusable) {
@@ -166,8 +173,11 @@ export class FocusTrap {
     if (restoreFocus && this.previousActiveElement) {
       // Use setTimeout to ensure the element is focusable
       setTimeout(() => {
-        if (this.previousActiveElement && 'focus' in this.previousActiveElement) {
-          (this.previousActiveElement as HTMLElement).focus()
+        if (
+          this.previousActiveElement &&
+          'focus' in this.previousActiveElement
+        ) {
+          ;(this.previousActiveElement as HTMLElement).focus()
         }
       }, 0)
     }
@@ -195,7 +205,7 @@ export class FocusRestoration {
     const activeElement = document.activeElement
     if (activeElement && activeElement !== document.body) {
       this.focusHistory.push(activeElement)
-      
+
       // Limit history length
       if (this.focusHistory.length > this.maxHistoryLength) {
         this.focusHistory.shift()
@@ -208,17 +218,17 @@ export class FocusRestoration {
    */
   restore(): boolean {
     const lastFocusedElement = this.focusHistory.pop()
-    
+
     if (lastFocusedElement && 'focus' in lastFocusedElement) {
       try {
-        (lastFocusedElement as HTMLElement).focus()
+        ;(lastFocusedElement as HTMLElement).focus()
         return true
       } catch {
         // Element might no longer be in DOM, try previous element
         return this.restore()
       }
     }
-    
+
     return false
   }
 
@@ -251,36 +261,42 @@ export class DynamicFocusManager {
   /**
    * Focus the first element in newly added content
    */
-  focusNewContent(container: HTMLElement, options: {
-    announceToScreenReader?: boolean
-    selectText?: boolean
-  } = {}): boolean {
+  focusNewContent(
+    container: HTMLElement,
+    options: {
+      announceToScreenReader?: boolean
+      selectText?: boolean
+    } = {}
+  ): boolean {
     const { announceToScreenReader = false, selectText = false } = options
-    
+
     const firstFocusable = getFirstFocusableElement(container)
-    
+
     if (firstFocusable) {
       firstFocusable.focus()
-      
-      if (selectText && (firstFocusable instanceof HTMLInputElement || 
-          firstFocusable instanceof HTMLTextAreaElement)) {
+
+      if (
+        selectText &&
+        (firstFocusable instanceof HTMLInputElement ||
+          firstFocusable instanceof HTMLTextAreaElement)
+      ) {
         firstFocusable.select()
       }
-      
+
       if (announceToScreenReader) {
         // Use live region to announce the focus change
         const announcement = `New content loaded. Focus moved to ${
-          firstFocusable.getAttribute('aria-label') || 
-          firstFocusable.textContent?.trim() || 
+          firstFocusable.getAttribute('aria-label') ||
+          firstFocusable.textContent?.trim() ||
           firstFocusable.tagName.toLowerCase()
         }`
-        
+
         this.announceToScreenReader(announcement)
       }
-      
+
       return true
     }
-    
+
     return false
   }
 
@@ -294,12 +310,12 @@ export class DynamicFocusManager {
     const observer = new MutationObserver((mutations) => {
       const addedNodes: Node[] = []
       const removedNodes: Node[] = []
-      
+
       mutations.forEach((mutation) => {
         addedNodes.push(...Array.from(mutation.addedNodes))
         removedNodes.push(...Array.from(mutation.removedNodes))
       })
-      
+
       if (addedNodes.length > 0 || removedNodes.length > 0) {
         callback(addedNodes, removedNodes)
       }
@@ -327,9 +343,9 @@ export class DynamicFocusManager {
     announcer.setAttribute('aria-atomic', 'true')
     announcer.className = 'sr-only'
     announcer.textContent = message
-    
+
     document.body.appendChild(announcer)
-    
+
     setTimeout(() => {
       document.body.removeChild(announcer)
     }, 1000)
@@ -369,9 +385,11 @@ export class RovingTabindexManager {
    */
   private updateItems(): void {
     this.items = Array.from(
-      this.container.querySelectorAll<HTMLElement>('[role="button"], [role="tab"], [role="menuitem"]')
+      this.container.querySelectorAll<HTMLElement>(
+        '[role="button"], [role="tab"], [role="menuitem"]'
+      )
     )
-    
+
     this.items.forEach((item, index) => {
       item.setAttribute('tabindex', index === this.currentIndex ? '0' : '-1')
     })
@@ -444,7 +462,8 @@ export class RovingTabindexManager {
    * Move focus to previous item
    */
   private moveToPrevious(): void {
-    this.currentIndex = (this.currentIndex - 1 + this.items.length) % this.items.length
+    this.currentIndex =
+      (this.currentIndex - 1 + this.items.length) % this.items.length
     this.updateFocus()
   }
 
@@ -471,7 +490,7 @@ export class RovingTabindexManager {
     this.items.forEach((item, index) => {
       const isCurrent = index === this.currentIndex
       item.setAttribute('tabindex', isCurrent ? '0' : '-1')
-      
+
       if (isCurrent) {
         item.focus()
       }

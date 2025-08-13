@@ -1,5 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  vi,
+  type MockedFunction,
+} from 'vitest'
 
 import { HistoryToggle } from '../ui/history-toggle'
 
@@ -42,7 +49,7 @@ describe('HistoryToggle', () => {
   it('renders with disabled state initially', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(false)
@@ -57,7 +64,7 @@ describe('HistoryToggle', () => {
   it('renders with enabled state when storage is enabled', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
@@ -72,7 +79,7 @@ describe('HistoryToggle', () => {
   it('toggles state when clicked', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(false)
@@ -88,7 +95,7 @@ describe('HistoryToggle', () => {
   it('shows correct tooltip text for disabled state', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(false)
@@ -105,7 +112,7 @@ describe('HistoryToggle', () => {
   it('shows correct tooltip text for enabled state', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
@@ -122,7 +129,7 @@ describe('HistoryToggle', () => {
   it('includes screen reader text', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(false)
@@ -135,7 +142,7 @@ describe('HistoryToggle', () => {
   it('applies custom className when provided', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(false)

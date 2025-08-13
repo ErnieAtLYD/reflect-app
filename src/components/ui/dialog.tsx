@@ -85,14 +85,15 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
     },
     ref
   ) => {
-    const { saveFocus, restoreFocus: performFocusRestoration } = useFocusRestoration()
+    const { saveFocus, restoreFocus: performFocusRestoration } =
+      useFocusRestoration()
     const { containerRef } = useFocusTrap(false)
 
     // Save focus when dialog opens
     React.useEffect(() => {
       if (isOpen) {
         saveFocus()
-        
+
         if (announceToScreenReader && title) {
           liveRegions.announceNavigation(`Dialog opened: ${title}`)
         }
@@ -107,25 +108,28 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
           performFocusRestoration()
         }, 100)
       }
-      
+
       if (announceToScreenReader) {
         liveRegions.announceNavigation('Dialog closed')
       }
-      
+
       onClose()
     }, [restoreFocus, performFocusRestoration, announceToScreenReader, onClose])
 
     // Merge refs for focus trap
-    const mergedRef = React.useCallback((node: HTMLDivElement | null) => {
-      if (containerRef) {
-        containerRef.current = node
-      }
-      if (typeof ref === 'function') {
-        ref(node)
-      } else if (ref) {
-        ref.current = node
-      }
-    }, [ref, containerRef])
+    const mergedRef = React.useCallback(
+      (node: HTMLDivElement | null) => {
+        if (containerRef) {
+          containerRef.current = node
+        }
+        if (typeof ref === 'function') {
+          ref(node)
+        } else if (ref) {
+          ref.current = node
+        }
+      },
+      [ref, containerRef]
+    )
     return (
       <Transition appear show={isOpen} as={React.Fragment}>
         <HeadlessDialog

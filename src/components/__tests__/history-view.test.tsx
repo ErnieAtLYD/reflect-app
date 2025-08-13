@@ -1,5 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  vi,
+  type MockedFunction,
+} from 'vitest'
 
 import { HistoryView } from '../ui/history-view'
 
@@ -77,6 +84,11 @@ describe('HistoryView', () => {
         summary: 'Summary of first entry',
         pattern: 'Pattern',
         suggestion: 'Suggestion',
+        metadata: {
+          model: 'gpt-4-1106-preview',
+          processedAt: '2022-01-01T00:00:00Z',
+          processingTimeMs: 1500,
+        },
       },
     },
     {
@@ -93,12 +105,12 @@ describe('HistoryView', () => {
   it('renders nothing when history is disabled', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(false)
     ;(
-      historyStorage.getEntries as vi.MockedFunction<
+      historyStorage.getEntries as MockedFunction<
         typeof historyStorage.getEntries
       >
     ).mockReturnValue([])
@@ -111,12 +123,12 @@ describe('HistoryView', () => {
   it('renders nothing when no entries exist', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
     ;(
-      historyStorage.getEntries as vi.MockedFunction<
+      historyStorage.getEntries as MockedFunction<
         typeof historyStorage.getEntries
       >
     ).mockReturnValue([])
@@ -129,12 +141,12 @@ describe('HistoryView', () => {
   it('renders history view when entries exist', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
     ;(
-      historyStorage.getEntries as vi.MockedFunction<
+      historyStorage.getEntries as MockedFunction<
         typeof historyStorage.getEntries
       >
     ).mockReturnValue(mockEntries)
@@ -149,12 +161,12 @@ describe('HistoryView', () => {
   it('shows singular text for one entry', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
     ;(
-      historyStorage.getEntries as vi.MockedFunction<
+      historyStorage.getEntries as MockedFunction<
         typeof historyStorage.getEntries
       >
     ).mockReturnValue([mockEntries[0]])
@@ -167,12 +179,12 @@ describe('HistoryView', () => {
   it('toggles expanded state when clicked', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
     ;(
-      historyStorage.getEntries as vi.MockedFunction<
+      historyStorage.getEntries as MockedFunction<
         typeof historyStorage.getEntries
       >
     ).mockReturnValue(mockEntries)
@@ -196,12 +208,12 @@ describe('HistoryView', () => {
   it('displays history entries when expanded', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
     ;(
-      historyStorage.getEntries as vi.MockedFunction<
+      historyStorage.getEntries as MockedFunction<
         typeof historyStorage.getEntries
       >
     ).mockReturnValue(mockEntries)
@@ -223,12 +235,12 @@ describe('HistoryView', () => {
     const onLoadEntry = vi.fn()
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
     ;(
-      historyStorage.getEntries as vi.MockedFunction<
+      historyStorage.getEntries as MockedFunction<
         typeof historyStorage.getEntries
       >
     ).mockReturnValue(mockEntries)
@@ -247,12 +259,12 @@ describe('HistoryView', () => {
   it('shows clear history dialog when clear button is clicked', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
     ;(
-      historyStorage.getEntries as vi.MockedFunction<
+      historyStorage.getEntries as MockedFunction<
         typeof historyStorage.getEntries
       >
     ).mockReturnValue(mockEntries)
@@ -269,12 +281,12 @@ describe('HistoryView', () => {
   it('clears history when confirmed', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
     ;(
-      historyStorage.getEntries as vi.MockedFunction<
+      historyStorage.getEntries as MockedFunction<
         typeof historyStorage.getEntries
       >
     ).mockReturnValue(mockEntries)
@@ -295,12 +307,12 @@ describe('HistoryView', () => {
   it('formats dates correctly', async () => {
     const { historyStorage } = await import('@/lib/history-storage')
     ;(
-      historyStorage.isEnabled as vi.MockedFunction<
+      historyStorage.isEnabled as MockedFunction<
         typeof historyStorage.isEnabled
       >
     ).mockReturnValue(true)
     ;(
-      historyStorage.getEntries as vi.MockedFunction<
+      historyStorage.getEntries as MockedFunction<
         typeof historyStorage.getEntries
       >
     ).mockReturnValue(mockEntries)
