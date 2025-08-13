@@ -1,11 +1,42 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // Production optimizations
+  compress: true,
+  poweredByHeader: false,
+
+  // Limit serverless functions to 3 regions for non-Enterprise plans
+  experimental: {
+    serverComponentsExternalPackages: [],
+  },
+
+  // Edge runtime configuration
+  api: {
+    bodyParser: {
+      sizeLimit: '1mb',
+    },
+  },
+
+  // Image optimization
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+  },
+
+  // Headers for security and performance
   async headers() {
     return [
       {
         source: '/(.*)',
         headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload',
+          },
           {
             key: 'X-Frame-Options',
             value: 'DENY',
