@@ -10,7 +10,10 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 
-import { useFocusVisible, useFocusAnnouncements } from '@/hooks/use-focus-management'
+import {
+  useFocusVisible,
+  useFocusAnnouncements,
+} from '@/hooks/use-focus-management'
 import { cn } from '@/lib/utils'
 
 const focusableButtonVariants = cva(
@@ -93,22 +96,22 @@ export interface FocusableButtonProps
    * Whether the button should announce focus changes to screen readers
    */
   announceFocus?: boolean
-  
+
   /**
    * Custom announcement message for screen readers
    */
   focusAnnouncement?: string
-  
+
   /**
    * Whether to use roving tabindex behavior
    */
   rovingTabindex?: boolean
-  
+
   /**
    * Position in roving tabindex group (0-based)
    */
   tabindexPosition?: number
-  
+
   /**
    * Whether this button is currently active in roving tabindex
    */
@@ -196,12 +199,10 @@ export const FocusableButton = React.forwardRef<
       (event: React.FocusEvent<HTMLButtonElement>) => {
         if (announceFocus) {
           const announcement =
-            focusAnnouncement ||
-            event.currentTarget.textContent ||
-            'Button'
+            focusAnnouncement || event.currentTarget.textContent || 'Button'
           announceFocusChange(announcement)
         }
-        
+
         onFocus?.(event)
       },
       [announceFocus, focusAnnouncement, announceFocusChange, onFocus]
@@ -216,7 +217,7 @@ export const FocusableButton = React.forwardRef<
           event.preventDefault()
           event.currentTarget.click()
         }
-        
+
         onKeyDown?.(event)
       },
       [onKeyDown]
@@ -232,7 +233,9 @@ export const FocusableButton = React.forwardRef<
 
     return (
       <button
-        className={cn(focusableButtonVariants({ variant, size, focusMode, className }))}
+        className={cn(
+          focusableButtonVariants({ variant, size, focusMode, className })
+        )}
         ref={mergedRef}
         onFocus={handleFocus}
         onBlur={onBlur}
@@ -261,27 +264,27 @@ interface FocusableButtonGroupProps {
    * Button group children
    */
   children: React.ReactNode
-  
+
   /**
    * Orientation for keyboard navigation
    */
   orientation?: 'horizontal' | 'vertical'
-  
+
   /**
    * Whether to wrap around when reaching the end
    */
   wrap?: boolean
-  
+
   /**
    * Additional CSS classes
    */
   className?: string
-  
+
   /**
    * ARIA role for the button group
    */
   role?: string
-  
+
   /**
    * ARIA label for the button group
    */
@@ -309,9 +312,11 @@ export const FocusableButtonGroup: React.FC<FocusableButtonGroupProps> = ({
   const buttons = React.useMemo(() => {
     const container = containerRef.current
     if (!container) return []
-    
+
     return Array.from(
-      container.querySelectorAll<HTMLButtonElement>('[data-testid="focusable-button"]')
+      container.querySelectorAll<HTMLButtonElement>(
+        '[data-testid="focusable-button"]'
+      )
     )
   }, [])
 
@@ -321,19 +326,18 @@ export const FocusableButtonGroup: React.FC<FocusableButtonGroupProps> = ({
       const { key } = event
       let newIndex = activeIndex
 
-      const isHorizontalNavigation = 
-        (key === 'ArrowLeft' || key === 'ArrowRight') && 
+      const isHorizontalNavigation =
+        (key === 'ArrowLeft' || key === 'ArrowRight') &&
         orientation === 'horizontal'
-      
-      const isVerticalNavigation = 
-        (key === 'ArrowUp' || key === 'ArrowDown') && 
-        orientation === 'vertical'
+
+      const isVerticalNavigation =
+        (key === 'ArrowUp' || key === 'ArrowDown') && orientation === 'vertical'
 
       if (isHorizontalNavigation || isVerticalNavigation) {
         event.preventDefault()
-        
+
         if (key === 'ArrowLeft' || key === 'ArrowUp') {
-          newIndex = wrap 
+          newIndex = wrap
             ? (activeIndex - 1 + buttons.length) % buttons.length
             : Math.max(0, activeIndex - 1)
         } else if (key === 'ArrowRight' || key === 'ArrowDown') {
@@ -341,7 +345,7 @@ export const FocusableButtonGroup: React.FC<FocusableButtonGroupProps> = ({
             ? (activeIndex + 1) % buttons.length
             : Math.min(buttons.length - 1, activeIndex + 1)
         }
-        
+
         if (newIndex !== activeIndex && buttons[newIndex]) {
           setActiveIndex(newIndex)
           buttons[newIndex].focus()
@@ -362,7 +366,10 @@ export const FocusableButtonGroup: React.FC<FocusableButtonGroupProps> = ({
 
   // Clone children to add roving tabindex props
   const enhancedChildren = React.Children.map(children, (child, index) => {
-    if (React.isValidElement<FocusableButtonProps>(child) && child.type === FocusableButton) {
+    if (
+      React.isValidElement<FocusableButtonProps>(child) &&
+      child.type === FocusableButton
+    ) {
       return React.cloneElement<FocusableButtonProps>(child, {
         rovingTabindex: true,
         isActiveInGroup: index === activeIndex,

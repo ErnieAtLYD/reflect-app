@@ -367,14 +367,20 @@ export const Reflector = () => {
 
         {/* Reflection Display with Dynamic Focus Management */}
         <DynamicContent
-          state={reflectionState === 'loading' ? 'loading' : reflectionState === 'error' ? 'error' : 'success'}
+          state={
+            reflectionState === 'loading'
+              ? 'loading'
+              : reflectionState === 'error'
+                ? 'error'
+                : 'success'
+          }
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus={true}
           announceChanges={true}
           changeAnnouncement={
-            reflectionState === 'success' 
-              ? 'Your reflection has been generated' 
-              : reflectionState === 'error' 
+            reflectionState === 'success'
+              ? 'Your reflection has been generated'
+              : reflectionState === 'error'
                 ? 'An error occurred while generating your reflection'
                 : undefined
           }

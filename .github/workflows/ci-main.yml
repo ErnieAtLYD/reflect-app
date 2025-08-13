@@ -236,7 +236,7 @@ jobs:
         with:
           script: |
             const { context } = require('@actions/github');
-            
+
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
