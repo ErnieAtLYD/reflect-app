@@ -21,8 +21,10 @@ import {
 /**
  * Hook for managing focus traps in modals and dialogs
  */
-export function useFocusTrap(isActive: boolean = false) {
-  const containerRef = useRef<HTMLElement>(null)
+export function useFocusTrap<T extends HTMLElement = HTMLElement>(
+  isActive: boolean = false
+) {
+  const containerRef = useRef<T>(null)
   const focusTrapRef = useRef<FocusTrap | null>(null)
 
   const activate = useCallback((focusFirst = true) => {
@@ -174,7 +176,7 @@ export function useRovingTabindex(
 /**
  * Hook for managing focus on mount/unmount
  */
-export function useAutoFocus(
+export function useAutoFocus<T extends HTMLElement = HTMLElement>(
   options: {
     enabled?: boolean
     selectText?: boolean
@@ -182,7 +184,7 @@ export function useAutoFocus(
   } = {}
 ) {
   const { enabled = true, selectText = false, delay = 0 } = options
-  const elementRef = useRef<HTMLElement>(null)
+  const elementRef = useRef<T>(null)
 
   useEffect(() => {
     if (!enabled || !elementRef.current) return

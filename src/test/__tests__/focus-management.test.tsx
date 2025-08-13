@@ -102,7 +102,10 @@ function TestDynamicContentComponent() {
 }
 
 function TestAutoFocusComponent() {
-  const ref = useAutoFocus({ enabled: true, selectText: true })
+  const ref = useAutoFocus<HTMLInputElement>({
+    enabled: true,
+    selectText: true,
+  })
 
   return (
     <div>
@@ -397,11 +400,12 @@ describe('React Hooks', () => {
   describe('useFocusTrap', () => {
     it('should provide focus trap functionality', async () => {
       const TestFocusTrapComponent = () => {
-        const { containerRef, activate, deactivate, isActive } = useFocusTrap()
+        const { containerRef, activate, deactivate, isActive } =
+          useFocusTrap<HTMLDivElement>()
 
         return (
           <div>
-            <button onClick={activate} data-testid="activate">
+            <button onClick={() => activate()} data-testid="activate">
               Activate
             </button>
             <button onClick={() => deactivate()} data-testid="deactivate">
@@ -433,7 +437,7 @@ describe('React Hooks', () => {
       render(<TestAutoFocusComponent />)
 
       await waitFor(() => {
-        const input = screen.getByTestId('auto-focus-input')
+        const input = screen.getByTestId('auto-focus-input') as HTMLInputElement
         expect(input).toHaveFocus()
         expect(input.selectionStart).toBe(0)
         expect(input.selectionEnd).toBe(input.value.length)
