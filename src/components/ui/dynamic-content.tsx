@@ -9,7 +9,10 @@
 
 import * as React from 'react'
 
-import { useDynamicFocus, useFocusAnnouncements } from '@/hooks/use-focus-management'
+import {
+  useDynamicFocus,
+  useFocusAnnouncements,
+} from '@/hooks/use-focus-management'
 import { liveRegions } from '@/lib/live-regions'
 import { cn } from '@/lib/utils'
 
@@ -18,52 +21,52 @@ interface DynamicContentProps {
    * The content to render
    */
   children: React.ReactNode
-  
+
   /**
    * Whether to automatically focus new content
    */
   autoFocus?: boolean
-  
+
   /**
    * Whether to announce content changes to screen readers
    */
   announceChanges?: boolean
-  
+
   /**
    * Custom announcement message for content changes
    */
   changeAnnouncement?: string
-  
+
   /**
    * Whether to select text in focused input elements
    */
   selectText?: boolean
-  
+
   /**
    * Loading state content
    */
   loadingContent?: React.ReactNode
-  
+
   /**
    * Error state content
    */
   errorContent?: React.ReactNode
-  
+
   /**
    * Content state
    */
   state?: 'loading' | 'error' | 'success'
-  
+
   /**
    * Additional CSS classes
    */
   className?: string
-  
+
   /**
    * Test ID for testing
    */
   'data-testid'?: string
-  
+
   /**
    * Callback when content changes are detected
    */
@@ -127,42 +130,46 @@ export const DynamicContent: React.FC<DynamicContentProps> = ({
     const container = containerRef.current
     if (!container) return
 
-    const cleanup = observeContentChanges(container, (addedNodes, removedNodes) => {
-      const hasAddedElements = addedNodes.some(node => 
-        node.nodeType === Node.ELEMENT_NODE
-      )
-      const hasRemovedElements = removedNodes.some(node => 
-        node.nodeType === Node.ELEMENT_NODE
-      )
+    const cleanup = observeContentChanges(
+      container,
+      (addedNodes, removedNodes) => {
+        const hasAddedElements = addedNodes.some(
+          (node) => node.nodeType === Node.ELEMENT_NODE
+        )
+        const hasRemovedElements = removedNodes.some(
+          (node) => node.nodeType === Node.ELEMENT_NODE
+        )
 
-      let changeType: 'added' | 'removed' | 'updated' = 'updated'
-      
-      if (hasAddedElements && !hasRemovedElements) {
-        changeType = 'added'
-      } else if (!hasAddedElements && hasRemovedElements) {
-        changeType = 'removed'
-      }
+        let changeType: 'added' | 'removed' | 'updated' = 'updated'
 
-      onContentChange?.(changeType)
+        if (hasAddedElements && !hasRemovedElements) {
+          changeType = 'added'
+        } else if (!hasAddedElements && hasRemovedElements) {
+          changeType = 'removed'
+        }
 
-      // Auto-focus new content if enabled
-      if (autoFocus && hasAddedElements && hasRendered) {
-        setTimeout(() => {
-          focusNewContent(container, {
-            announceToScreenReader: announceChanges,
-            selectText,
-          })
-        }, 100)
-      }
+        onContentChange?.(changeType)
 
-      // Announce changes if enabled
-      if (announceChanges && hasRendered) {
-        const message = changeAnnouncement || getDefaultAnnouncement(changeType)
-        if (message) {
-          announce(message, 'polite')
+        // Auto-focus new content if enabled
+        if (autoFocus && hasAddedElements && hasRendered) {
+          setTimeout(() => {
+            focusNewContent(container, {
+              announceToScreenReader: announceChanges,
+              selectText,
+            })
+          }, 100)
+        }
+
+        // Announce changes if enabled
+        if (announceChanges && hasRendered) {
+          const message =
+            changeAnnouncement || getDefaultAnnouncement(changeType)
+          if (message) {
+            announce(message, 'polite')
+          }
         }
       }
-    })
+    )
 
     return cleanup
   }, [
@@ -223,27 +230,31 @@ export const DynamicContent: React.FC<DynamicContentProps> = ({
   const renderContent = () => {
     switch (state) {
       case 'loading':
-        return loadingContent || (
-          <div 
-            className="flex items-center justify-center p-4"
-            role="status"
-            aria-label="Loading content"
-            data-testid="dynamic-content-loading"
-          >
-            <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
-            <span className="sr-only">Loading...</span>
-          </div>
+        return (
+          loadingContent || (
+            <div
+              className="flex items-center justify-center p-4"
+              role="status"
+              aria-label="Loading content"
+              data-testid="dynamic-content-loading"
+            >
+              <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
+              <span className="sr-only">Loading...</span>
+            </div>
+          )
         )
       case 'error':
-        return errorContent || (
-          <div 
-            className="flex items-center justify-center p-4 text-destructive"
-            role="alert"
-            aria-label="Content error"
-            data-testid="dynamic-content-error"
-          >
-            <span>Failed to load content</span>
-          </div>
+        return (
+          errorContent || (
+            <div
+              className="text-destructive flex items-center justify-center p-4"
+              role="alert"
+              aria-label="Content error"
+              data-testid="dynamic-content-error"
+            >
+              <span>Failed to load content</span>
+            </div>
+          )
         )
       case 'success':
         return children
@@ -267,7 +278,9 @@ export const DynamicContent: React.FC<DynamicContentProps> = ({
 /**
  * Get default announcement message for content change type
  */
-function getDefaultAnnouncement(changeType: 'added' | 'removed' | 'updated'): string {
+function getDefaultAnnouncement(
+  changeType: 'added' | 'removed' | 'updated'
+): string {
   switch (changeType) {
     case 'added':
       return 'New content added'
@@ -290,12 +303,12 @@ interface LoadingContentProps {
    * Loading message
    */
   message?: string
-  
+
   /**
    * Size of the loading spinner
    */
   size?: 'sm' | 'default' | 'lg'
-  
+
   /**
    * Additional CSS classes
    */
@@ -314,24 +327,19 @@ export const LoadingContent: React.FC<LoadingContentProps> = ({
   }
 
   return (
-    <div 
-      className={cn(
-        'flex items-center justify-center gap-3 p-4',
-        className
-      )}
+    <div
+      className={cn('flex items-center justify-center gap-3 p-4', className)}
       role="status"
       aria-label={message}
       data-testid="loading-content"
     >
-      <div 
+      <div
         className={cn(
-          'animate-spin border-2 border-primary border-t-transparent rounded-full',
+          'border-primary animate-spin rounded-full border-2 border-t-transparent',
           sizeClasses[size]
-        )} 
+        )}
       />
-      <span className="text-sm text-muted-foreground">
-        {message}
-      </span>
+      <span className="text-muted-foreground text-sm">{message}</span>
       <span className="sr-only">{message}</span>
     </div>
   )
@@ -347,17 +355,17 @@ interface ErrorContentProps {
    * Error message
    */
   message?: string
-  
+
   /**
    * Whether to show retry button
    */
   showRetry?: boolean
-  
+
   /**
    * Retry callback
    */
   onRetry?: () => void
-  
+
   /**
    * Additional CSS classes
    */
@@ -371,9 +379,9 @@ export const ErrorContent: React.FC<ErrorContentProps> = ({
   className,
 }) => {
   return (
-    <div 
+    <div
       className={cn(
-        'flex flex-col items-center justify-center gap-3 p-4 text-destructive',
+        'text-destructive flex flex-col items-center justify-center gap-3 p-4',
         className
       )}
       role="alert"
@@ -397,11 +405,11 @@ export const ErrorContent: React.FC<ErrorContentProps> = ({
         </svg>
         <span className="text-sm font-medium">{message}</span>
       </div>
-      
+
       {showRetry && onRetry && (
         <button
           onClick={onRetry}
-          className="text-sm text-primary hover:text-primary/80 underline underline-offset-4"
+          className="text-primary hover:text-primary/80 text-sm underline underline-offset-4"
           data-testid="error-retry-button"
         >
           Try again

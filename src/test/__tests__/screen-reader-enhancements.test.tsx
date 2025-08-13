@@ -7,6 +7,7 @@
 
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import React from 'react'
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 
 import { JournalEntryInput } from '@/components/ui/journal-entry-input'
@@ -17,31 +18,40 @@ import {
   generateAccessibilityReport,
 } from '@/test/screen-reader-testing'
 
-// Mock the live regions module
-const mockAnnounce = vi.fn()
-const mockAnnounceError = vi.fn()
-const mockAnnounceSuccess = vi.fn()
-const mockAnnounceLoading = vi.fn()
-
-vi.mock('@/lib/live-regions', () => ({
-  useLiveRegions: vi.fn(() => ({
-    announce: mockAnnounce,
-    announceError: mockAnnounceError,
-    announceSuccess: mockAnnounceSuccess,
-    announceLoading: mockAnnounceLoading,
-    announceNavigation: vi.fn(),
-    clearAll: vi.fn(),
-  })),
-  liveRegions: {
-    announce: mockAnnounce,
-    announceError: mockAnnounceError,
-    announceSuccess: mockAnnounceSuccess,
-    announceLoading: mockAnnounceLoading,
-    announceNavigation: vi.fn(),
-    clearAll: vi.fn(),
-    cleanup: vi.fn(),
-  },
+// Mock the live regions module with hoisted functions
+const {
+  mockAnnounce,
+  mockAnnounceError,
+  mockAnnounceSuccess,
+  mockAnnounceLoading,
+} = vi.hoisted(() => ({
+  mockAnnounce: vi.fn(),
+  mockAnnounceError: vi.fn(),
+  mockAnnounceSuccess: vi.fn(),
+  mockAnnounceLoading: vi.fn(),
 }))
+
+vi.mock('@/lib/live-regions', () => {
+  return {
+    useLiveRegions: vi.fn(() => ({
+      announce: mockAnnounce,
+      announceError: mockAnnounceError,
+      announceSuccess: mockAnnounceSuccess,
+      announceLoading: mockAnnounceLoading,
+      announceNavigation: vi.fn(),
+      clearAll: vi.fn(),
+    })),
+    liveRegions: {
+      announce: mockAnnounce,
+      announceError: mockAnnounceError,
+      announceSuccess: mockAnnounceSuccess,
+      announceLoading: mockAnnounceLoading,
+      announceNavigation: vi.fn(),
+      clearAll: vi.fn(),
+      cleanup: vi.fn(),
+    },
+  }
+})
 
 describe('Screen Reader Enhancements', () => {
   beforeEach(() => {

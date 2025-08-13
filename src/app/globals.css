@@ -323,11 +323,11 @@
 }
 
 /* Roving tabindex styles */
-.roving-tabindex-container [tabindex="-1"] {
+.roving-tabindex-container [tabindex='-1'] {
   outline: none;
 }
 
-.roving-tabindex-container [tabindex="0"]:focus {
+.roving-tabindex-container [tabindex='0']:focus {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
@@ -385,16 +385,16 @@
 }
 
 /* Interactive element focus states */
-[role="button"]:focus-visible,
-[role="tab"]:focus-visible,
-[role="menuitem"]:focus-visible {
+[role='button']:focus-visible,
+[role='tab']:focus-visible,
+[role='menuitem']:focus-visible {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
   background-color: hsl(var(--accent));
 }
 
 /* Custom focus visible indicator */
-[data-focus-visible="true"] {
+[data-focus-visible='true'] {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
@@ -403,11 +403,11 @@
 }
 
 /* Focus management for loading states */
-[aria-busy="true"] {
+[aria-busy='true'] {
   pointer-events: none;
 }
 
-[aria-busy="true"]:focus-within {
+[aria-busy='true']:focus-within {
   outline: 2px dashed hsl(var(--muted-foreground));
   outline-offset: 2px;
 }
@@ -415,13 +415,13 @@
 /* Reduce motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .focus-enhanced:focus-visible,
-  [data-focus-visible="true"],
+  [data-focus-visible='true'],
   .skip-link:focus {
     transition: none;
     animation: none;
     transform: none;
   }
-  
+
   .dynamic-content-new {
     animation: none;
   }
@@ -435,7 +435,7 @@
 
   /* Preserve custom focus indicators */
   .focus\:ring-2,
-  [data-focus-visible="true"],
+  [data-focus-visible='true'],
   .focus-enhanced:focus-visible {
     forced-color-adjust: none;
     outline: 2px solid ButtonText;
@@ -451,12 +451,12 @@
     color: ButtonText !important;
     border: 2px solid ButtonText !important;
   }
-  
+
   /* Focus trap indicators */
   .focus-trap-active::before {
     border-color: ButtonText;
   }
-  
+
   /* Dynamic content indicators */
   .dynamic-content-new {
     background-color: Mark;

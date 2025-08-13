@@ -21,8 +21,10 @@ import {
 /**
  * Hook for managing focus traps in modals and dialogs
  */
-export function useFocusTrap(isActive: boolean = false) {
-  const containerRef = useRef<HTMLElement>(null)
+export function useFocusTrap<T extends HTMLElement = HTMLElement>(
+  isActive: boolean = false
+) {
+  const containerRef = useRef<T>(null)
   const focusTrapRef = useRef<FocusTrap | null>(null)
 
   const activate = useCallback((focusFirst = true) => {
@@ -100,33 +102,42 @@ export function useFocusRestoration() {
  */
 export function useDynamicFocus() {
   const managerRef = useRef<DynamicFocusManager | null>(null)
-  
+
   useEffect(() => {
     if (!managerRef.current) {
       managerRef.current = new DynamicFocusManager()
     }
-    
+
     return () => {
       managerRef.current?.cleanup()
     }
   }, [])
 
-  const focusNewContent = useCallback((
-    container: HTMLElement,
-    options?: {
-      announceToScreenReader?: boolean
-      selectText?: boolean
-    }
-  ) => {
-    return managerRef.current?.focusNewContent(container, options) ?? false
-  }, [])
+  const focusNewContent = useCallback(
+    (
+      container: HTMLElement,
+      options?: {
+        announceToScreenReader?: boolean
+        selectText?: boolean
+      }
+    ) => {
+      return managerRef.current?.focusNewContent(container, options) ?? false
+    },
+    []
+  )
 
-  const observeContentChanges = useCallback((
-    container: HTMLElement,
-    callback: (addedNodes: Node[], removedNodes: Node[]) => void
-  ) => {
-    return managerRef.current?.observeContentChanges(container, callback) ?? (() => {})
-  }, [])
+  const observeContentChanges = useCallback(
+    (
+      container: HTMLElement,
+      callback: (addedNodes: Node[], removedNodes: Node[]) => void
+    ) => {
+      return (
+        managerRef.current?.observeContentChanges(container, callback) ??
+        (() => {})
+      )
+    },
+    []
+  )
 
   return {
     focusNewContent,
@@ -145,7 +156,10 @@ export function useRovingTabindex(
 
   useEffect(() => {
     if (containerRef.current && !managerRef.current) {
-      managerRef.current = new RovingTabindexManager(containerRef.current, orientation)
+      managerRef.current = new RovingTabindexManager(
+        containerRef.current,
+        orientation
+      )
     }
 
     return () => {
@@ -162,13 +176,15 @@ export function useRovingTabindex(
 /**
  * Hook for managing focus on mount/unmount
  */
-export function useAutoFocus(options: {
-  enabled?: boolean
-  selectText?: boolean
-  delay?: number
-} = {}) {
+export function useAutoFocus<T extends HTMLElement = HTMLElement>(
+  options: {
+    enabled?: boolean
+    selectText?: boolean
+    delay?: number
+  } = {}
+) {
   const { enabled = true, selectText = false, delay = 0 } = options
-  const elementRef = useRef<HTMLElement>(null)
+  const elementRef = useRef<T>(null)
 
   useEffect(() => {
     if (!enabled || !elementRef.current) return
@@ -176,11 +192,12 @@ export function useAutoFocus(options: {
     const focusElement = () => {
       if (elementRef.current) {
         elementRef.current.focus()
-        
-        if (selectText && (
-          elementRef.current instanceof HTMLInputElement ||
-          elementRef.current instanceof HTMLTextAreaElement
-        )) {
+
+        if (
+          selectText &&
+          (elementRef.current instanceof HTMLInputElement ||
+            elementRef.current instanceof HTMLTextAreaElement)
+        ) {
           elementRef.current.select()
         }
       }
@@ -276,8 +293,10 @@ export function useContainerFocus() {
   const focusNext = useCallback(() => {
     if (containerRef.current) {
       const focusableElements = getFocusableElements(containerRef.current)
-      const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement)
-      
+      const currentIndex = focusableElements.indexOf(
+        document.activeElement as HTMLElement
+      )
+
       if (currentIndex >= 0 && currentIndex < focusableElements.length - 1) {
         focusableElements[currentIndex + 1].focus()
         return true
@@ -293,8 +312,10 @@ export function useContainerFocus() {
   const focusPrevious = useCallback(() => {
     if (containerRef.current) {
       const focusableElements = getFocusableElements(containerRef.current)
-      const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement)
-      
+      const currentIndex = focusableElements.indexOf(
+        document.activeElement as HTMLElement
+      )
+
       if (currentIndex > 0) {
         focusableElements[currentIndex - 1].focus()
         return true
@@ -320,29 +341,38 @@ export function useContainerFocus() {
  * Hook for managing focus announcements to screen readers
  */
 export function useFocusAnnouncements() {
-  const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
-    const announcer = document.createElement('div')
-    announcer.setAttribute('aria-live', priority)
-    announcer.setAttribute('aria-atomic', 'true')
-    announcer.className = 'sr-only'
-    announcer.textContent = message
-    
-    document.body.appendChild(announcer)
-    
-    setTimeout(() => {
-      if (document.body.contains(announcer)) {
-        document.body.removeChild(announcer)
-      }
-    }, 1000)
-  }, [])
+  const announce = useCallback(
+    (message: string, priority: 'polite' | 'assertive' = 'polite') => {
+      const announcer = document.createElement('div')
+      announcer.setAttribute('aria-live', priority)
+      announcer.setAttribute('aria-atomic', 'true')
+      announcer.className = 'sr-only'
+      announcer.textContent = message
 
-  const announceFocusChange = useCallback((elementDescription: string) => {
-    announce(`Focus moved to ${elementDescription}`, 'polite')
-  }, [announce])
+      document.body.appendChild(announcer)
 
-  const announceNavigation = useCallback((destination: string) => {
-    announce(`Navigated to ${destination}`, 'polite')
-  }, [announce])
+      setTimeout(() => {
+        if (document.body.contains(announcer)) {
+          document.body.removeChild(announcer)
+        }
+      }, 1000)
+    },
+    []
+  )
+
+  const announceFocusChange = useCallback(
+    (elementDescription: string) => {
+      announce(`Focus moved to ${elementDescription}`, 'polite')
+    },
+    [announce]
+  )
+
+  const announceNavigation = useCallback(
+    (destination: string) => {
+      announce(`Navigated to ${destination}`, 'polite')
+    },
+    [announce]
+  )
 
   return {
     announce,
