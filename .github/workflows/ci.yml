@@ -23,9 +23,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     
-    strategy:
-      matrix:
-        node-version: ['20']
     
     steps:
       - name: Checkout code
@@ -41,7 +38,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -89,7 +86,7 @@ jobs:
 
   # Job 2: E2E Tests (runs on PRs, depends on pr-validation)
   e2e-tests:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     needs: pr-validation
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -158,9 +155,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
 
       - name: Run security audit
-        run: pnpm audit --audit-level moderate
+        run: |
+          if ! pnpm audit --audit-level moderate; then
+            echo "Security vulnerabilities found above moderate level"
+            exit 1
+          fi
 
       - name: Check for known vulnerabilities
         run: |
