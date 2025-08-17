@@ -3,6 +3,7 @@
 import { Database, DatabaseZap } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+import { useAnalytics } from '@/hooks/useAnalytics'
 import { historyStorage } from '@/lib/history-storage'
 
 import { Button } from './button'
@@ -15,6 +16,7 @@ interface HistoryToggleProps {
 export function HistoryToggle({ className }: HistoryToggleProps) {
   const [isEnabled, setIsEnabled] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const { trackEvent } = useAnalytics()
 
   useEffect(() => {
     setIsClient(true)
@@ -25,6 +27,9 @@ export function HistoryToggle({ className }: HistoryToggleProps) {
     const newState = !isEnabled
     setIsEnabled(newState)
     historyStorage.setEnabled(newState)
+
+    // Track history toggle usage
+    trackEvent('history_toggled')
   }
 
   if (!isClient) {

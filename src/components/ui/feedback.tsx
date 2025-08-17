@@ -1,6 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 
+import { useAnalytics } from '@/hooks/useAnalytics'
 import { cn } from '@/lib/utils'
 
 const feedbackVariants = cva(
@@ -174,8 +175,14 @@ function Feedback({
   className,
   containerProps,
 }: FeedbackProps) {
+  const { trackEvent } = useAnalytics()
+
   const handleFeedback = (feedbackType: 'positive' | 'negative') => {
     if (disabled) return
+
+    // Track feedback submission
+    trackEvent('feedback_given')
+
     onFeedback?.(feedbackType)
   }
 
