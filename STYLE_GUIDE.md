@@ -634,7 +634,6 @@ Always use the `cn()` utility for conditional classes:
 
 ```tsx
 import { cn } from '@/lib/utils'
-
 ;<div
   className={cn(
     'base-classes',

@@ -3,6 +3,11 @@ import { useState } from 'react'
 /**
  * Custom hook for clipboard operations with feedback
  * @returns An object with the copied state, error state, and the copyToClipboard function
+ * @example
+ * const { copied, error, copyToClipboard } = useClipboard()
+ * copyToClipboard('Hello, world!')
+ * console.log(copied)
+ * console.log(error)
  */
 export function useClipboard() {
   const [copied, setCopied] = useState(false)
@@ -12,6 +17,7 @@ export function useClipboard() {
    * Copy text to clipboard
    * @param text - The text to copy
    * @returns A boolean indicating if the text was copied successfully
+   * @example
    */
   const copyToClipboard = async (text: string): Promise<boolean> => {
     try {
