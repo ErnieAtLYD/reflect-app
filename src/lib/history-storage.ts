@@ -16,7 +16,13 @@ export const HISTORY_EVENTS = {
   ENTRIES_CHANGED: 'reflect-history-entries-changed',
 } as const
 
-// Helper to dispatch custom events
+/**
+ * Dispatch a custom event
+ * @param eventType - The type of event to dispatch
+ * @param data - The data to include in the event
+ * @example
+ * dispatchHistoryEvent('reflect-history-entries-changed', { entries: [] })
+ */
 const dispatchHistoryEvent = (
   eventType: string,
   data?: Record<string, unknown>
@@ -26,6 +32,14 @@ const dispatchHistoryEvent = (
   }
 }
 
+/**
+ * Validate a reflection response
+ * @param reflection - The reflection response to validate
+ * @returns True if the response is valid, false otherwise
+ * @example
+ * const isValid = validateReflectionResponse(reflection)
+ * console.log(isValid)
+ */
 const validateReflectionResponse = (
   reflection: unknown
 ): reflection is ReflectionResponse => {
@@ -101,6 +115,14 @@ const validateReflectionResponse = (
   return true
 }
 
+/**
+ * Validate a history entry
+ * @param entry - The history entry to validate
+ * @returns True if the entry is valid, false otherwise
+ * @example
+ * const isValid = validateHistoryEntry(entry)
+ * console.log(isValid)
+ */
 const validateHistoryEntry = (entry: unknown): entry is HistoryEntry => {
   if (typeof entry !== 'object' || entry === null) {
     return false
@@ -157,6 +179,19 @@ const validateHistoryEntry = (entry: unknown): entry is HistoryEntry => {
   return true
 }
 
+/**
+ * History storage
+ * @returns An object with the isEnabled, setEnabled, saveEntry, getEntries, clearHistory, and getEntryCount functions
+ * @example
+ * const { isEnabled, setEnabled, saveEntry, getEntries, clearHistory, getEntryCount } = historyStorage
+ * console.log(isEnabled())
+ * setEnabled(true)
+ * saveEntry('Hello, world!')
+ * const entries = getEntries()
+ * console.log(entries)
+ * clearHistory()
+ * console.log(getEntryCount())
+ */
 export const historyStorage = {
   isEnabled(): boolean {
     try {
@@ -213,6 +248,10 @@ export const historyStorage = {
     }
   },
 
+  /**
+   * Get all entries from the history.
+   * @returns An array of HistoryEntry objects.
+   */
   getEntries(): HistoryEntry[] {
     if (!this.isEnabled()) return []
 
@@ -250,6 +289,9 @@ export const historyStorage = {
     }
   },
 
+  /**
+   * Clear all entries from the history.
+   */
   clearHistory(): void {
     try {
       localStorage.removeItem(STORAGE_KEY)
@@ -259,6 +301,10 @@ export const historyStorage = {
     }
   },
 
+  /**
+   * Get the number of entries in the history.
+   * @returns The number of entries in the history.
+   */
   getEntryCount(): number {
     return this.getEntries().length
   },

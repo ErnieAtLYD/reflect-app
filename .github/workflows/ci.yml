@@ -1,0 +1,260 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+  PNPM_VERSION: '10'
+
+jobs:
+  # Job 1: PR Validation (runs on PRs)
+  pr-validation:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+            .vitest/cache
+          key: ${{ runner.os }}-build-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-build-
+
+      - name: Run type checking
+        run: pnpm typecheck
+
+      - name: Run linting
+        run: pnpm lint
+
+      - name: Check code formatting
+        run: pnpm format:check
+
+      - name: Run unit tests
+        run: pnpm test:coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Cache build for E2E tests
+        uses: actions/cache@v4
+        with:
+          path: .next
+          key: ${{ runner.os }}-nextjs-${{ github.sha }}
+
+  # Job 2: E2E Tests (runs on PRs, depends on pr-validation)
+  e2e-tests:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    needs: pr-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: .next
+          key: ${{ runner.os }}-nextjs-${{ github.sha }}
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps ${{ matrix.project }}
+
+      - name: Run E2E tests
+        run: pnpm test:e2e --project=${{ matrix.project }}
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 7
+
+  # Job 3: Security Audit
+  security-audit:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run security audit
+        run: |
+          if ! pnpm audit --audit-level moderate; then
+            echo "Security vulnerabilities found above moderate level"
+            exit 1
+          fi
+
+      - name: Check for known vulnerabilities
+        run: |
+          pnpm audit --json > audit-results.json || true
+          if [ -s audit-results.json ]; then
+            echo "Security vulnerabilities found:"
+            cat audit-results.json
+          fi
+
+  # Job 4: Deploy to Production (runs only on main branch)
+  deploy-production:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [pr-validation, e2e-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.preview-url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Deploy to Vercel
+        id: deploy
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+
+      - name: Create deployment status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.payload.deployment?.id,
+              state: 'success',
+              environment_url: '${{ steps.deploy.outputs.preview-url }}',
+              description: 'Deployment succeeded'
+            });
+
+  # Job 5: Notify on failure
+  notify-failure:
+    if: failure() && (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: [pr-validation, e2e-tests, deploy-production]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify team of failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Main branch CI/CD failure - ${context.sha.substring(0, 7)}`,
+              body: `
+                ## CI/CD Pipeline Failure
+                
+                **Commit:** ${context.sha}
+                **Workflow:** ${context.workflow}
+                **Run:** [${context.runId}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+                
+                Please investigate the failure and fix the issue.
+                
+                cc: @ErnieAtLYD
+              `,
+              labels: ['bug', 'ci-failure', 'high-priority']
+            });

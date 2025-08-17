@@ -20,6 +20,17 @@ import {
 
 /**
  * Hook for managing focus traps in modals and dialogs
+ * @param isActive - Whether the focus trap is active
+ * @returns An object with the container ref, activate, deactivate, and isActive state
+ * @example
+ * const { containerRef, activate, deactivate, isActive } = useFocusTrap(true)
+ * return (
+ *   <div ref={containerRef}>
+ *     <button onClick={activate}>Activate</button>
+ *     <button onClick={deactivate}>Deactivate</button>
+ *     <p>Is active: {isActive ? 'Yes' : 'No'}</p>
+ *   </div>
+ * )
  */
 export function useFocusTrap<T extends HTMLElement = HTMLElement>(
   isActive: boolean = false
@@ -75,6 +86,13 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
 
 /**
  * Hook for managing focus restoration
+ * @returns An object with the saveFocus, restoreFocus, clearHistory, and historyLength functions
+ * @example
+ * const { saveFocus, restoreFocus, clearHistory, historyLength } = useFocusRestoration()
+ * saveFocus()
+ * restoreFocus()
+ * clearHistory()
+ * console.log(historyLength)
  */
 export function useFocusRestoration() {
   const saveFocus = useCallback(() => {
@@ -99,6 +117,13 @@ export function useFocusRestoration() {
 
 /**
  * Hook for managing focus on dynamic content changes
+ * @returns An object with the focusNewContent and observeContentChanges functions
+ * @example
+ * const { focusNewContent, observeContentChanges } = useDynamicFocus()
+ * focusNewContent(container, { announceToScreenReader: true, selectText: true })
+ * observeContentChanges(container, (addedNodes, removedNodes) => {
+ *   console.log('Content changed:', addedNodes, removedNodes)
+ * })
  */
 export function useDynamicFocus() {
   const managerRef = useRef<DynamicFocusManager | null>(null)
@@ -175,6 +200,18 @@ export function useRovingTabindex(
 
 /**
  * Hook for managing focus on mount/unmount
+ * @param options - Configuration options for the focus management
+ * @param options.enabled - Whether the focus management is enabled
+ * @param options.selectText - Whether to select the text when focusing
+ * @param options.delay - Delay in milliseconds before focusing
+ * @returns A ref to the element that should be focused
+ * @example
+ * const { ref } = useAutoFocus({ enabled: true, selectText: true, delay: 100 })
+ * return (
+ *   <div ref={ref}>
+ *     <input type="text" />
+ *   </div>
+ * )
  */
 export function useAutoFocus<T extends HTMLElement = HTMLElement>(
   options: {
@@ -216,6 +253,14 @@ export function useAutoFocus<T extends HTMLElement = HTMLElement>(
 
 /**
  * Hook for managing focus visible state
+ * @returns A ref to the element that should be focused
+ * @example
+ * const { ref } = useFocusVisible()
+ * return (
+ *   <div ref={ref}>
+ *     <input type="text" />
+ *   </div>
+ * )
  */
 export function useFocusVisible() {
   const elementRef = useRef<HTMLElement>(null)
@@ -263,6 +308,17 @@ export function useFocusVisible() {
 
 /**
  * Hook for managing focus within a container
+ * @returns An object with the container ref, focusFirst, focusLast, focusNext, and focusPrevious
+ * @example
+ * const { containerRef, focusFirst, focusLast, focusNext, focusPrevious } = useContainerFocus()
+ * return (
+ *   <div ref={containerRef}>
+ *     <button onClick={focusFirst}>First</button>
+ *     <button onClick={focusLast}>Last</button>
+ *     <button onClick={focusNext}>Next</button>
+ *     <button onClick={focusPrevious}>Previous</button>
+ *   </div>
+ * )
  */
 export function useContainerFocus() {
   const containerRef = useRef<HTMLElement>(null)
@@ -339,6 +395,12 @@ export function useContainerFocus() {
 
 /**
  * Hook for managing focus announcements to screen readers
+ * @returns An object with the announce, announceFocusChange, and announceNavigation functions
+ * @example
+ * const { announce, announceFocusChange, announceNavigation } = useFocusAnnouncements()
+ * announce('Hello, world!')
+ * announceFocusChange('Button')
+ * announceNavigation('Next page')
  */
 export function useFocusAnnouncements() {
   const announce = useCallback(
