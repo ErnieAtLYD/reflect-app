@@ -45,18 +45,21 @@ import { useLiveRegions } from '@/lib/live-regions'
 import { cn } from '@/lib/utils'
 
 const journalInputVariants = cva(
-  'border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex w-full rounded-md border bg-transparent shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 resize-none',
+  'border-input placeholder:text-muted-foreground focus-visible:border-primary/60 focus-visible:ring-primary/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive flex w-full rounded-md border shadow-xs transition-[color,box-shadow,border-color,background-color] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 resize-none',
   {
     variants: {
       size: {
-        sm: 'min-h-10 px-2 py-1 text-sm',
-        default: 'min-h-16 px-3 py-2 text-base md:text-sm',
-        lg: 'min-h-20 px-4 py-3 text-lg',
+        sm: 'min-h-10 px-3 py-2 text-sm',
+        default: 'min-h-16 px-4 py-3 text-base md:text-sm',
+        lg: 'min-h-20 px-5 py-4 text-lg',
       },
       variant: {
-        default: 'border-input bg-transparent',
-        filled: 'bg-muted border-muted dark:bg-muted/50',
-        ghost: 'border-transparent bg-transparent hover:bg-accent',
+        default:
+          'border-border/60 bg-background/50 backdrop-blur-sm hover:border-border/80 hover:bg-background/70',
+        filled:
+          'bg-muted/70 border-muted-foreground/20 hover:bg-muted/90 hover:border-muted-foreground/30 dark:bg-muted/30 dark:hover:bg-muted/50',
+        ghost:
+          'border-transparent bg-transparent hover:bg-accent/50 hover:border-border/40',
       },
     },
     defaultVariants: {
