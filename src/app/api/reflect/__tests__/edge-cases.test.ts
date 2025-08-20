@@ -225,7 +225,7 @@ const edgeCases = [
 export async function testEdgeCase(
   testCase: EdgeCaseTest
 ): Promise<TestResult> {
-  const { name, content, expectSuccess } = testCase
+  const { content, expectSuccess } = testCase
 
   try {
     const startTime = Date.now()

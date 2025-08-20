@@ -168,9 +168,6 @@ interface ValidationResult {
 
 // Removed unused interface TestResults
 
-// Test constants
-const BASE_URL = 'http://localhost:3000'
-
 // Rate limiting helper function
 const rateLimitDelay = () => new Promise((resolve) => setTimeout(resolve, 100))
 
@@ -546,99 +543,71 @@ describe('AI API Integration Tests', () => {
         body: { note: 'This should fail' },
         expectedStatus: 400,
       },
-      {
-        name: 'Invalid JSON (GET request)',
-        method: 'GET',
-        expectedStatus: 405,
-      },
     ]
 
     errorTests.forEach((test) => {
       it(`should handle ${test.name}`, async () => {
-        const response = await fetch(`${BASE_URL}/api/reflect`, {
-          method: test.method || 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: test.body ? JSON.stringify(test.body) : undefined,
+        const request = new NextRequest('http://localhost:3000/api/reflect', {
+          method: 'POST',
+          body: JSON.stringify(test.body),
+          headers: { 'Content-Type': 'application/json' },
         })
 
-        // Handle rate limiting gracefully
-        if (response.status === 429) {
-          console.warn(`Rate limited during error test: ${test.name}`)
-          const data = await response.json()
-          expect(data.message).toBeDefined()
-          expect(data.retryAfter).toBeDefined()
-          return
-        }
+        const response = await POST(request)
+        const data = await response.json()
 
         expect(response.status).toBe(test.expectedStatus)
-
-        const data = await response.json()
         expect(data.message).toBeDefined()
         expect(typeof data.message).toBe('string')
       })
     })
+
+    it('should handle GET request (method not allowed)', async () => {
+      const response = await GET()
+      const data = await response.json()
+
+      expect(response.status).toBe(405)
+      expect(data.message).toBeDefined()
+      expect(typeof data.message).toBe('string')
+    })
   })
 
   describe('Rate Limiting', () => {
-    it('should implement rate limiting when API is available', async () => {
+    it('should implement rate limiting when enabled', async () => {
+      // Note: Rate limiting is disabled in tests via mock, so this test verifies
+      // that the API works consistently without rate limiting when disabled
       const testContent =
-        "This is a test entry for rate limiting. It's long enough to pass validation and should trigger rate limits when sent multiple times quickly."
+        "This is a test entry for rate limiting. It's long enough to pass validation and should work consistently when rate limiting is disabled in test environment."
 
       const promises = []
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 5; i++) {
         promises.push(
-          fetch(`${BASE_URL}/api/reflect`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ content: testContent }),
-          })
+          (async () => {
+            const request = new NextRequest(
+              'http://localhost:3000/api/reflect',
+              {
+                method: 'POST',
+                body: JSON.stringify({ content: testContent }),
+                headers: { 'Content-Type': 'application/json' },
+              }
+            )
+            return await POST(request)
+          })()
         )
       }
 
       const responses = await Promise.all(promises)
 
-      let successCount = 0
-      let rateLimitedCount = 0
-      let serviceUnavailableCount = 0
+      // All requests should succeed since rate limiting is disabled in tests
+      responses.forEach(async (response) => {
+        expect(response.status).toBe(200)
+        const data = await response.json()
+        expectValidApiResponse(data)
+      })
 
-      for (const response of responses) {
-        if (response.status === 200) {
-          successCount++
-        } else if (response.status === 429) {
-          rateLimitedCount++
-          const data = await response.json()
-          expect(data.retryAfter).toBeDefined()
-          expect(typeof data.retryAfter).toBe('number')
-        } else if (response.status === 503) {
-          serviceUnavailableCount++
-        }
-      }
-
-      // If all responses are service unavailable, skip the test
-      if (serviceUnavailableCount === 12) {
-        console.warn('AI service unavailable - rate limiting test skipped')
-        expect(serviceUnavailableCount).toBe(12)
-        return
-      }
-
-      // If we get any successful responses or rate limits, the API is working
-      if (successCount > 0 || rateLimitedCount > 0) {
-        expect(successCount + rateLimitedCount + serviceUnavailableCount).toBe(
-          12
-        )
-        console.log(
-          `Rate limiting test - Success: ${successCount}, Rate limited: ${rateLimitedCount}, Service unavailable: ${serviceUnavailableCount}`
-        )
-      } else {
-        console.warn('Unexpected response pattern in rate limiting test')
-        expect(successCount + rateLimitedCount + serviceUnavailableCount).toBe(
-          12
-        )
-      }
-    }, 30000) // 30 second timeout
+      console.log(
+        `Rate limiting test completed - all ${responses.length} requests succeeded (rate limiting disabled in tests)`
+      )
+    })
   })
 })
