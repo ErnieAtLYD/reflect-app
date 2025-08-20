@@ -4,7 +4,74 @@
  * Tests caching behavior, response consistency, and performance
  * of the /api/reflect endpoint using vitest framework.
  */
-import { describe, it, expect, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
+import OpenAI from 'openai'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
+import { OpenAIConfig, ReflectionRequest } from '@/types/ai'
+
+import { POST } from '../route'
+
+// Mock constants to disable rate limiting
+vi.mock('@/constants', () => ({
+  AI_CONFIG: {
+    RATE_LIMIT_ENABLED: false,
+    RATE_LIMIT_RPM: 10,
+    CACHE_TTL_MS: 3600000,
+  },
+}))
+
+// Mock OpenAI to avoid actual API calls in tests
+vi.mock('@/lib/openai', () => ({
+  getOpenAIConfig: vi.fn(() => ({
+    apiKey: 'test-key',
+    model: 'gpt-4-1106-preview',
+    fallbackModel: 'gpt-3.5-turbo-1106',
+    maxTokens: 500,
+    temperature: 0.7,
+    timeout: 30000,
+  })),
+  createOpenAIClient: vi.fn(() => ({})),
+  processJournalEntry: vi.fn(
+    async (
+      client: OpenAI,
+      config: OpenAIConfig,
+      request: ReflectionRequest
+    ) => {
+      const content = request.content
+      // Generate deterministic responses based on content for caching tests
+      // Use content length and first few characters to create a unique hash
+      const contentPreview = content.substring(0, 50)
+      const hash =
+        content.length +
+        content.charCodeAt(0) +
+        content.charCodeAt(Math.min(content.length - 1, 10))
+
+      return {
+        summary: `Test summary for content (${content.length} chars): ${contentPreview}... [hash: ${hash}]`,
+        pattern: `Pattern analysis for content length ${content.length}: ${content.substring(0, 20)}... [${hash}]`,
+        suggestion: `Suggestion based on content hash ${hash}: Consider reflecting on "${content.substring(0, 25)}..."`,
+        metadata: {
+          model: 'gpt-4-1106-preview',
+          processedAt: new Date().toISOString(),
+          processingTimeMs: Math.floor(Math.random() * 1000) + 500,
+        },
+      }
+    }
+  ),
+  validateJournalContent: vi.fn((content: string) => {
+    if (!content || content.length < 10) {
+      return {
+        isValid: false,
+        error: 'Content must be at least 10 characters long',
+      }
+    }
+    return { isValid: true }
+  }),
+  generateContentHash: vi.fn((content: string) => {
+    return Buffer.from(content).toString('base64').slice(0, 10)
+  }),
+}))
 
 // Type definitions
 interface ApiResponse {
@@ -32,46 +99,24 @@ interface ContentTestResult {
   error?: string
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-
 const testContent =
   "Today I learned something important about patience. While working on a difficult problem, I found myself getting frustrated when the solution didn't come immediately. I took a step back, breathed deeply, and approached it with fresh eyes. The breakthrough came when I stopped forcing it and allowed my mind to work naturally. This experience reminded me that sometimes the best approach is to trust the process and give things time to unfold."
 
-/**
- * Rate-aware delay between caching test requests
- */
-async function rateLimitDelay(baseDelay = 2500): Promise<void> {
-  const jitter = Math.random() * 500
-  await new Promise((resolve) => setTimeout(resolve, baseDelay + jitter))
-}
-
-// Helper function to make API requests with rate limiting awareness
+// Helper function to make API requests using direct POST handler calls
 async function makeApiRequest(
-  content: string,
-  retryCount = 0
+  content: string
 ): Promise<{ response: Response; data: unknown; duration: number }> {
   const start = Date.now()
 
-  const response = await fetch(`${API_BASE}/api/reflect`, {
+  const request = new NextRequest('http://localhost:3000/api/reflect', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content }),
+    headers: { 'Content-Type': 'application/json' },
   })
 
+  const response = await POST(request)
   const data = await response.json()
   const duration = Date.now() - start
-
-  // If rate limited and we haven't retried too many times, wait and retry
-  if (response.status === 429 && retryCount < 1) {
-    const retryAfter =
-      ((data as Record<string, unknown>).retryAfter as number) || 10
-    console.log(
-      `Caching test rate limited, waiting ${retryAfter + 2}s before retry`
-    )
-
-    await new Promise((resolve) => setTimeout(resolve, (retryAfter + 2) * 1000))
-    return makeApiRequest(content, retryCount + 1)
-  }
 
   return { response, data, duration }
 }
@@ -100,25 +145,11 @@ function expectValidApiResponse(data: unknown): asserts data is ApiResponse {
 
 // Vitest Test Suite
 describe('AI API Caching Tests', () => {
-  let isServerRunning = false
-
-  beforeEach(async () => {
-    // Check if server is running before each test
-    if (!isServerRunning) {
-      try {
-        const healthCheck = await fetch(`${API_BASE}/api/reflect`, {
-          method: 'GET',
-        })
-        isServerRunning = healthCheck.status === 405
-        if (!isServerRunning) {
-          throw new Error('Server not responding correctly')
-        }
-      } catch {
-        throw new Error(
-          'Server not accessible. Make sure to run `pnpm dev` first.'
-        )
-      }
-    }
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // Set up environment
+    process.env.OPENAI_API_KEY = 'test-api-key'
+    process.env.AI_RATE_LIMIT_ENABLED = 'false'
   })
 
   describe('Response Caching Behavior', () => {
@@ -130,45 +161,16 @@ describe('AI API Caching Tests', () => {
         duration: duration1,
       } = await makeApiRequest(testContent)
 
-      // Handle rate limiting and service unavailable gracefully
-      if (response1.status === 429) {
-        console.warn('Rate limited during caching test, skipping')
-        const errorData = data1 as Record<string, unknown>
-        expect(errorData.message).toBeDefined()
-        expect(errorData.retryAfter).toBeDefined()
-        return
-      }
-
-      if (response1.status === 503) {
-        console.warn('AI service unavailable during caching test, skipping')
-        const errorData = data1 as Record<string, unknown>
-        expect(errorData.message).toBeDefined()
-        return
-      }
-
       expect(response1.ok).toBe(true)
       expectValidApiResponse(data1)
       const response1Data = data1 as ApiResponse
 
-      // Wait before second request to allow cache to settle
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Make second request with identical content
+      // Make second request with identical content (should use cache)
       const {
         response: response2,
         data: data2,
         duration: duration2,
       } = await makeApiRequest(testContent)
-
-      // Handle rate limiting gracefully
-      if (response2.status === 429) {
-        console.warn(
-          'Rate limited during second request, skipping cache comparison'
-        )
-        const errorData = data2 as Record<string, unknown>
-        expect(errorData.message).toBeDefined()
-        return
-      }
 
       expect(response2.ok).toBe(true)
       expectValidApiResponse(data2)
@@ -179,45 +181,27 @@ describe('AI API Caching Tests', () => {
       expect(response1Data.pattern).toBe(response2Data.pattern)
       expect(response1Data.suggestion).toBe(response2Data.suggestion)
 
-      // Log performance metrics for debugging
-      console.log(
-        `First request: ${duration1}ms, Second request: ${duration2}ms`
-      )
-      const speedup = duration1 / duration2
-      console.log(`Speed improvement: ${speedup.toFixed(1)}x`)
-
-      // Performance expectation (cached responses should be significantly faster)
-      if (duration2 < duration1 / 5) {
-        console.log('✅ Caching performance confirmed')
-      } else {
-        console.log('⚠️ Caching performance unclear - may still be working')
-      }
-    }, 20000) // 20 second timeout
+      // Cache should provide faster responses (though in mocked tests this is less meaningful)
+      expect(duration2).toBeLessThanOrEqual(duration1)
+    })
 
     it('should return different responses for different content (cache miss)', async () => {
-      // Make request with original content
-      const { response: response1, data: data1 } =
-        await makeApiRequest(testContent)
+      // Use completely different content to ensure different cache keys
+      const content1 = 'Today was a wonderful day filled with joy and learning.'
+      const content2 =
+        'Yesterday I felt overwhelmed but managed to find some peace through meditation.'
 
-      if (response1.status === 429 || response1.status === 503) {
-        console.warn('Service unavailable for cache miss test, skipping')
-        return
-      }
+      // Make request with first content
+      const { response: response1, data: data1 } =
+        await makeApiRequest(content1)
 
       expect(response1.ok).toBe(true)
       expectValidApiResponse(data1)
       const response1Data = data1 as ApiResponse
 
-      // Make request with modified content
-      const modifiedContent =
-        testContent + ' This is additional content to test cache miss.'
+      // Make request with completely different content
       const { response: response2, data: data2 } =
-        await makeApiRequest(modifiedContent)
-
-      if (response2.status === 429 || response2.status === 503) {
-        console.warn('Service unavailable for modified content test, skipping')
-        return
-      }
+        await makeApiRequest(content2)
 
       expect(response2.ok).toBe(true)
       expectValidApiResponse(data2)
@@ -230,7 +214,7 @@ describe('AI API Caching Tests', () => {
         response1Data.suggestion !== response2Data.suggestion
 
       expect(isDifferent).toBe(true)
-    }, 15000) // 15 second timeout
+    })
   })
 
   describe('Content Type Variations', () => {
@@ -256,21 +240,6 @@ describe('AI API Caching Tests', () => {
       it(`should process ${test.name} content type`, async () => {
         const { response, data } = await makeApiRequest(test.content)
 
-        // Handle rate limiting and service unavailable gracefully
-        if (response.status === 429) {
-          console.warn(`Rate limited for ${test.name}, skipping test`)
-          const errorData = data as Record<string, unknown>
-          expect(errorData.message).toBeDefined()
-          return
-        }
-
-        if (response.status === 503) {
-          console.warn(`AI service unavailable for ${test.name}, skipping test`)
-          const errorData = data as Record<string, unknown>
-          expect(errorData.message).toBeDefined()
-          return
-        }
-
         expect(response.ok).toBe(true)
         expectValidApiResponse(data)
         const responseData = data as ApiResponse
@@ -284,33 +253,17 @@ describe('AI API Caching Tests', () => {
         expect(responseData.summary).not.toBe(responseData.pattern)
         expect(responseData.summary).not.toBe(responseData.suggestion)
         expect(responseData.pattern).not.toBe(responseData.suggestion)
-      }, 12000) // 12 second timeout per test
+      })
     })
 
-    it('should handle multiple content types successfully when API is available', async () => {
+    it('should handle multiple content types successfully', async () => {
       const results: ContentTestResult[] = []
-      let rateLimitedCount = 0
-      let serviceUnavailableCount = 0
 
       for (const test of contentTests) {
         try {
           const { response, data } = await makeApiRequest(test.content)
 
-          if (response.status === 429) {
-            rateLimitedCount++
-            results.push({
-              name: test.name,
-              success: false,
-              error: 'Rate limited',
-            })
-          } else if (response.status === 503) {
-            serviceUnavailableCount++
-            results.push({
-              name: test.name,
-              success: false,
-              error: 'Service unavailable',
-            })
-          } else if (response.ok) {
+          if (response.ok) {
             expectValidApiResponse(data)
             results.push({
               name: test.name,
@@ -334,32 +287,13 @@ describe('AI API Caching Tests', () => {
             error: errorMessage,
           })
         }
-
-        // Rate-aware delay between requests
-        await rateLimitDelay()
       }
 
       const successfulResults = results.filter((r) => r.success)
-      const failedResults = results.filter((r) => !r.success)
 
-      // If all failures are due to rate limiting or service unavailable, skip success rate check
-      if (rateLimitedCount + serviceUnavailableCount >= failedResults.length) {
-        console.warn(
-          'All failures due to rate limiting or service unavailable - content variation test results inconclusive'
-        )
-        expect(results.length).toBe(contentTests.length)
-        return
-      }
-
-      // Otherwise, expect some successful results
-      expect(successfulResults.length).toBeGreaterThan(0)
-
-      // Log results for debugging
-      const successRate = (successfulResults.length / results.length) * 100
-      console.log(`Content variation success rate: ${successRate.toFixed(1)}%`)
-      console.log(
-        `Rate limited: ${rateLimitedCount}, Service unavailable: ${serviceUnavailableCount}`
-      )
-    }, 60000) // 60 second timeout for full content test suite
+      // All content types should be processed successfully
+      expect(successfulResults.length).toBe(contentTests.length)
+      expect(results.length).toBe(contentTests.length)
+    })
   })
 })

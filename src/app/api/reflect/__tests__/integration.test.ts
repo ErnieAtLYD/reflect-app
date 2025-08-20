@@ -4,7 +4,137 @@
  * Tests the /api/reflect endpoint with various journal entry samples
  * to verify AI responses match the expected format.
  */
-import { describe, it, expect, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
+import OpenAI from 'openai'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
+import { OpenAIConfig, ReflectionRequest } from '@/types/ai'
+
+import { POST, GET } from '../route'
+
+// Mock constants to disable rate limiting
+vi.mock('@/constants', () => ({
+  AI_CONFIG: {
+    RATE_LIMIT_ENABLED: false,
+    RATE_LIMIT_RPM: 10,
+    CACHE_TTL_MS: 3600000,
+  },
+}))
+
+// Mock OpenAI to avoid actual API calls in tests
+vi.mock('@/lib/openai', () => ({
+  getOpenAIConfig: vi.fn(() => ({
+    apiKey: 'test-key',
+    model: 'gpt-4-1106-preview',
+    fallbackModel: 'gpt-3.5-turbo-1106',
+    maxTokens: 500,
+    temperature: 0.7,
+    timeout: 30000,
+  })),
+  createOpenAIClient: vi.fn(() => ({})),
+  processJournalEntry: vi.fn(
+    async (
+      _client: OpenAI,
+      _config: OpenAIConfig,
+      request: ReflectionRequest
+    ) => {
+      const content = request.content
+      // Simulate validation logic
+      if (content.length < 10) {
+        throw new Error('Content must be at least 10 characters long')
+      }
+      if (content.length > 5000) {
+        throw new Error('Content exceeds maximum length of 5000 characters')
+      }
+      if (!content.trim()) {
+        throw new Error('Content cannot be empty or only whitespace')
+      }
+
+      // Generate realistic responses based on content type
+      const contentLower = content.toLowerCase()
+      let summary, pattern, suggestion
+
+      if (contentLower.includes('work') || contentLower.includes('client')) {
+        summary =
+          'You handled work challenges with resilience and problem-solving skills.'
+        pattern =
+          'You are developing stronger confidence in professional situations.'
+        suggestion =
+          'Continue building on these problem-solving skills and trust your abilities.'
+      } else if (
+        contentLower.includes('friend') ||
+        contentLower.includes('relationship')
+      ) {
+        summary =
+          'You are reflecting on relationship dynamics and communication.'
+        pattern = 'You value honest communication and deeper connections.'
+        suggestion =
+          'Practice direct communication and maintain authenticity in relationships.'
+      } else if (
+        contentLower.includes('anxious') ||
+        contentLower.includes('nervous')
+      ) {
+        summary =
+          'You are processing feelings of anxiety about upcoming challenges.'
+        pattern =
+          'Pre-event anxiety is a common pattern that resolves with preparation.'
+        suggestion =
+          'Use preparation and relaxation techniques to manage nervous energy.'
+      } else if (
+        contentLower.includes('grateful') ||
+        contentLower.includes('appreciate')
+      ) {
+        summary =
+          'You are expressing gratitude and recognizing positive aspects of life.'
+        pattern =
+          'Gratitude practice helps you maintain perspective and emotional balance.'
+        suggestion =
+          'Continue cultivating gratitude as a daily practice for well-being.'
+      } else {
+        summary = `You are reflecting thoughtfully on ${content.substring(0, 30)}...`
+        pattern =
+          'Self-reflection is helping you gain insights and perspective.'
+        suggestion =
+          'Continue journaling to deepen your self-awareness and growth.'
+      }
+
+      return {
+        summary,
+        pattern,
+        suggestion,
+        metadata: {
+          model: 'gpt-4-1106-preview',
+          processedAt: new Date().toISOString(),
+          processingTimeMs: Math.floor(Math.random() * 1000) + 500,
+        },
+      }
+    }
+  ),
+  validateJournalContent: vi.fn((content: string) => {
+    if (!content || content.length < 10) {
+      return {
+        isValid: false,
+        error: 'Content must be at least 10 characters long',
+      }
+    }
+    if (content.length > 5000) {
+      return {
+        isValid: false,
+        error: 'Content exceeds maximum length of 5000 characters',
+      }
+    }
+    if (!content.trim()) {
+      return {
+        isValid: false,
+        error: 'Content cannot be empty or only whitespace',
+      }
+    }
+    return { isValid: true }
+  }),
+  generateContentHash: vi.fn((content: string) => {
+    return Buffer.from(content).toString('base64').slice(0, 10)
+  }),
+}))
 
 interface JournalSample {
   name: string
@@ -37,6 +167,12 @@ interface ValidationResult {
 }
 
 // Removed unused interface TestResults
+
+// Test constants
+const BASE_URL = 'http://localhost:3000'
+
+// Rate limiting helper function
+const rateLimitDelay = () => new Promise((resolve) => setTimeout(resolve, 100))
 
 const JOURNAL_SAMPLES: JournalSample[] = [
   {
@@ -81,23 +217,15 @@ const JOURNAL_SAMPLES: JournalSample[] = [
   },
 ]
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-
 /**
  * Test a single journal entry sample
  */
 export async function testJournalSample(
   sample: JournalSample
 ): Promise<TestResult> {
-  console.log(`\n🧪 Testing: ${sample.name}`)
-  console.log(`📝 Content: ${sample.content.substring(0, 100)}...`)
-
   try {
-    const response = await fetch(`${BASE_URL}/api/reflect`, {
+    const request = new NextRequest('http://localhost:3000/api/reflect', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({
         content: sample.content,
         preferences: {
@@ -105,32 +233,18 @@ export async function testJournalSample(
           focusAreas: ['growth', 'patterns'],
         },
       }),
+      headers: { 'Content-Type': 'application/json' },
     })
 
+    const response = await POST(request)
     const data = await response.json()
 
     if (!response.ok) {
-      console.log(`❌ Error (${response.status}):`, data.message)
-      if (data.error === 'rate_limit' && data.retryAfter) {
-        console.log(`⏰ Rate limited. Retry after ${data.retryAfter} seconds`)
-      }
       return { success: false, error: data }
     }
 
     // Validate response format
     const validationResults = validateResponseFormat(data)
-
-    if (validationResults.isValid) {
-      console.log('✅ Response format valid')
-      console.log(`📊 Summary: ${data.summary}`)
-      console.log(`🔍 Pattern: ${data.pattern}`)
-      console.log(`💡 Suggestion: ${data.suggestion}`)
-      console.log(
-        `🤖 Model: ${data.metadata.model} (${data.metadata.processingTimeMs}ms)`
-      )
-    } else {
-      console.log('❌ Invalid response format:', validationResults.errors)
-    }
 
     return {
       success: validationResults.isValid,
@@ -139,7 +253,6 @@ export async function testJournalSample(
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.log('❌ Network/Parse Error:', errorMessage)
     return { success: false, error: errorMessage }
   }
 }
@@ -233,18 +346,14 @@ export function validateResponseFormat(data: unknown): ValidationResult {
 // Removed unused defaultTestSetup
 
 /**
- * Helper function to make API request with rate limiting awareness
+ * Helper function to make API request using direct POST handler calls
  */
 export async function makeApiRequest(
   content: string,
-  preferences?: Record<string, unknown>,
-  retryCount = 0
+  preferences?: Record<string, unknown>
 ): Promise<Response> {
-  const response = await fetch(`${BASE_URL}/api/reflect`, {
+  const request = new NextRequest('http://localhost:3000/api/reflect', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       content,
       preferences: preferences || {
@@ -252,30 +361,10 @@ export async function makeApiRequest(
         focusAreas: ['growth', 'patterns'],
       },
     }),
+    headers: { 'Content-Type': 'application/json' },
   })
 
-  // If rate limited and we haven't retried too many times, wait and retry
-  if (response.status === 429 && retryCount < 2) {
-    const data = await response.json()
-    const retryAfter = (data.retryAfter || 10) + 2 // Add 2 seconds buffer
-    console.log(
-      `Rate limited, waiting ${retryAfter}s before retry ${retryCount + 1}/2`
-    )
-
-    await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000))
-    return makeApiRequest(content, preferences, retryCount + 1)
-  }
-
-  return response
-}
-
-/**
- * Rate-aware delay between test requests
- */
-export async function rateLimitDelay(baseDelay = 3000): Promise<void> {
-  // Add some randomness to avoid thundering herd
-  const jitter = Math.random() * 1000
-  await new Promise((resolve) => setTimeout(resolve, baseDelay + jitter))
+  return await POST(request)
 }
 
 /**
@@ -306,25 +395,11 @@ export function expectValidApiResponse(
 
 // Vitest Test Suite
 describe('AI API Integration Tests', () => {
-  let isServerRunning = false
-
-  beforeEach(async () => {
-    // Check if server is running before each test
-    if (!isServerRunning) {
-      try {
-        const healthCheck = await fetch(`${BASE_URL}/api/reflect`, {
-          method: 'GET',
-        })
-        isServerRunning = healthCheck.status === 405
-        if (!isServerRunning) {
-          throw new Error('Server not responding correctly')
-        }
-      } catch {
-        throw new Error(
-          'Server not accessible. Make sure to run `pnpm dev` first.'
-        )
-      }
-    }
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // Set up environment
+    process.env.OPENAI_API_KEY = 'test-api-key'
+    process.env.AI_RATE_LIMIT_ENABLED = 'false'
   })
 
   describe('Journal Entry Processing', () => {
