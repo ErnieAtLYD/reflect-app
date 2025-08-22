@@ -5,11 +5,6 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
 
-  // Limit serverless functions to 3 regions for non-Enterprise plans
-  experimental: {
-    serverComponentsExternalPackages: [],
-  },
-
   // Edge runtime configuration
   api: {
     bodyParser: {
