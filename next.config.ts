@@ -5,13 +5,6 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
 
-  // Edge runtime configuration
-  api: {
-    bodyParser: {
-      sizeLimit: '1mb',
-    },
-  },
-
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
