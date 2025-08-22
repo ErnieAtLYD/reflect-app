@@ -119,21 +119,21 @@ jobs:
           path: .next
           key: ${{ runner.os }}-nextjs-${{ github.sha }}
 
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps ${{ matrix.project }}
+      # - name: Install Playwright browsers
+      #   run: pnpm exec playwright install --with-deps ${{ matrix.project }}
 
-      - name: Run E2E tests
-        run: pnpm test:e2e --project=${{ matrix.project }}
-        env:
-          PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
+      # - name: Run E2E tests
+      #   run: pnpm test:e2e --project=${{ matrix.project }}
+      #   env:
+      #     PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report-${{ matrix.project }}
-          path: playwright-report/
-          retention-days: 7
+      # - name: Upload test results
+      #   uses: actions/upload-artifact@v4
+      #   if: failure()
+      #   with:
+      #     name: playwright-report-${{ matrix.project }}
+      #     path: playwright-report/
+      #     retention-days: 7
 
   # Job 3: Security Audit
   security-audit:

@@ -323,6 +323,8 @@ describe('HistoryView', () => {
     fireEvent.click(toggleButton)
 
     // Check that dates are formatted (exact format may vary by locale)
-    expect(screen.getByText(/Jan \d+, \d+:\d+/)).toBeInTheDocument()
+    // Use getAllByText to handle multiple date elements
+    const dateElements = screen.getAllByText(/Jan \d+, \d+:\d+/)
+    expect(dateElements.length).toBeGreaterThan(0)
   })
 })

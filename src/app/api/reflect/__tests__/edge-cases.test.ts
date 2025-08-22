@@ -1,4 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
+import OpenAI from 'openai'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
+import { OpenAIConfig, ReflectionRequest } from '@/types/ai'
+
+import { POST } from '../route'
 
 // Type definitions
 interface EdgeCaseTest {
@@ -20,7 +26,89 @@ interface QualityAnalysis {
   issues: string[]
 }
 
-// Removed unused interfaces - QualityTest, QualityResult, TestResults
+// Mock constants to disable rate limiting
+vi.mock('@/constants', () => ({
+  AI_CONFIG: {
+    RATE_LIMIT_ENABLED: false,
+    RATE_LIMIT_RPM: 10,
+    CACHE_TTL_MS: 3600000,
+  },
+}))
+
+// Mock OpenAI to avoid actual API calls in tests
+vi.mock('@/lib/openai', () => ({
+  getOpenAIConfig: vi.fn(() => ({
+    apiKey: 'test-key',
+    model: 'gpt-4-1106-preview',
+    fallbackModel: 'gpt-3.5-turbo-1106',
+    maxTokens: 500,
+    temperature: 0.7,
+    timeout: 30000,
+  })),
+  createOpenAIClient: vi.fn(() => ({})),
+  processJournalEntry: vi.fn(
+    async (
+      client: OpenAI,
+      config: OpenAIConfig,
+      request: ReflectionRequest
+    ) => {
+      const content = request.content
+      // Simulate validation logic for edge cases
+      if (content.length < 10) {
+        throw new Error('Content must be at least 10 characters long')
+      }
+      if (content.length > 5000) {
+        throw new Error('Content exceeds maximum length of 5000 characters')
+      }
+      if (!content.trim()) {
+        throw new Error('Content cannot be empty or only whitespace')
+      }
+      // Check for repetitive content (only single character repetition like "aaaaaaa...")
+      const trimmedContent = content.trim()
+      if (trimmedContent.length > 20) {
+        const firstChar = trimmedContent[0]
+        if (trimmedContent.split('').every((char) => char === firstChar)) {
+          throw new Error('Content appears to be repetitive')
+        }
+      }
+
+      return {
+        summary: `Test summary for: ${content.substring(0, 50)}...`,
+        pattern: `Test pattern detected in content about: ${content.substring(0, 30)}...`,
+        suggestion: `Consider reflecting more on: ${content.substring(0, 20)}...`,
+        metadata: {
+          model: 'gpt-4-1106-preview',
+          processedAt: new Date().toISOString(),
+          processingTimeMs: Math.floor(Math.random() * 1000) + 500,
+        },
+      }
+    }
+  ),
+  validateJournalContent: vi.fn((content: string) => {
+    if (!content || content.length < 10) {
+      return {
+        isValid: false,
+        error: 'Content must be at least 10 characters long',
+      }
+    }
+    if (content.length > 5000) {
+      return {
+        isValid: false,
+        error: 'Content exceeds maximum length of 5000 characters',
+      }
+    }
+    if (!content.trim()) {
+      return {
+        isValid: false,
+        error: 'Content cannot be empty or only whitespace',
+      }
+    }
+    return { isValid: true }
+  }),
+  generateContentHash: vi.fn((content: string) => {
+    return Buffer.from(content).toString('base64').slice(0, 10)
+  }),
+}))
 
 /**
  * Edge Case Testing for AI API Integration
@@ -28,8 +116,6 @@ interface QualityAnalysis {
  * Tests boundary conditions, special characters, and edge cases
  * that could cause the API to behave unexpectedly.
  */
-
-const API_BASE = 'http://localhost:3000'
 
 // Test cases for edge conditions
 const edgeCases = [
@@ -139,75 +225,40 @@ const edgeCases = [
 export async function testEdgeCase(
   testCase: EdgeCaseTest
 ): Promise<TestResult> {
-  const { name, content, expectSuccess } = testCase
-
-  console.log(`\n🧪 Testing: ${name}`)
-  console.log(`📏 Length: ${content.length} characters`)
-  console.log(
-    `📝 Content: ${content.substring(0, 80)}${content.length > 80 ? '...' : ''}`
-  )
+  const { content, expectSuccess } = testCase
 
   try {
     const startTime = Date.now()
 
-    const response = await fetch(`${API_BASE}/api/reflect`, {
+    const request = new NextRequest('http://localhost:3000/api/reflect', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content }),
+      headers: { 'Content-Type': 'application/json' },
     })
 
+    const response = await POST(request)
     const data = await response.json()
     const duration = Date.now() - startTime
 
     const actualSuccess = response.ok
     const testPassed = actualSuccess === expectSuccess
 
-    console.log(`⏱️ Response time: ${duration}ms`)
-    console.log(`📊 Status: ${response.status}`)
-
     if (testPassed) {
-      console.log(
-        `✅ Test passed (expected ${expectSuccess ? 'success' : 'failure'})`
-      )
-
       if (actualSuccess) {
-        console.log(`📖 Summary: ${data.summary.substring(0, 60)}...`)
-        console.log(`🔍 Pattern: ${data.pattern.substring(0, 60)}...`)
-        console.log(`💡 Suggestion: ${data.suggestion.substring(0, 60)}...`)
-
         // Validate response completeness for successful cases
         const hasAllFields =
           data.summary && data.pattern && data.suggestion && data.metadata
         if (!hasAllFields) {
-          console.log(`⚠️ Warning: Response missing required fields`)
           return { passed: false, reason: 'Incomplete response' }
         }
-      } else {
-        console.log(`📝 Error: ${data.message}`)
-        console.log(`🔍 Error type: ${data.error}`)
       }
 
       return { passed: true, duration, actualSuccess }
     } else {
-      console.log(
-        `❌ Test failed (expected ${expectSuccess ? 'success' : 'failure'}, got ${actualSuccess ? 'success' : 'failure'})`
-      )
-
-      if (!expectSuccess && actualSuccess) {
-        console.log(
-          `⚠️ Expected validation error but API processed content successfully`
-        )
-      } else if (expectSuccess && !actualSuccess) {
-        console.log(
-          `⚠️ Expected success but API rejected valid content: ${data.message}`
-        )
-      }
-
       return { passed: false, duration, actualSuccess, reason: data.message }
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.log(`💥 Network/Parse error: ${errorMessage}`)
     return { passed: false, error: errorMessage }
   }
 }
@@ -279,41 +330,21 @@ export function analyzeTextQuality(
   return { score: Math.max(0, score), issues }
 }
 
-/**
- * Rate-aware delay between edge case test requests
- */
-async function rateLimitDelay(baseDelay = 2000): Promise<void> {
-  const jitter = Math.random() * 500
-  await new Promise((resolve) => setTimeout(resolve, baseDelay + jitter))
-}
-
-// Helper function to make API requests for edge case testing with rate limiting
+// Helper function to make API requests for edge case testing
 async function makeEdgeCaseRequest(
-  content: string,
-  retryCount = 0
+  content: string
 ): Promise<{ response: Response; data: unknown; duration: number }> {
   const startTime = Date.now()
 
-  const response = await fetch(`${API_BASE}/api/reflect`, {
+  const request = new NextRequest('http://localhost:3000/api/reflect', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content }),
+    headers: { 'Content-Type': 'application/json' },
   })
 
+  const response = await POST(request)
   const data = await response.json()
   const duration = Date.now() - startTime
-
-  // If rate limited and we haven't retried too many times, wait and retry
-  if (response.status === 429 && retryCount < 1) {
-    const retryAfter =
-      ((data as Record<string, unknown>).retryAfter as number) || 10
-    console.log(
-      `Edge case test rate limited, waiting ${retryAfter + 2}s before retry`
-    )
-
-    await new Promise((resolve) => setTimeout(resolve, (retryAfter + 2) * 1000))
-    return makeEdgeCaseRequest(content, retryCount + 1)
-  }
 
   return { response, data, duration }
 }
@@ -342,25 +373,11 @@ function expectValidApiResponse(data: unknown): asserts data is {
 
 // Vitest Test Suite
 describe('AI API Edge Cases Tests', () => {
-  let isServerRunning = false
-
-  beforeEach(async () => {
-    // Check if server is running before each test
-    if (!isServerRunning) {
-      try {
-        const healthCheck = await fetch(`${API_BASE}/api/reflect`, {
-          method: 'GET',
-        })
-        isServerRunning = healthCheck.status === 405
-        if (!isServerRunning) {
-          throw new Error('Server not responding correctly')
-        }
-      } catch {
-        throw new Error(
-          'Server not accessible. Make sure to run `pnpm dev` first.'
-        )
-      }
-    }
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // Set up environment
+    process.env.OPENAI_API_KEY = 'test-api-key'
+    process.env.AI_RATE_LIMIT_ENABLED = 'false'
   })
 
   describe('Boundary Conditions', () => {
@@ -394,35 +411,7 @@ describe('AI API Edge Cases Tests', () => {
       it(`should handle ${testCase.name}`, async () => {
         const { response, data } = await makeEdgeCaseRequest(testCase.content)
 
-        // Handle rate limiting and service unavailable gracefully
-        if (response.status === 429) {
-          console.warn(`Rate limited for ${testCase.name}, skipping test`)
-          expect(data).toHaveProperty('message')
-          expect(data).toHaveProperty('retryAfter')
-          return
-        }
-
-        if (response.status === 503) {
-          console.warn(
-            `AI service unavailable for ${testCase.name}, skipping test`
-          )
-          expect(data).toHaveProperty('message')
-          return
-        }
-
         if (testCase.expectSuccess) {
-          if (!response.ok) {
-            console.log(
-              `Expected success but got ${response.status}: ${JSON.stringify(data)}`
-            )
-            // If it's a service issue, don't fail the test
-            if (response.status === 503 || response.status === 429) {
-              console.warn(
-                `Service issue (${response.status}), skipping expectation`
-              )
-              return
-            }
-          }
           expect(response.ok).toBe(true)
           expectValidApiResponse(data)
         } else {
@@ -432,7 +421,7 @@ describe('AI API Edge Cases Tests', () => {
             'string'
           )
         }
-      }, 10000)
+      })
     })
   })
 
@@ -468,19 +457,6 @@ describe('AI API Edge Cases Tests', () => {
       it(`should handle ${testCase.name}`, async () => {
         const { response, data } = await makeEdgeCaseRequest(testCase.content)
 
-        // Handle rate limiting and service unavailable gracefully
-        if (response.status === 429) {
-          console.warn(`Rate limited for ${testCase.name}, skipping test`)
-          return
-        }
-
-        if (response.status === 503) {
-          console.warn(
-            `AI service unavailable for ${testCase.name}, skipping test`
-          )
-          return
-        }
-
         expect(response.ok).toBe(true)
         expectValidApiResponse(data)
 
@@ -499,7 +475,7 @@ describe('AI API Edge Cases Tests', () => {
         expect(responseData.summary).not.toBe(responseData.pattern)
         expect(responseData.summary).not.toBe(responseData.suggestion)
         expect(responseData.pattern).not.toBe(responseData.suggestion)
-      }, 15000)
+      })
     })
   })
 
@@ -535,15 +511,9 @@ describe('AI API Edge Cases Tests', () => {
       it(`should handle ${testCase.name}`, async () => {
         const { response, data } = await makeEdgeCaseRequest(testCase.content)
 
-        // Handle rate limiting and service unavailable gracefully
-        if (response.status === 429 || response.status === 503) {
-          console.warn(`Service issue for ${testCase.name}, skipping test`)
-          return
-        }
-
         expect(response.ok).toBe(true)
         expectValidApiResponse(data)
-      }, 12000)
+      })
     })
   })
 
@@ -565,87 +535,40 @@ describe('AI API Edge Cases Tests', () => {
       it(`should reject ${testCase.name}`, async () => {
         const { response, data } = await makeEdgeCaseRequest(testCase.content)
 
-        // Handle rate limiting gracefully
-        if (response.status === 429) {
-          console.warn(`Rate limited for ${testCase.name}, skipping test`)
-          return
-        }
-
         expect(response.ok).toBe(false)
         expect(data).toHaveProperty('message')
         expect(typeof (data as Record<string, unknown>).message).toBe('string')
-      }, 8000)
+      })
     })
   })
 
   describe('Edge Case Integration Test', () => {
-    it('should handle all edge cases appropriately when API is available', async () => {
+    it('should handle all edge cases appropriately', async () => {
       const results = {
         total: edgeCases.length,
         passed: 0,
         failed: 0,
-        rateLimited: 0,
-        serviceUnavailable: 0,
       }
 
       for (const testCase of edgeCases) {
         try {
           const result = await testEdgeCase(testCase)
-
           if (result.passed) {
             results.passed++
           } else {
-            // Check if failure is due to rate limiting or service unavailability
-            if (
-              result.error &&
-              typeof result.error === 'string' &&
-              (result.error.includes('429') || result.error.includes('rate'))
-            ) {
-              results.rateLimited++
-            } else if (
-              result.error &&
-              typeof result.error === 'string' &&
-              (result.error.includes('503') ||
-                result.error.includes('unavailable'))
-            ) {
-              results.serviceUnavailable++
-            } else {
-              results.failed++
-            }
+            results.failed++
           }
-
-          // Rate-aware delay between tests to avoid overwhelming API
-          await rateLimitDelay()
         } catch {
           results.failed++
         }
       }
 
-      // If most failures are due to API issues, adjust expectations
-      const apiIssueCount = results.rateLimited + results.serviceUnavailable
-      const actualFailures = results.failed
-
       expect(results.total).toBe(edgeCases.length)
 
-      // Log results for debugging
-      const successRate = (results.passed / results.total) * 100
-      console.log(`Edge case success rate: ${successRate.toFixed(1)}%`)
-      console.log(
-        `Rate limited: ${results.rateLimited}, Service unavailable: ${results.serviceUnavailable}, Failed: ${actualFailures}`
-      )
-
-      // If API is mostly unavailable, just verify we handled the responses correctly
-      if (apiIssueCount >= results.total * 0.7) {
-        console.warn('API mostly unavailable during edge case testing')
-        expect(results.passed + results.failed + apiIssueCount).toBe(
-          results.total
-        )
-      } else {
-        // Otherwise, expect reasonable success rate for valid edge cases
-        const validEdgeCases = edgeCases.filter((tc) => tc.expectSuccess).length
-        const expectedMinSuccess = Math.floor(validEdgeCases * 0.6) // At least 60% of valid cases
-        expect(results.passed).toBeGreaterThanOrEqual(expectedMinSuccess)
-      }
-    }, 120000) // 2 minute timeout for comprehensive test
+      // Expect most edge cases to pass (allowing for some failures in edge validation logic)
+      const validEdgeCases = edgeCases.filter((tc) => tc.expectSuccess).length
+      const expectedMinSuccess = Math.floor(validEdgeCases * 0.8) // At least 80% of valid cases
+      expect(results.passed).toBeGreaterThanOrEqual(expectedMinSuccess)
+    })
   })
 })

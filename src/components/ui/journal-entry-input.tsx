@@ -241,14 +241,22 @@ const JournalEntryInput = React.forwardRef<
       }
     }, [hasValidationError, validationErrors, liveRegions])
 
+    // Track previous length to detect when minimum is first reached
+    const prevLength = React.useRef(currentLength)
+
     // Announce milestone achievements
     React.useEffect(() => {
-      if (currentLength === minLength && !isValid) {
+      if (
+        currentLength >= minLength &&
+        prevLength.current < minLength &&
+        isValid
+      ) {
         // Only announce when reaching minimum for the first time
         liveRegions.announceSuccess(
           `Minimum length reached! Entry is now ${currentLength} characters.`
         )
       }
+      prevLength.current = currentLength
     }, [currentLength, minLength, isValid, liveRegions])
 
     // Notify parent of validation state changes

@@ -405,6 +405,9 @@ export function useContainerFocus() {
 export function useFocusAnnouncements() {
   const announce = useCallback(
     (message: string, priority: 'polite' | 'assertive' = 'polite') => {
+      // Guard against SSR and test environments where document may not exist
+      if (typeof document === 'undefined') return
+
       const announcer = document.createElement('div')
       announcer.setAttribute('aria-live', priority)
       announcer.setAttribute('aria-atomic', 'true')
@@ -413,11 +416,28 @@ export function useFocusAnnouncements() {
 
       document.body.appendChild(announcer)
 
-      setTimeout(() => {
-        if (document.body.contains(announcer)) {
+      const timeoutId = setTimeout(() => {
+        // Check if document still exists and contains the announcer
+        if (
+          typeof document !== 'undefined' &&
+          document.body &&
+          document.body.contains(announcer)
+        ) {
           document.body.removeChild(announcer)
         }
       }, 1000)
+
+      // Return cleanup function for tests
+      return () => {
+        clearTimeout(timeoutId)
+        if (
+          typeof document !== 'undefined' &&
+          document.body &&
+          document.body.contains(announcer)
+        ) {
+          document.body.removeChild(announcer)
+        }
+      }
     },
     []
   )
