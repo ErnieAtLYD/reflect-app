@@ -20,6 +20,21 @@ class LiveRegionManager {
 
   private ensureRegion(priority: AnnouncementPriority): HTMLElement {
     if (!this.regions.has(priority)) {
+      // Ensure DOM is available
+      if (typeof document === 'undefined') {
+        // In non-DOM environments, create a minimal mock element
+        const mockRegion = {
+          textContent: '',
+          setAttribute: () => {},
+          remove: () => {},
+          className: '',
+          id: `live-region-${priority}`,
+          offsetHeight: 0,
+        } as unknown as HTMLElement
+        this.regions.set(priority, mockRegion)
+        return mockRegion
+      }
+
       const region = document.createElement('div')
       region.setAttribute('aria-live', priority)
       region.setAttribute('aria-atomic', 'true')
@@ -27,8 +42,10 @@ class LiveRegionManager {
       region.className = 'sr-only'
       region.id = `live-region-${priority}`
 
-      // Add to the document
-      document.body.appendChild(region)
+      // Add to the document if body exists
+      if (document.body) {
+        document.body.appendChild(region)
+      }
       this.regions.set(priority, region)
     }
 
@@ -38,7 +55,14 @@ class LiveRegionManager {
   private clearTimeout(priority: AnnouncementPriority): void {
     const timeoutId = this.timeouts.get(priority)
     if (timeoutId) {
-      window.clearTimeout(timeoutId)
+      // Handle environments where window.clearTimeout might not be available
+      if (typeof window !== 'undefined' && window.clearTimeout) {
+        window.clearTimeout(timeoutId)
+      } else if (typeof globalThis !== 'undefined' && globalThis.clearTimeout) {
+        globalThis.clearTimeout(timeoutId)
+      } else if (typeof clearTimeout !== 'undefined') {
+        clearTimeout(timeoutId)
+      }
       this.timeouts.delete(priority)
     }
   }
@@ -75,10 +99,31 @@ class LiveRegionManager {
 
     // Auto-clear the message after timeout to prevent accumulation
     if (timeout > 0) {
-      const timeoutId = window.setTimeout(() => {
-        region.textContent = ''
-        this.timeouts.delete(priority)
-      }, timeout)
+      // Handle environments where window.setTimeout might not be available
+      let timeoutId: number
+      if (typeof window !== 'undefined' && window.setTimeout) {
+        timeoutId = window.setTimeout(() => {
+          region.textContent = ''
+          this.timeouts.delete(priority)
+        }, timeout)
+      } else if (typeof globalThis !== 'undefined' && globalThis.setTimeout) {
+        timeoutId = Number(
+          globalThis.setTimeout(() => {
+            region.textContent = ''
+            this.timeouts.delete(priority)
+          }, timeout)
+        )
+      } else if (typeof setTimeout !== 'undefined') {
+        timeoutId = Number(
+          setTimeout(() => {
+            region.textContent = ''
+            this.timeouts.delete(priority)
+          }, timeout)
+        )
+      } else {
+        // Fallback: no timeout in environments without timer support
+        return
+      }
 
       this.timeouts.set(priority, timeoutId)
     }
@@ -153,7 +198,14 @@ class LiveRegionManager {
     })
 
     this.timeouts.forEach((timeoutId) => {
-      window.clearTimeout(timeoutId)
+      // Handle environments where window.clearTimeout might not be available
+      if (typeof window !== 'undefined' && window.clearTimeout) {
+        window.clearTimeout(timeoutId)
+      } else if (typeof globalThis !== 'undefined' && globalThis.clearTimeout) {
+        globalThis.clearTimeout(timeoutId)
+      } else if (typeof clearTimeout !== 'undefined') {
+        clearTimeout(timeoutId)
+      }
     })
     this.timeouts.clear()
   }
@@ -165,7 +217,15 @@ class LiveRegionManager {
     this.clearAll()
 
     this.regions.forEach((region) => {
-      region.remove()
+      try {
+        if (region.parentNode) {
+          region.parentNode.removeChild(region)
+        } else if (region.remove) {
+          region.remove()
+        }
+      } catch {
+        // Ignore errors if element is already removed or in test environment
+      }
     })
 
     this.regions.clear()
