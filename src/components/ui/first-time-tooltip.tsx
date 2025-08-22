@@ -60,43 +60,41 @@ export function FirstTimeTooltip({
       {children}
       <AnimatePresence>
         {isVisible && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 10 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '100%',
-              zIndex: 50,
-              marginTop: '1rem',
-              width: '20rem',
-              transform: 'translateX(-50%)',
-            }}
-            data-testid="first-time-tooltip"
-          >
-            <div className="border-border bg-card relative rounded-lg border p-4 shadow-lg">
-              {/* Arrow */}
-              <div className="border-border bg-card absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 transform border-t border-l"></div>
+          <div className="absolute top-full right-0 left-0 z-50 mt-4 flex justify-center px-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 10 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              style={{
+                width: '20rem',
+                maxWidth: '100%',
+                minWidth: '16rem',
+              }}
+              data-testid="first-time-tooltip"
+            >
+              <div className="border-border bg-card relative rounded-lg border p-4 shadow-lg">
+                {/* Arrow */}
+                <div className="border-border bg-card absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 transform border-t border-l"></div>
 
-              {/* Content */}
-              <div className="relative">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDismiss}
-                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                  data-testid="tooltip-dismiss-button"
-                >
-                  <X className="h-3 w-3" />
-                  <span className="sr-only">Dismiss tooltip</span>
-                </Button>
+                {/* Content */}
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDismiss}
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                    data-testid="tooltip-dismiss-button"
+                  >
+                    <X className="h-3 w-3" />
+                    <span className="sr-only">Dismiss tooltip</span>
+                  </Button>
 
-                <p className="text-foreground pr-4 text-sm">{content}</p>
+                  <p className="text-foreground pr-4 text-sm">{content}</p>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

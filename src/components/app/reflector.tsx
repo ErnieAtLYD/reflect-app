@@ -272,7 +272,7 @@ export const Reflector = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <p className="text-muted-foreground mx-auto mb-8 max-w-2xl text-xl sm:text-2xl">
+          <p className="text-muted-foreground mx-auto mb-8 max-w-2xl text-lg sm:text-xl">
             A simple, private space to journal, reflect, and organize your
             ideas. No sign-ups, no storage, just you and your thoughts.
           </p>

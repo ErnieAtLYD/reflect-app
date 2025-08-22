@@ -204,20 +204,32 @@ describe('FirstTimeTooltip', () => {
     expect(dismissButton).toHaveAttribute('data-slot', 'button')
   })
 
-  it('maintains tooltip position with inline styles', async () => {
+  it('maintains tooltip position with responsive styling', async () => {
     mockLocalStorage.getItem.mockReturnValue(null)
     render(<FirstTimeTooltip {...defaultProps} />)
 
     await waitFor(() => {
       const tooltip = screen.getByTestId('first-time-tooltip')
+      const container = tooltip.parentElement
+
+      // Check the container has proper positioning classes
+      expect(container).toHaveClass(
+        'absolute',
+        'left-0',
+        'right-0',
+        'top-full',
+        'z-50',
+        'mt-4',
+        'flex',
+        'justify-center',
+        'px-4'
+      )
+
+      // Check the tooltip itself has responsive width styles
       expect(tooltip).toHaveStyle({
-        position: 'absolute',
-        left: '50%',
-        top: '100%',
-        zIndex: 50,
-        marginTop: '1rem',
         width: '20rem',
-        transform: 'translateX(-50%)',
+        maxWidth: '100%',
+        minWidth: '16rem',
       })
     })
   })
