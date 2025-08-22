@@ -73,14 +73,23 @@ function ReflectionSection({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
     >
-      <div className={cn('space-y-3', className)}>
-        <div className="flex items-center gap-2">
-          <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-lg">
+      <div
+        className={cn(
+          'border-border/50 bg-card/50 hover:border-border/70 hover:bg-card/70 relative space-y-4 rounded-xl border p-6 backdrop-blur-sm transition-all',
+          className
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-lg shadow-sm">
             {icon}
           </div>
-          <h3 className="text-foreground font-semibold">{title}</h3>
+          <h3 className="text-foreground text-lg font-bold tracking-tight">
+            {title}
+          </h3>
         </div>
-        <p className="text-muted-foreground leading-relaxed">{content}</p>
+        <div className="ml-13">
+          <p className="text-foreground text-base leading-relaxed">{content}</p>
+        </div>
       </div>
     </motion.div>
   )
@@ -88,12 +97,12 @@ function ReflectionSection({
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <LoadingSpinner size="sm" />
-          <span className="text-muted-foreground text-sm">
-            Generating reflection...
+    <div className="space-y-8">
+      <div className="flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <LoadingSpinner size="lg" />
+          <span className="text-foreground text-lg font-medium">
+            Generating your reflection...
           </span>
         </div>
       </div>
@@ -106,15 +115,17 @@ function LoadingSkeleton() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: index * 0.1 }}
         >
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="bg-muted h-8 w-8 animate-pulse rounded-lg" />
-              <div className="bg-muted h-4 w-24 animate-pulse rounded" />
-            </div>
-            <div className="space-y-2">
-              <div className="bg-muted h-4 w-full animate-pulse rounded" />
-              <div className="bg-muted h-4 w-3/4 animate-pulse rounded" />
-              <div className="bg-muted h-4 w-1/2 animate-pulse rounded" />
+          <div className="border-border/50 bg-card/50 rounded-xl border p-6 backdrop-blur-sm">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-muted h-10 w-10 animate-pulse rounded-lg" />
+                <div className="bg-muted h-5 w-32 animate-pulse rounded" />
+              </div>
+              <div className="ml-13 space-y-3">
+                <div className="bg-muted h-4 w-full animate-pulse rounded" />
+                <div className="bg-muted h-4 w-5/6 animate-pulse rounded" />
+                <div className="bg-muted h-4 w-2/3 animate-pulse rounded" />
+              </div>
             </div>
           </div>
         </motion.div>
@@ -162,15 +173,22 @@ Processed by ${data.metadata.model} in ${data.metadata.processingTimeMs}ms
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <div className={cn('mx-auto mt-8 max-w-4xl', className)}>
-        <Card className="overflow-hidden">
-          <CardHeader className="border-b">
+      <div className={cn('mx-auto mt-12 max-w-5xl', className)}>
+        <Card className="border-primary/20 from-background/95 to-muted/30 overflow-hidden border-2 bg-gradient-to-br shadow-xl backdrop-blur-sm">
+          <CardHeader className="border-border/50 from-primary/5 to-primary/10 border-b bg-gradient-to-r pt-8 pb-8">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-lg">
-                  <Sparkles className="h-5 w-5" />
+              <div className="flex items-center gap-4">
+                <div className="bg-primary text-primary-foreground flex h-14 w-14 items-center justify-center rounded-xl shadow-lg">
+                  <Sparkles className="h-7 w-7" />
                 </div>
-                <CardTitle className="text-xl">Your Reflection</CardTitle>
+                <div>
+                  <CardTitle className="text-2xl font-bold tracking-tight">
+                    Your Reflection
+                  </CardTitle>
+                  <p className="text-muted-foreground text-sm font-medium">
+                    AI-powered insights from your journal entry
+                  </p>
+                </div>
               </div>
 
               {state === 'success' && data && (
@@ -199,7 +217,7 @@ Processed by ${data.metadata.model} in ${data.metadata.processingTimeMs}ms
             </div>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="p-8">
             {state === 'loading' && <LoadingSkeleton />}
 
             {state === 'error' && (
@@ -234,25 +252,25 @@ Processed by ${data.metadata.model} in ${data.metadata.processingTimeMs}ms
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.4 }}
               >
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <ReflectionSection
                     title="Summary"
                     content={data.summary}
-                    icon={<Sparkles className="h-4 w-4" />}
+                    icon={<Sparkles className="h-5 w-5" />}
                     delay={0.1}
                   />
 
                   <ReflectionSection
                     title="Pattern Noticed"
                     content={data.pattern}
-                    icon={<TrendingUp className="h-4 w-4" />}
+                    icon={<TrendingUp className="h-5 w-5" />}
                     delay={0.2}
                   />
 
                   <ReflectionSection
                     title="Suggestion"
                     content={data.suggestion}
-                    icon={<Lightbulb className="h-4 w-4" />}
+                    icon={<Lightbulb className="h-5 w-5" />}
                     delay={0.3}
                   />
 
@@ -262,9 +280,9 @@ Processed by ${data.metadata.model} in ${data.metadata.processingTimeMs}ms
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.4, delay: 0.4 }}
                   >
-                    <div className="border-t pt-4">
-                      <p className="text-muted-foreground text-center text-xs">
-                        Processed by {data.metadata.model} in{' '}
+                    <div className="border-border/30 bg-muted/20 rounded-lg border-t p-4">
+                      <p className="text-muted-foreground text-center text-sm font-medium">
+                        ✨ Processed by {data.metadata.model} in{' '}
                         {data.metadata.processingTimeMs}ms
                       </p>
                     </div>

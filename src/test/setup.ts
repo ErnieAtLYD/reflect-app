@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
+import { mockAnimationsApi } from 'jsdom-testing-mocks'
 import { afterEach, vi } from 'vitest'
+
+// Mock animations API for HeadlessUI components
+mockAnimationsApi()
 
 // Ensure DOM is cleaned between tests to avoid duplicate elements across renders
 afterEach(() => {

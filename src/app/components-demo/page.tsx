@@ -11,8 +11,10 @@ import {
 import { ErrorMessage } from '@/components/ui/error-message'
 import { Feedback } from '@/components/ui/feedback'
 import { Input } from '@/components/ui/input'
+import { JournalEntryInput } from '@/components/ui/journal-entry-input'
 import { Label } from '@/components/ui/label'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { ReflectionDisplay } from '@/components/ui/reflection-display'
 import { Textarea } from '@/components/ui/textarea'
 import { ThemeToggle, ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
 import { usePageTracking } from '@/hooks/useAnalytics'
@@ -56,6 +58,16 @@ export default function ComponentsDemo() {
                   id="message"
                   placeholder="Enter your message"
                   variant="filled"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="journal-entry">Journal Entry (Enhanced)</Label>
+                <JournalEntryInput
+                  id="journal-entry"
+                  placeholder="Write your thoughts here..."
+                  minLength={20}
+                  showCharacterCount={true}
+                  showClearButton={true}
                 />
               </div>
               <div className="flex gap-2">
@@ -170,6 +182,100 @@ export default function ComponentsDemo() {
                     2XL (1536px+)
                   </span>
                 </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Enhanced Text Input Variants</CardTitle>
+            <CardDescription>
+              JournalEntryInput component with improved visual styling and focus
+              states
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="journal-default">Default Variant</Label>
+              <JournalEntryInput
+                id="journal-default"
+                placeholder="Default variant with subtle border and background..."
+                variant="default"
+                minRows={2}
+                maxRows={6}
+                showCharacterCount={true}
+                showClearButton={true}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="journal-filled">Filled Variant</Label>
+              <JournalEntryInput
+                id="journal-filled"
+                placeholder="Filled variant with more prominent background..."
+                variant="filled"
+                minRows={2}
+                maxRows={6}
+                showCharacterCount={true}
+                showClearButton={true}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="journal-ghost">Ghost Variant</Label>
+              <JournalEntryInput
+                id="journal-ghost"
+                placeholder="Ghost variant with subtle hover effects..."
+                variant="ghost"
+                minRows={2}
+                maxRows={6}
+                showCharacterCount={true}
+                showClearButton={true}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Reflection Display Demo</CardTitle>
+            <CardDescription>
+              Redesigned reflection analysis card - the core value proposition
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-8">
+              <div>
+                <h3 className="mb-4 text-sm font-medium">Success State</h3>
+                <ReflectionDisplay
+                  state="success"
+                  data={{
+                    summary:
+                      "You've shared some wonderful insights about personal growth and the importance of taking time to reflect. Your thoughts show a thoughtful approach to processing daily experiences.",
+                    pattern:
+                      "There's a consistent theme of mindfulness and self-awareness in your writing, suggesting you're actively working on personal development and emotional intelligence.",
+                    suggestion:
+                      'Consider setting aside 10 minutes each evening to continue this reflection practice. You might also try writing down three specific things you learned about yourself each day.',
+                    metadata: {
+                      model: 'gpt-4-1106-preview',
+                      processedAt: '2024-01-01T12:00:00Z',
+                      processingTimeMs: 1250,
+                    },
+                  }}
+                />
+              </div>
+
+              <div>
+                <h3 className="mb-4 text-sm font-medium">Loading State</h3>
+                <ReflectionDisplay state="loading" />
+              </div>
+
+              <div>
+                <h3 className="mb-4 text-sm font-medium">Error State</h3>
+                <ReflectionDisplay
+                  state="error"
+                  error="The AI service is temporarily unavailable. Please try again in a moment."
+                  onRetry={() => console.log('Retry clicked')}
+                />
               </div>
             </div>
           </CardContent>
