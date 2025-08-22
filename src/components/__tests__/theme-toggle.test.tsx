@@ -127,9 +127,10 @@ describe('ThemeToggleAdvanced', () => {
     themes.push(button.textContent)
 
     for (let i = 0; i < 6; i++) {
+      const previousTheme = button.textContent
       await user.click(button)
       await waitFor(() => {
-        // Wait for theme to change
+        expect(button.textContent).not.toBe(previousTheme)
       })
       themes.push(button.textContent)
     }

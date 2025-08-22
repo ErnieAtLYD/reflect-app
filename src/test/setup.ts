@@ -96,53 +96,36 @@ global.IntersectionObserver = class MockIntersectionObserver {
   }
 } as typeof IntersectionObserver
 
+// Ensure window exists and is properly mocked for all timer functions
+if (typeof window === 'undefined') {
+  // Create a minimal window object if it doesn't exist
+  Object.defineProperty(globalThis, 'window', {
+    writable: true,
+    value: {},
+  })
+}
+
 // Mock window.setTimeout and related timer functions for CI environment
 // jsdom sometimes doesn't properly provide these in CI
-if (typeof window !== 'undefined') {
-  if (!window.setTimeout) {
-    Object.defineProperty(window, 'setTimeout', {
-      writable: true,
-      value:
-        globalThis.setTimeout ||
-        ((fn: () => void, ms: number) => {
-          return setTimeout(fn, ms)
-        }),
-    })
-  }
+Object.defineProperty(window, 'setTimeout', {
+  writable: true,
+  value: global.setTimeout,
+})
 
-  if (!window.clearTimeout) {
-    Object.defineProperty(window, 'clearTimeout', {
-      writable: true,
-      value:
-        globalThis.clearTimeout ||
-        ((id: number) => {
-          clearTimeout(id)
-        }),
-    })
-  }
+Object.defineProperty(window, 'clearTimeout', {
+  writable: true,
+  value: global.clearTimeout,
+})
 
-  if (!window.setInterval) {
-    Object.defineProperty(window, 'setInterval', {
-      writable: true,
-      value:
-        globalThis.setInterval ||
-        ((fn: () => void, ms: number) => {
-          return setInterval(fn, ms)
-        }),
-    })
-  }
+Object.defineProperty(window, 'setInterval', {
+  writable: true,
+  value: global.setInterval,
+})
 
-  if (!window.clearInterval) {
-    Object.defineProperty(window, 'clearInterval', {
-      writable: true,
-      value:
-        globalThis.clearInterval ||
-        ((id: number) => {
-          clearInterval(id)
-        }),
-    })
-  }
-}
+Object.defineProperty(window, 'clearInterval', {
+  writable: true,
+  value: global.clearInterval,
+})
 
 // Mock navigator.platform for HeadlessUI
 if (typeof window !== 'undefined') {
@@ -157,9 +140,25 @@ if (typeof window !== 'undefined') {
   })
 }
 
-// Mock document.body if not present for live regions
-if (typeof document !== 'undefined' && !document.body) {
-  document.body = document.createElement('body')
+// Ensure proper DOM structure for testing
+if (typeof document !== 'undefined') {
+  // Ensure document.documentElement exists
+  if (!document.documentElement) {
+    const html = document.createElement('html')
+    document.appendChild(html)
+  }
+
+  // Ensure document.head exists
+  if (!document.head) {
+    const head = document.createElement('head')
+    document.documentElement.appendChild(head)
+  }
+
+  // Ensure document.body exists
+  if (!document.body) {
+    const body = document.createElement('body')
+    document.documentElement.appendChild(body)
+  }
 }
 
 // Mock requestAnimationFrame and cancelAnimationFrame
@@ -225,8 +224,68 @@ if (typeof window !== 'undefined') {
   })
 }
 
+// Global cleanup tracking - use any to avoid Node.js type conflicts
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const activeTimeouts = new Set<any>()
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const activeIntervals = new Set<any>()
+
+// Track timeouts and intervals for cleanup
+const originalSetTimeout = global.setTimeout
+const originalSetInterval = global.setInterval
+const originalClearTimeout = global.clearTimeout
+const originalClearInterval = global.clearInterval
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+global.setTimeout = ((fn: any, delay?: any, ...args: any[]) => {
+  const id = originalSetTimeout(fn, delay, ...args)
+  activeTimeouts.add(id)
+  return id
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}) as any
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+global.setInterval = ((fn: any, delay?: any, ...args: any[]) => {
+  const id = originalSetInterval(fn, delay, ...args)
+  activeIntervals.add(id)
+  return id
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}) as any
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+global.clearTimeout = ((id: any) => {
+  activeTimeouts.delete(id)
+  return originalClearTimeout(id)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}) as any
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+global.clearInterval = ((id: any) => {
+  activeIntervals.delete(id)
+  return originalClearInterval(id)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}) as any
+
 // Clean up after each test
 afterEach(() => {
+  // Clear all active timers before cleanup to prevent post-teardown state updates
+  activeTimeouts.forEach((id) => {
+    try {
+      originalClearTimeout(id)
+    } catch {
+      // Ignore errors
+    }
+  })
+  activeIntervals.forEach((id) => {
+    try {
+      originalClearInterval(id)
+    } catch {
+      // Ignore errors
+    }
+  })
+  activeTimeouts.clear()
+  activeIntervals.clear()
+
   cleanup()
 
   // Clean up any live regions that might have been created by the live regions service
