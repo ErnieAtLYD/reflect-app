@@ -17,8 +17,10 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { ReflectionDisplay } from '@/components/ui/reflection-display'
 import { Textarea } from '@/components/ui/textarea'
 import { ThemeToggle, ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
+import { usePageTracking } from '@/hooks/useAnalytics'
 
 export default function ComponentsDemo() {
+  usePageTracking()
   return (
     <main className="bg-background xs:p-6 min-h-screen p-4 sm:p-8">
       <div className="xs:space-y-8 container mx-auto space-y-6">

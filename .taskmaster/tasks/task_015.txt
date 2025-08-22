@@ -5,7 +5,40 @@
 # Priority: low
 # Description: Implement privacy-respecting analytics to track usage patterns and success metrics.
 # Details:
-Set up a privacy-focused analytics solution like Plausible, Simple Analytics, or a self-hosted option. Track key events: page views, reflection generations, feedback submissions, local history toggle usage, export events, and errors. Implement anonymous session IDs that reset between visits. Create a dashboard to visualize key metrics. Set up automated reports for weekly/monthly statistics. Ensure no personally identifiable information is collected. Add an optional analytics opt-out. Implement custom events to track user engagement without tracking individuals.
+Implement a privacy-first, opt-in analytics system using client-side tracking only. No external analytics services. Track key events locally with anonymous session IDs that reset on each visit. Create a simple dashboard to visualize metrics. Ensure no personally identifiable information is collected and maintain compliance with the existing privacy-first approach.
+
+# Subtasks:
+## 15A: Core Analytics Module
+- Create lib/analytics.ts with lightweight event tracking
+- Implement localStorage-based data persistence  
+- Define event types and data structures
+- Generate anonymous session IDs that reset on each visit
+
+## 15B: Event Tracking Implementation
+- Add tracking for page views, reflection generations, feedback submissions
+- Track history toggle usage and export events
+- Implement anonymous error tracking
+- Ensure all events include only timestamp and event type
+
+## 15C: User Controls & Privacy
+- Create analytics opt-in/opt-out toggle component
+- Build simple analytics dashboard page with local data visualization
+- Update privacy policy to reflect opt-in analytics approach
+- Add analytics toggle to existing privacy page
+
+## 15D: Testing & Validation
+- Test opt-in/opt-out functionality works correctly
+- Verify no PII is collected in any events
+- Test data collection and dashboard visualization
+- Validate privacy compliance and session ID reset behavior
 
 # Test Strategy:
 Verify that analytics events are correctly triggered for key user actions. Check that no PII is included in analytics data. Test the opt-out functionality. Verify that session IDs reset appropriately. Test the dashboard with sample data. Check that all required metrics from the PRD are being tracked. Verify compliance with privacy regulations for analytics data.
+
+# Acceptance Criteria:
+- Analytics system is opt-in by default (privacy-first)
+- All data stored locally in browser only
+- Anonymous session IDs reset on each visit
+- Simple dashboard shows aggregated usage metrics
+- Privacy policy updated to reflect new analytics approach
+- No external analytics services or tracking cookies used

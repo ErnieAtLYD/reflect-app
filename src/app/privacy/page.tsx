@@ -1,10 +1,14 @@
+'use client'
+
 import { ArrowLeft, Lock, Shield, Eye, Database } from 'lucide-react'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { usePageTracking } from '@/hooks/useAnalytics'
 
 export default function PrivacyPage() {
+  usePageTracking()
   return (
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
       {/* Header */}

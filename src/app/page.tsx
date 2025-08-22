@@ -1,6 +1,11 @@
+'use client'
+
 import { Reflector } from '@/components/app/reflector'
+import { usePageTracking } from '@/hooks/useAnalytics'
 
 const Page = () => {
+  usePageTracking()
+
   return (
     <main className="bg-background min-h-screen">
       <Reflector />
