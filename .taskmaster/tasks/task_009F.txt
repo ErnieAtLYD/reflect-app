@@ -1,0 +1,80 @@
+# Task ID: 9F
+# Title: Feedback Metrics Dashboard (DEFERRED - v2)
+# Status: deferred
+# Dependencies: 9A, 9B
+# Priority: low
+# Parent Task: 9 - User Feedback Collection System
+# Description: Create a simple dashboard to view aggregate feedback metrics and analytics.
+
+# Details:
+**DEFERRED FOR v2** - Ship v1 without full dashboard to reduce scope and complexity.
+
+**v1 Implementation (Simple Stats Endpoint):**
+Create a single `/api/feedback/stats` endpoint that returns basic aggregate data:
+- Total feedback count
+- Positive feedback count  
+- Negative feedback count
+- Positive percentage rate
+- Optional: Today's feedback count
+
+**v2 Implementation (Full Dashboard - Future):**
+Creat e full admin/metrics dashboard with charts, trends, and visualizations. Implement protected admin route with authentication. Add date range filtering, export functionality, and comprehensive analytics.
+
+# Metrics to Display:
+1. **Overview Stats:**
+   - Total feedback submissions
+   - Positive feedback percentage
+   - Feedback submissions today/this week
+   - Average daily submissions
+
+2. **Trend Analysis:**
+   - Daily feedback volume chart (last 30 days)
+   - Positive vs negative ratio over time
+   - Peak usage hours heatmap
+
+3. **Technical Metrics:**
+   - Browser type distribution
+   - Device category breakdown
+   - Response time metrics for feedback API
+   - Error rates and common issues
+
+4. **Data Quality:**
+   - Unique reflection IDs with feedback
+   - Average time between reflection and feedback
+   - Duplicate attempt statistics
+
+# Database Queries Examples:
+```sql
+-- Basic stats
+SELECT 
+  COUNT(*) as total_feedback,
+  COUNT(CASE WHEN feedback_type = 'positive' THEN 1 END) as positive_count,
+  COUNT(CASE WHEN feedback_type = 'negative' THEN 1 END) as negative_count
+FROM feedback;
+
+-- Daily trends
+SELECT 
+  DATE(created_at) as date,
+  COUNT(*) as count,
+  AVG(CASE WHEN feedback_type = 'positive' THEN 1.0 ELSE 0.0 END) as positive_rate
+FROM feedback 
+WHERE created_at >= NOW() - INTERVAL '30 days'
+GROUP BY DATE(created_at)
+ORDER BY date;
+```
+
+# Security & Access:
+- Require admin authentication (environment variable or simple token)
+- No PII displayed (no IP addresses, reflection content, etc.)
+- Rate limiting on dashboard endpoints
+- CSRF protection for admin actions
+
+# Implementation Components:
+- Dashboard page component with charts
+- API endpoints for metrics data
+- Authentication middleware for admin access
+- Caching layer for expensive queries
+- Export functionality (CSV/JSON)
+
+# Test Strategy:
+Test dashboard displays accurate aggregate data. Verify no PII is exposed in any dashboard view. Test authentication and access controls. Verify chart rendering and responsiveness. Test date range filtering and export functions. Performance test with large datasets.

@@ -1,9 +1,9 @@
 # Task ID: 16E
-# Title: Security & Code Scanning
+# Title: Security & Code Scanning **[STRETCH GOAL]**
 # Status: pending
 # Dependencies: 1, 5, 7
-# Priority: high
-# Description: Implement automated security scanning and code quality checks using Snyk and other security tools.
+# Priority: low
+# Description: [STRETCH GOAL] Implement automated security scanning and code quality checks using Snyk and other security tools.
 # Details:
 Set up comprehensive security scanning and code quality pipeline with the following tools:
 - Snyk integration for dependency vulnerability scanning and remediation suggestions

@@ -10,11 +10,11 @@ This task has been broken down into focused subtasks for better management and p
 - Task 16A: Frontend Deployment Platform (Vercel/Netlify setup with preview deployments)
 - Task 16B: CI/CD Pipeline Setup (GitHub Actions workflows and automation)  
 - Task 16C: Environment Configuration (Dev/staging/production environments)
-- Task 16D: Monitoring & Error Tracking (Sentry implementation)
-- Task 16E: Security & Code Scanning (Snyk and automated security checks)
-- Task 16F: Infrastructure & SSL (Domain, SSL certificates, database migrations)
+- Task 16D: Monitoring & Error Tracking (Sentry implementation) **[STRETCH GOAL]**
+- Task 16E: Security & Code Scanning (Snyk and automated security checks) **[STRETCH GOAL]**
+- Task 16F: Infrastructure & SSL (Domain, SSL certificates, database migrations) **[STRETCH GOAL]**
 
-Each subtask maintains the original dependencies (1, 5, 7) and high priority. The task is complete when all subtasks are finished.
+Core subtasks (16A, 16B, 16C) maintain the original dependencies (1, 5, 7) and high priority. Stretch goal subtasks (16D, 16E, 16F) are optional enhancements. The task is complete when core subtasks (16A-16C) are finished.
 
 # Test Strategy:
 Integration testing across all subtasks to ensure the complete deployment pipeline works end-to-end. This includes testing deployments, monitoring alerts, security scans, and environment configurations working together.

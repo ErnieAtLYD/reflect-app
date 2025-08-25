@@ -1,11 +1,26 @@
 # Task ID: 9
-# Title: User Feedback Collection System
+# Title: User Feedback Collection System (Parent Task)
 # Status: pending
 # Dependencies: 6, 7
 # Priority: medium
 # Description: Implement the thumbs up/down feedback system for reflections with anonymous data collection.
 # Details:
-Create a feedback component with thumbs up and thumbs down buttons. Implement a serverless function endpoint to collect feedback data. Generate a random reflection ID for each feedback submission to maintain anonymity. Store only the feedback value (positive/negative) and optional non-identifying metadata like browser type or device category. Add a brief privacy note explaining that feedback is anonymous. Implement a one-time feedback rule per reflection to prevent duplicate submissions. Create a simple dashboard or logging system to view aggregate feedback metrics. Use a database like Supabase (PostgreSQL) or Firebase Firestore for storing feedback data.
+This task has been broken down into focused subtasks for better management and parallel execution:
+
+- Task 9A: Feedback API Endpoint Implementation (High priority - Create /api/feedback POST endpoint)
+- Task 9B: Database Integration for Feedback Storage (High priority - Set up Supabase/PostgreSQL)  
+- Task 9C: Anonymous Reflection ID System (Medium priority - Generate secure UUIDs for reflections)
+- Task 9D: One-Time Feedback Prevention System (Medium priority - Prevent duplicate submissions)
+- Task 9E: Privacy Notice for Anonymous Feedback (Low priority - User privacy compliance)
+- Task 9F: Feedback Metrics Dashboard (DEFERRED - Full dashboard with charts, v2 feature)
+- Task 9G: Basic Feedback Stats API Endpoint (Low priority - Simple /api/feedback/stats endpoint)
+
+**Implementation Order:** 9B (Database) → 9A (API) → 9C (Reflection IDs) → 9D (Duplicate Prevention) → 9E (Privacy Notice) → 9G (Basic Stats API)
+
+**v1 Scope:** Tasks 9A-9E + 9G (Essential feedback system with basic stats)
+**v2 Scope:** Task 9F (Full dashboard with charts - deferred)
+
+**Current Status:** Frontend feedback component (Feedback.tsx) is complete with comprehensive tests. All backend systems (API, database, anonymization, duplicate prevention) remain unimplemented. Task is approximately 20% complete.
 
 # Test Strategy:
-Test the feedback submission process. Verify that no identifying information is sent with feedback. Test the one-time feedback rule. Check that the feedback endpoint correctly records submissions. Verify the privacy note is displayed. Test the aggregate metrics display. Verify that feedback can be submitted without any user account or identification.
+Integration testing across all subtasks to ensure the complete feedback system works end-to-end. Test the feedback submission process, verify no identifying information is sent, test one-time feedback rules, check endpoint functionality, verify privacy notice display, and test aggregate metrics dashboard.

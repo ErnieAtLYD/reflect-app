@@ -1,0 +1,41 @@
+# Task ID: 9E
+# Title: Privacy Notice for Anonymous Feedback
+# Status: pending
+# Dependencies: 9
+# Priority: low
+# Parent Task: 9 - User Feedback Collection System
+# Description: Add privacy notice explaining anonymous feedback collection to users.
+
+# Details:
+Create a privacy notice component that clearly explains the anonymous nature of feedback collection. Design the notice to be prominent but non-intrusive, appearing near the feedback buttons. Explain what data is collected (feedback type, browser information, timestamp) and what is NOT collected (no personal info, IP addresses, user accounts). Include information about data retention period and purpose (improving AI reflection quality). Make the notice dismissible but ensure it appears for first-time users. Add a link to a detailed privacy policy if needed. Ensure the notice meets privacy compliance requirements (GDPR, CCPA considerations). Implement the notice with proper accessibility features (screen reader support, keyboard navigation). Consider adding a small "?" help icon for users who want privacy details on demand.
+
+# Privacy Notice Content:
+"Your feedback helps improve our AI reflections. We collect only your rating (thumbs up/down) and browser information. No personal information, accounts, or tracking is used. Data is automatically deleted after 90 days. Learn more"
+
+# Implementation Options:
+1. Tooltip/popover on hover over feedback buttons
+2. Small text below feedback buttons (dismissible)
+3. Modal on first feedback attempt
+4. Collapsible info section near feedback area
+
+# Design Requirements:
+- Must be visible but not obtrusive
+- Clear, concise language (8th grade reading level)
+- Accessible to screen readers
+- Responsive across device sizes
+- Matches app's design system and theme support
+
+# Components to Create:
+- PrivacyNotice component with dismiss functionality
+- Help icon with tooltip for detailed info
+- Integration with existing feedback component
+- localStorage tracking for dismissed state
+
+# Accessibility Features:
+- Proper ARIA labels and descriptions
+- Keyboard navigation support
+- Screen reader announcements
+- High contrast support for dark/light themes
+
+# Test Strategy:
+Test privacy notice appears for new users. Verify dismissal functionality works correctly. Test accessibility with screen readers and keyboard navigation. Verify notice displays correctly across different screen sizes. Test integration with feedback component. Ensure compliance with privacy requirements.

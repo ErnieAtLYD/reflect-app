@@ -1,9 +1,9 @@
 # Task ID: 16D
-# Title: Monitoring & Error Tracking
+# Title: Monitoring & Error Tracking **[STRETCH GOAL]**
 # Status: pending
 # Dependencies: 1, 5, 7
-# Priority: high
-# Description: Implement comprehensive monitoring and error tracking using Sentry and performance monitoring tools.
+# Priority: low
+# Description: [STRETCH GOAL] Implement comprehensive monitoring and error tracking using Sentry and performance monitoring tools.
 # Details:
 Set up robust monitoring and error tracking system with the following components:
 - Sentry integration for real-time error tracking and reporting

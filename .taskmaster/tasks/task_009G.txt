@@ -1,0 +1,53 @@
+# Task ID: 9G
+# Title: Basic Feedback Stats API Endpoint
+# Status: pending
+# Dependencies: 9A, 9B
+# Priority: low
+# Parent Task: 9 - User Feedback Collection System
+# Description: Create simple stats endpoint for basic feedback metrics (v1 implementation).
+
+# Details:
+Create a lightweight `/api/feedback/stats` GET endpoint that returns basic aggregate feedback statistics without requiring a full dashboard UI. This provides essential metrics for monitoring feedback without the complexity of charts and visualizations. The endpoint should be fast, cacheable, and return only aggregate data with no PII.
+
+# API Specification:
+- Method: GET
+- Endpoint: `/api/feedback/stats`
+- Response Format:
+```json
+{
+  "total": 1247,
+  "positive": 1028,
+  "negative": 219,
+  "positiveRate": 0.824,
+  "todayCount": 23,
+  "generatedAt": "2024-01-15T10:30:00Z"
+}
+```
+
+# Database Query:
+```sql
+-- Basic stats query
+SELECT 
+  COUNT(*) as total,
+  COUNT(CASE WHEN feedback_type = 'positive' THEN 1 END) as positive,
+  COUNT(CASE WHEN feedback_type = 'negative' THEN 1 END) as negative,
+  COUNT(CASE WHEN DATE(created_at) = CURRENT_DATE THEN 1 END) as today_count
+FROM feedback;
+```
+
+# Implementation Requirements:
+- Add response caching (5-10 minutes) to reduce database load
+- Include rate limiting (e.g., 10 requests per minute per IP)
+- Return consistent JSON structure with proper HTTP status codes
+- Add error handling for database failures
+- Include timestamp of when stats were generated
+- Calculate positive rate as decimal (0.0 to 1.0)
+
+# Security & Performance:
+- No authentication required (aggregate data only)
+- Cache responses to minimize database queries  
+- Add proper CORS headers for frontend access
+- Log usage for monitoring API adoption
+
+# Test Strategy:
+Test endpoint returns correct aggregate calculations. Verify caching behavior and cache expiration. Test rate limiting functionality. Verify error handling for database failures. Test response format matches specification. Performance test with large datasets.

@@ -1,0 +1,41 @@
+# Task ID: 9C
+# Title: Anonymous Reflection ID System
+# Status: pending
+# Dependencies: 9
+# Priority: medium
+# Parent Task: 9 - User Feedback Collection System
+# Description: Implement system to generate and manage anonymous reflection IDs for feedback tracking.
+
+# Details:
+Create a reflection ID generation service that produces random, non-sequential IDs for each AI reflection response. Implement ID generation using crypto.randomUUID() or similar secure random generation. Ensure reflection IDs cannot be traced back to user sessions or personal information. Modify the existing AI reflection workflow to include reflection ID generation and storage. Update the ReflectionResponse type to include the reflection ID field. Integrate reflection ID into the frontend feedback component workflow. Add validation to ensure reflection IDs are properly formatted UUIDs. Implement ID collision detection (though highly unlikely with UUIDs). Store reflection IDs in session/local storage temporarily for feedback submission but clear them periodically.
+
+# Technical Implementation:
+- Generate reflection ID when AI response is created
+- Include reflection ID in ReflectionResponse type
+- Pass reflection ID to feedback components
+- Validate UUID format in API endpoints
+- Clear old reflection IDs from client storage after 24 hours
+
+# Updated Types:
+```typescript
+interface ReflectionResponse {
+  reflectionId: string; // New field - UUID
+  summary: string;
+  pattern: string;
+  suggestion: string;
+  metadata: {
+    model: string;
+    processedAt: string;
+    processingTimeMs: number;
+  };
+}
+```
+
+# Security Considerations:
+- Use cryptographically secure random generation
+- Ensure IDs don't contain timestamps or sequential patterns
+- Don't log reflection IDs in server logs
+- Clear client-side storage regularly
+
+# Test Strategy:
+Test reflection ID generation produces valid UUIDs. Verify IDs are unique across multiple generations. Test integration with existing AI reflection workflow. Verify reflection IDs are properly passed to feedback components. Test client-side storage and cleanup of reflection IDs. Ensure no correlation between reflection IDs and user data.

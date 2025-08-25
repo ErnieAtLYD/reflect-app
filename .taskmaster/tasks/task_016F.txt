@@ -1,9 +1,9 @@
 # Task ID: 16F
-# Title: Infrastructure & SSL
+# Title: Infrastructure & SSL **[STRETCH GOAL]**
 # Status: pending
 # Dependencies: 1, 5, 7
-# Priority: high
-# Description: Configure domain management, SSL certificates, and database infrastructure for production deployment.
+# Priority: low
+# Description: [STRETCH GOAL] Configure domain management, SSL certificates, and database infrastructure for production deployment.
 # Details:
 Set up production infrastructure with the following components:
 - Custom domain configuration with proper DNS settings
