@@ -37,6 +37,16 @@ export async function createFeedback(
   data: CreateFeedbackRequest
 ): Promise<CreateFeedbackResponse> {
   try {
+    // Check if Supabase is properly configured (skip in test environment)
+    if (
+      process.env.NODE_ENV !== 'test' &&
+      (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY)
+    ) {
+      throw FeedbackStorageError.database(
+        'Database configuration is missing. Feedback cannot be stored.'
+      )
+    }
+
     // Validate input data
     if (!validateFeedbackRequest(data)) {
       throw FeedbackStorageError.validation(
