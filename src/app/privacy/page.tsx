@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { usePageTracking } from '@/hooks/useAnalytics'
+import { usePageTracking } from '@/hooks/use-analytics'
 
 export default function PrivacyPage() {
   usePageTracking()

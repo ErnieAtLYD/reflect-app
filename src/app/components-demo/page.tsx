@@ -17,7 +17,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { ReflectionDisplay } from '@/components/ui/reflection-display'
 import { Textarea } from '@/components/ui/textarea'
 import { ThemeToggle, ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
-import { usePageTracking } from '@/hooks/useAnalytics'
+import { usePageTracking } from '@/hooks/use-analytics'
 
 export default function ComponentsDemo() {
   usePageTracking()

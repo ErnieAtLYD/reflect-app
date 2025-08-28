@@ -20,6 +20,7 @@ import {
   CardAction,
 } from '@/components/ui/card'
 import { ErrorMessage } from '@/components/ui/error-message'
+import { Feedback } from '@/components/ui/feedback'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { cn } from '@/lib/utils'
@@ -274,11 +275,37 @@ Processed by ${data.metadata.model} in ${data.metadata.processingTimeMs}ms
                     delay={0.3}
                   />
 
-                  {/* Metadata */}
+                  {/* Feedback Section */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.4, delay: 0.4 }}
+                  >
+                    <div className="border-border/20 bg-card/30 rounded-lg border p-6">
+                      <div className="mb-4 text-center">
+                        <h4 className="text-foreground mb-2 text-sm font-medium">
+                          Was this reflection helpful?
+                        </h4>
+                        <p className="text-muted-foreground text-xs">
+                          Your feedback helps us improve
+                        </p>
+                      </div>
+                      <div className="flex justify-center">
+                        <Feedback
+                          reflectionId={data.id}
+                          size="sm"
+                          variant="ghost"
+                          showLabels={true}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Metadata */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.5 }}
                   >
                     <div className="border-border/30 bg-muted/20 rounded-lg border-t p-4">
                       <p className="text-muted-foreground text-center text-sm font-medium">
