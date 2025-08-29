@@ -16,6 +16,7 @@ vi.mock('framer-motion', () => ({
 }))
 
 const mockReflectionData: ReflectionResponse = {
+  id: 'refl_test_123',
   summary: 'You reflected on a challenging but rewarding day at work.',
   pattern:
     'There seems to be a pattern of finding breakthroughs during quiet moments.',

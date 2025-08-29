@@ -1,7 +1,7 @@
 'use client'
 
 import { Reflector } from '@/components/app/reflector'
-import { usePageTracking } from '@/hooks/useAnalytics'
+import { usePageTracking } from '@/hooks/use-analytics'
 
 const Page = () => {
   usePageTracking()

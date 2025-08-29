@@ -1,8 +1,13 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 
-import { useAnalytics } from '@/hooks/useAnalytics'
+import { useAnalytics } from '@/hooks/use-analytics'
 import { cn } from '@/lib/utils'
+import type {
+  CreateFeedbackRequest,
+  CreateFeedbackResponse,
+  FeedbackType,
+} from '@/types/database'
 
 const feedbackVariants = cva(
   'inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm transition-all hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
@@ -59,6 +64,10 @@ interface FeedbackButtonProps
 }
 
 interface FeedbackProps {
+  /**
+   * Reflection ID to associate feedback with
+   */
+  reflectionId?: string
   /**
    * Callback when feedback is given
    */
@@ -165,7 +174,31 @@ function FeedbackButton({
   )
 }
 
+async function submitFeedback(
+  reflectionId: string,
+  feedbackType: FeedbackType
+): Promise<CreateFeedbackResponse> {
+  const response = await fetch('/api/feedback', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      reflection_id: reflectionId,
+      feedback_type: feedbackType,
+    } satisfies CreateFeedbackRequest),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.error || `HTTP ${response.status}`)
+  }
+
+  return response.json()
+}
+
 function Feedback({
+  reflectionId,
   onFeedback,
   selectedFeedback,
   disabled = false,
@@ -176,14 +209,32 @@ function Feedback({
   containerProps,
 }: FeedbackProps) {
   const { trackEvent } = useAnalytics()
+  const [submitting, setSubmitting] = React.useState<string | null>(null)
+  const [submitted, setSubmitted] = React.useState<Set<FeedbackType>>(new Set())
 
-  const handleFeedback = (feedbackType: 'positive' | 'negative') => {
-    if (disabled) return
+  const handleFeedback = async (feedbackType: 'positive' | 'negative') => {
+    if (disabled || submitting || submitted.has(feedbackType)) return
 
-    // Track feedback submission
+    // Track feedback submission attempt
     trackEvent('feedback_given')
 
+    // Call callback immediately for UI feedback
     onFeedback?.(feedbackType)
+
+    // Submit to API if reflection ID is available
+    if (reflectionId) {
+      try {
+        setSubmitting(feedbackType)
+        await submitFeedback(reflectionId, feedbackType)
+        setSubmitted((prev) => new Set([...prev, feedbackType]))
+      } catch (error) {
+        console.error('Failed to submit feedback:', error)
+        // Note: We don't show error UI to maintain simple UX
+        // The feedback is still tracked locally via onFeedback callback
+      } finally {
+        setSubmitting(null)
+      }
+    }
   }
 
   return (
@@ -199,7 +250,9 @@ function Feedback({
         variant={variant}
         size={size}
         showLabel={showLabels}
-        disabled={disabled}
+        disabled={
+          disabled || submitting === 'positive' || submitted.has('positive')
+        }
       />
       <FeedbackButton
         feedbackType="negative"
@@ -208,7 +261,9 @@ function Feedback({
         variant={variant}
         size={size}
         showLabel={showLabels}
-        disabled={disabled}
+        disabled={
+          disabled || submitting === 'negative' || submitted.has('negative')
+        }
       />
     </div>
   )

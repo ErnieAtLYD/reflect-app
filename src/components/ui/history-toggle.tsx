@@ -3,7 +3,7 @@
 import { Database, DatabaseZap } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-import { useAnalytics } from '@/hooks/useAnalytics'
+import { useAnalytics } from '@/hooks/use-analytics'
 import { historyStorage } from '@/lib/history-storage'
 
 import { Button } from './button'

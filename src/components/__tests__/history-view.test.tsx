@@ -81,6 +81,7 @@ describe('HistoryView', () => {
       timestamp: 1640995200000, // 2022-01-01 00:00:00
       journalEntry: 'First entry content',
       reflection: {
+        id: 'refl_test_1',
         summary: 'Summary of first entry',
         pattern: 'Pattern',
         suggestion: 'Suggestion',
@@ -95,6 +96,17 @@ describe('HistoryView', () => {
       id: '2',
       timestamp: 1641081600000, // 2022-01-02 00:00:00
       journalEntry: 'Second entry content',
+      reflection: {
+        id: 'refl_test_2',
+        summary: 'Summary of second entry',
+        pattern: 'Another pattern',
+        suggestion: 'Another suggestion',
+        metadata: {
+          model: 'gpt-4-1106-preview',
+          processedAt: '2022-01-02T00:00:00Z',
+          processingTimeMs: 1800,
+        },
+      },
     },
   ]
 
