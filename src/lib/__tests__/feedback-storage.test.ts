@@ -11,15 +11,11 @@ import { supabase } from '../supabase'
 // Mock Supabase
 vi.mock('../supabase', () => ({
   supabase: {
-    from: vi.fn(() => ({
-      insert: vi.fn(() => ({
-        select: vi.fn(() => ({
-          single: vi.fn(),
-        })),
-      })),
-    })),
+    from: vi.fn(),
   },
 }))
+
+const mockSupabase = vi.mocked(supabase)
 
 describe('FeedbackStorageError', () => {
   it('creates validation error correctly', () => {
@@ -54,14 +50,15 @@ describe('createFeedback', () => {
 
   it('creates feedback successfully', async () => {
     const mockResult = { feedback_id: 'test-feedback-id' }
-    const mockInsert = vi.fn(() => ({
-      select: vi.fn(() => ({
-        single: vi.fn(() => Promise.resolve({ data: mockResult, error: null })),
-      })),
-    }))
-    const mockFrom = vi.fn(() => ({ insert: mockInsert }))
+    const mockSingle = vi.fn(() =>
+      Promise.resolve({ data: mockResult, error: null })
+    )
+    const mockSelect = vi.fn(() => ({ single: mockSingle }))
+    const mockInsert = vi.fn(() => ({ select: mockSelect }))
 
-    vi.mocked(supabase).from = mockFrom
+    mockSupabase.from.mockReturnValue({ insert: mockInsert } as ReturnType<
+      typeof supabase.from
+    >)
 
     const feedbackData = {
       reflection_id: 'test-reflection-id',
@@ -73,7 +70,7 @@ describe('createFeedback', () => {
 
     expect(result.success).toBe(true)
     expect(result.feedback_id).toBe('test-feedback-id')
-    expect(mockFrom).toHaveBeenCalledWith('feedback')
+    expect(mockSupabase.from).toHaveBeenCalledWith('feedback')
     expect(mockInsert).toHaveBeenCalledWith({
       reflection_id: 'test-reflection-id',
       feedback_type: 'positive',
@@ -105,14 +102,15 @@ describe('createFeedback', () => {
 
   it('limits user agent length', async () => {
     const mockResult = { feedback_id: 'test-feedback-id' }
-    const mockInsert = vi.fn(() => ({
-      select: vi.fn(() => ({
-        single: vi.fn(() => Promise.resolve({ data: mockResult, error: null })),
-      })),
-    }))
-    const mockFrom = vi.fn(() => ({ insert: mockInsert }))
+    const mockSingle = vi.fn(() =>
+      Promise.resolve({ data: mockResult, error: null })
+    )
+    const mockSelect = vi.fn(() => ({ single: mockSingle }))
+    const mockInsert = vi.fn(() => ({ select: mockSelect }))
 
-    vi.mocked(supabase).from = mockFrom
+    mockSupabase.from.mockReturnValue({ insert: mockInsert } as ReturnType<
+      typeof supabase.from
+    >)
 
     const longUserAgent = 'a'.repeat(2000)
     const feedbackData = {
@@ -123,20 +121,28 @@ describe('createFeedback', () => {
 
     await createFeedback(feedbackData)
 
-    const insertCall = mockInsert.mock.calls[0][0]
-    expect(insertCall.user_agent).toHaveLength(1000)
+    expect(mockInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_agent: expect.any(String),
+      })
+    )
+
+    // Get the actual call arguments
+    const callArgs = (mockInsert as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]
+    expect(callArgs?.user_agent).toHaveLength(1000)
   })
 
   it('handles database errors', async () => {
     const mockError = { message: 'Database connection failed' }
-    const mockInsert = vi.fn(() => ({
-      select: vi.fn(() => ({
-        single: vi.fn(() => Promise.resolve({ data: null, error: mockError })),
-      })),
-    }))
-    const mockFrom = vi.fn(() => ({ insert: mockInsert }))
+    const mockSingle = vi.fn(() =>
+      Promise.resolve({ data: null, error: mockError })
+    )
+    const mockSelect = vi.fn(() => ({ single: mockSingle }))
+    const mockInsert = vi.fn(() => ({ select: mockSelect }))
 
-    vi.mocked(supabase).from = mockFrom
+    mockSupabase.from.mockReturnValue({ insert: mockInsert } as ReturnType<
+      typeof supabase.from
+    >)
 
     const feedbackData = {
       reflection_id: 'test-reflection-id',
@@ -152,9 +158,10 @@ describe('createFeedback', () => {
     const mockInsert = vi.fn(() => {
       throw new Error('Unexpected error')
     })
-    const mockFrom = vi.fn(() => ({ insert: mockInsert }))
 
-    vi.mocked(supabase).from = mockFrom
+    mockSupabase.from.mockReturnValue({ insert: mockInsert } as ReturnType<
+      typeof supabase.from
+    >)
 
     const feedbackData = {
       reflection_id: 'test-reflection-id',
