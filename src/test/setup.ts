@@ -196,7 +196,7 @@ if (typeof global.document !== 'undefined') {
 
   // Mock Element properties that HeadlessUI's focus management needs
   const mockElementProps = (element: Element) => {
-    if (!element.style) {
+    if (!(element as HTMLElement).style) {
       Object.defineProperty(element, 'style', {
         value: {
           setProperty: vi.fn(),
@@ -223,6 +223,7 @@ if (typeof global.document !== 'undefined') {
   Object.defineProperty(global.document, 'activeElement', {
     value: global.document.body,
     writable: true,
+    configurable: true,
   })
 
   // Mock tabIndex property for all elements
@@ -237,23 +238,46 @@ if (typeof global.document !== 'undefined') {
     configurable: true,
   })
 
-  // Mock focus/blur methods
-  Element.prototype.focus = vi.fn(function (this: Element) {
-    global.document.activeElement = this as unknown as Element
+  // Mock focus/blur methods with proper typing
+  Object.defineProperty(Element.prototype, 'focus', {
+    value: vi.fn(function (this: Element) {
+      Object.defineProperty(global.document, 'activeElement', {
+        value: this,
+        writable: true,
+        configurable: true,
+      })
+    }),
+    writable: true,
+    configurable: true,
   })
-  Element.prototype.blur = vi.fn(function (this: Element) {
-    if (global.document.activeElement === this) {
-      global.document.activeElement = global.document.body
-    }
+
+  Object.defineProperty(Element.prototype, 'blur', {
+    value: vi.fn(function (this: Element) {
+      const currentActiveElement = global.document.activeElement
+      if (currentActiveElement === this) {
+        Object.defineProperty(global.document, 'activeElement', {
+          value: global.document.body,
+          writable: true,
+          configurable: true,
+        })
+      }
+    }),
+    writable: true,
+    configurable: true,
   })
 
   // Fix HeadlessUI focus visibility tracking
   // HeadlessUI tries to set a 'headlessuiFocusVisible' property on elements
   const originalAddEventListener = Document.prototype.addEventListener
-  Document.prototype.addEventListener = function (type, listener, options) {
+  Document.prototype.addEventListener = function (
+    this: Document,
+    type: string,
+    listener: EventListenerOrEventListenerObject | null,
+    options?: boolean | AddEventListenerOptions
+  ) {
     // Intercept HeadlessUI's focus management event listeners
     if (type === 'keydown' || type === 'pointerdown' || type === 'pointerup') {
-      const wrappedListener = function (event: Event) {
+      const wrappedListener = function (this: Document, event: Event) {
         try {
           // Ensure the event target has the properties HeadlessUI expects
           const target = event.target as Element & {
@@ -271,6 +295,8 @@ if (typeof global.document !== 'undefined') {
           }
           if (typeof listener === 'function') {
             listener.call(this, event)
+          } else if (listener && typeof listener.handleEvent === 'function') {
+            listener.handleEvent(event)
           }
         } catch (error) {
           // Silently ignore HeadlessUI focus management errors
@@ -281,6 +307,10 @@ if (typeof global.document !== 'undefined') {
         }
       }
       return originalAddEventListener.call(this, type, wrappedListener, options)
+    }
+    // Handle null listener case
+    if (listener === null) {
+      return
     }
     return originalAddEventListener.call(this, type, listener, options)
   }
