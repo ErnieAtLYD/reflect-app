@@ -41,7 +41,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile      
 
       - name: Cache build outputs
         uses: actions/cache@v4
@@ -66,6 +66,14 @@ jobs:
       # TODO: Re-enable after migrating to Playwright Component Testing (GitHub #35)
       # - name: Run unit tests
       #   run: pnpm test:coverage
+      - name: Unit tests disabled due to HeadlessUI + JSDOM incompatibility
+        run: |
+          echo "⚠️  Unit tests currently disabled"
+          echo "📋 Reason: HeadlessUI + JSDOM compatibility issues cause hanging tests"
+          echo "🎯 Next step: Migrate to Playwright Component Testing (Issue #35)"
+          if grep -r "@headlessui" src/ && grep -r "jsdom" package.json; then
+            echo "✅ HeadlessUI + JSDOM combination confirmed - migration needed"
+          fi
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
@@ -120,6 +128,8 @@ jobs:
           path: .next
           key: ${{ runner.os }}-nextjs-${{ github.sha }}
 
+
+          
       # - name: Install Playwright browsers
       #   run: pnpm exec playwright install --with-deps ${{ matrix.project }}
 
