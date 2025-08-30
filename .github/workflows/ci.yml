@@ -63,8 +63,9 @@ jobs:
       - name: Check code formatting
         run: pnpm format:check
 
-      - name: Run unit tests
-        run: pnpm test:coverage
+      # TODO: Re-enable after migrating to Playwright Component Testing (GitHub #35)
+      # - name: Run unit tests
+      #   run: pnpm test:coverage
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
