@@ -219,12 +219,25 @@ if (typeof global.document !== 'undefined') {
     return element
   }
 
-  // Mock focus-related properties for HeadlessUI
-  Object.defineProperty(global.document, 'activeElement', {
-    value: global.document.body,
-    writable: true,
-    configurable: true,
-  })
+  // Create a mutable activeElement property
+  let currentActiveElement: Element | null = global.document.body
+
+  // Only define activeElement if it doesn't already exist or is configurable
+  const existingDescriptor = Object.getOwnPropertyDescriptor(
+    global.document,
+    'activeElement'
+  )
+  if (!existingDescriptor || existingDescriptor.configurable) {
+    Object.defineProperty(global.document, 'activeElement', {
+      get: function () {
+        return currentActiveElement
+      },
+      set: function (element: Element | null) {
+        currentActiveElement = element
+      },
+      configurable: true,
+    })
+  }
 
   // Mock tabIndex property for all elements
   Object.defineProperty(Element.prototype, 'tabIndex', {
@@ -241,11 +254,9 @@ if (typeof global.document !== 'undefined') {
   // Mock focus/blur methods with proper typing
   Object.defineProperty(Element.prototype, 'focus', {
     value: vi.fn(function (this: Element) {
-      Object.defineProperty(global.document, 'activeElement', {
-        value: this,
-        writable: true,
-        configurable: true,
-      })
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const element = this
+      currentActiveElement = element
     }),
     writable: true,
     configurable: true,
@@ -253,13 +264,10 @@ if (typeof global.document !== 'undefined') {
 
   Object.defineProperty(Element.prototype, 'blur', {
     value: vi.fn(function (this: Element) {
-      const currentActiveElement = global.document.activeElement
-      if (currentActiveElement === this) {
-        Object.defineProperty(global.document, 'activeElement', {
-          value: global.document.body,
-          writable: true,
-          configurable: true,
-        })
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const element = this
+      if (currentActiveElement === element) {
+        currentActiveElement = global.document.body
       }
     }),
     writable: true,
