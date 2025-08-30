@@ -41,7 +41,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile      
+        run: pnpm install --frozen-lockfile
 
       - name: Cache build outputs
         uses: actions/cache@v4
@@ -128,8 +128,6 @@ jobs:
           path: .next
           key: ${{ runner.os }}-nextjs-${{ github.sha }}
 
-
-          
       # - name: Install Playwright browsers
       #   run: pnpm exec playwright install --with-deps ${{ matrix.project }}
 
