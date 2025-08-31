@@ -655,7 +655,6 @@ describe('Integration Tests', () => {
             isOpen={showDialog}
             onClose={() => setShowDialog(false)}
             title="Integration Test Dialog"
-            restoreFocus={true}
           >
             <FocusableButton
               onClick={() => setShowDialog(false)}
