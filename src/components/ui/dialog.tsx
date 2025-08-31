@@ -25,10 +25,45 @@ const dialogVariants = cva(
 )
 
 // Base Dialog components
+/**
+ * @description Base Dialog components
+ * @returns DialogRoot
+ * @example
+ * <DialogRoot>
+ *   <DialogTrigger>
+ *     <Button>Open Dialog</Button>
+ *   </DialogTrigger>
+ *   <DialogContent>
+ *     <DialogHeader>
+ *       <DialogTitle>Dialog Title</DialogTitle>
+ *       <DialogDescription>Dialog Description</DialogDescription>
+ *     </DialogHeader>
+ *     <DialogFooter>
+ *       <Button>Close</Button>
+ *     </DialogFooter>
+ *   </DialogContent>
+ * </DialogRoot>
+ */
 const DialogRoot = DialogPrimitive.Root
 const DialogTrigger = DialogPrimitive.Trigger
 const DialogPortal = DialogPrimitive.Portal
 
+/**
+ * @description Dialog overlay
+ * @returns DialogOverlay
+ * @example
+ * <DialogOverlay>
+ *   <DialogContent>
+ *     <DialogHeader>
+ *       <DialogTitle>Dialog Title</DialogTitle>
+ *       <DialogDescription>Dialog Description</DialogDescription>
+ *     </DialogHeader>
+ *     <DialogFooter>
+ *       <Button>Close</Button>
+ *     </DialogFooter>
+ *   </DialogContent>
+ * </DialogOverlay>
+ */
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
@@ -44,6 +79,20 @@ const DialogOverlay = React.forwardRef<
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
+/**
+ * @description Dialog content
+ * @returns DialogContent
+ * @example
+ * <DialogContent>
+ *   <DialogHeader>
+ *     <DialogTitle>Dialog Title</DialogTitle>
+ *     <DialogDescription>Dialog Description</DialogDescription>
+ *   </DialogHeader>
+ *   <DialogFooter>
+ *     <Button>Close</Button>
+ *   </DialogFooter>
+ * </DialogContent>
+ */
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
@@ -71,6 +120,15 @@ const DialogContent = React.forwardRef<
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
+/**
+ * @description Dialog header
+ * @returns DialogHeader
+ * @example
+ * <DialogHeader>
+ *   <DialogTitle>Dialog Title</DialogTitle>
+ *   <DialogDescription>Dialog Description</DialogDescription>
+ * </DialogHeader>
+ */
 const DialogHeader = ({
   className,
   ...props
@@ -85,6 +143,14 @@ const DialogHeader = ({
 )
 DialogHeader.displayName = 'DialogHeader'
 
+/**
+ * @description Dialog footer
+ * @returns DialogFooter
+ * @example
+ * <DialogFooter>
+ *   <Button>Close</Button>
+ * </DialogFooter>
+ */
 const DialogFooter = ({
   className,
   ...props
@@ -99,6 +165,12 @@ const DialogFooter = ({
 )
 DialogFooter.displayName = 'DialogFooter'
 
+/**
+ * @description Dialog title
+ * @returns DialogTitle
+ * @example
+ * <DialogTitle>Dialog Title</DialogTitle>
+ */
 const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
@@ -115,6 +187,12 @@ const DialogTitle = React.forwardRef<
 ))
 DialogTitle.displayName = DialogPrimitive.Title.displayName
 
+/**
+ * @description Dialog description
+ * @returns DialogDescription
+ * @example
+ * <DialogDescription>Dialog Description</DialogDescription>
+ */
 const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
@@ -129,6 +207,14 @@ const DialogDescription = React.forwardRef<
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
 // Legacy Dialog interface for backward compatibility
+/**
+ * @description Dialog props
+ * @returns DialogProps
+ * @example
+ * <Dialog isOpen={true} onClose={() => {}} title="Test Dialog">
+ *   <p>Dialog content</p>
+ * </Dialog>
+ */
 interface DialogProps extends VariantProps<typeof dialogVariants> {
   /**
    * Whether the dialog is open
@@ -165,6 +251,14 @@ interface DialogProps extends VariantProps<typeof dialogVariants> {
 }
 
 // Legacy Dialog component for backward compatibility
+/**
+ * @description Dialog component
+ * @returns Dialog
+ * @example
+ * <Dialog isOpen={true} onClose={() => {}} title="Test Dialog">
+ *   <p>Dialog content</p>
+ * </Dialog>
+ */
 const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
   (
     {
@@ -232,10 +326,10 @@ export {
   DialogRoot,
   DialogTrigger,
   DialogContent,
+  DialogDescription,
+  dialogVariants,
   DialogHeader,
   DialogFooter,
   DialogTitle,
-  DialogDescription,
-  dialogVariants,
 }
 export type { DialogProps }
