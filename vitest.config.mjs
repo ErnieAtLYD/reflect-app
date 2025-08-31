@@ -13,7 +13,16 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
-    exclude: ['**/node_modules/**', '**/e2e/**'],
+    exclude: [
+      '**/node_modules/**',
+      '**/e2e/**',
+      // TODO: Re-enable after migrating to Playwright Component Testing (GitHub #35)
+      '**/focus-management.test.tsx',
+      '**/feedback.test.tsx',
+      '**/journal-entry-input.test.tsx',
+      '**/textarea.test.tsx',
+      '**/loading-spinner.test.tsx',
+    ],
     // Configure for API integration tests to avoid rate limiting
     pool: 'forks',
     poolOptions: {

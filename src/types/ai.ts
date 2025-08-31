@@ -43,6 +43,11 @@ export interface ReflectionRequest {
  */
 export interface ReflectionResponse {
   /**
+   * Unique identifier for this reflection response
+   */
+  id: string
+
+  /**
    * Brief summary of the journal entry (1-2 sentences)
    */
   summary: string

@@ -17,7 +17,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { ReflectionDisplay } from '@/components/ui/reflection-display'
 import { Textarea } from '@/components/ui/textarea'
 import { ThemeToggle, ThemeToggleAdvanced } from '@/components/ui/theme-toggle'
-import { usePageTracking } from '@/hooks/useAnalytics'
+import { usePageTracking } from '@/hooks/use-analytics'
 
 export default function ComponentsDemo() {
   usePageTracking()
@@ -249,6 +249,7 @@ export default function ComponentsDemo() {
                 <ReflectionDisplay
                   state="success"
                   data={{
+                    id: 'refl_demo_123',
                     summary:
                       "You've shared some wonderful insights about personal growth and the importance of taking time to reflect. Your thoughts show a thoughtful approach to processing daily experiences.",
                     pattern:

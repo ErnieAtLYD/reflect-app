@@ -87,6 +87,7 @@ export async function processJournalEntry(
 ): Promise<ReflectionResponse> {
   const startTime = Date.now()
   const template = createPromptTemplate()
+  const reflectionId = generateReflectionId()
 
   // Prepare the prompt
   const userMessage = template.userMessageTemplate.replace(
@@ -105,6 +106,7 @@ export async function processJournalEntry(
     )
 
     return {
+      id: reflectionId,
       ...response,
       metadata: {
         model: config.model,
@@ -129,6 +131,7 @@ export async function processJournalEntry(
       )
 
       return {
+        id: reflectionId,
         ...response,
         metadata: {
           model: config.fallbackModel,
@@ -258,6 +261,16 @@ export function generateContentHash(content: string): string {
   }
 
   return Math.abs(hash).toString(36)
+}
+
+/**
+ * Generate a unique reflection ID
+ */
+export function generateReflectionId(): string {
+  // Generate a unique ID using timestamp and random string
+  const timestamp = Date.now().toString(36)
+  const random = Math.random().toString(36).substring(2, 8)
+  return `refl_${timestamp}_${random}`
 }
 
 /**
