@@ -171,7 +171,7 @@ e2e/                   # Playwright end-to-end tests
 - **LoadingSpinner** - Animated loading indicator with size/color variants
 - **ErrorMessage** - Accessible error display with icons and variants
 - **Feedback** - Thumbs up/down rating component for user feedback
-- **Dialog** - Accessible modal dialog using @headlessui/react
+- **Dialog** - Accessible modal dialog using @radix-ui/react-dialog
 - **JournalEntryInput** - Enhanced textarea for journal writing with auto-resize, validation, and character counting
 
 #### Component Usage Examples
@@ -214,7 +214,7 @@ e2e/                   # Playwright end-to-end tests
 />
 <FeedbackButton feedbackType="positive" selected={true} />
 
-// Dialog
+// Dialog - Legacy API (backward compatible)
 <Dialog
   isOpen={isOpen}
   onClose={() => setIsOpen(false)}
@@ -227,6 +227,25 @@ e2e/                   # Playwright end-to-end tests
     <button onClick={() => setIsOpen(false)}>Cancel</button>
   </div>
 </Dialog>
+
+// Dialog - New Radix UI Composition API
+<DialogRoot open={isOpen} onOpenChange={setIsOpen}>
+  <DialogTrigger asChild>
+    <button>Open Dialog</button>
+  </DialogTrigger>
+  <DialogContent size="md">
+    <DialogHeader>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogDescription>
+        Are you sure you want to continue?
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <button onClick={handleConfirm}>Confirm</button>
+      <button onClick={() => setIsOpen(false)}>Cancel</button>
+    </DialogFooter>
+  </DialogContent>
+</DialogRoot>
 ```
 
 ### JournalEntryInput Component
@@ -370,14 +389,15 @@ const [showErrors, setShowErrors] = useState(false)
 - **ESLint rules** - jsx-a11y plugin enforces accessibility best practices
 - **Manual testing** - Guidelines for screen reader and keyboard testing
 
-#### Using @headlessui/react
+#### Using @radix-ui/react-dialog
 
-Components like Dialog use HeadlessUI for enhanced accessibility:
+The Dialog component uses Radix UI for enhanced accessibility:
 
-- Automatic focus management
-- Keyboard event handling (Escape, Tab trapping)
-- ARIA attribute management
-- Screen reader announcements
+- Automatic focus management and focus trapping
+- Keyboard event handling (Escape, Tab navigation)
+- ARIA attribute management and labeling
+- Screen reader announcements and live regions
+- Built-in portal rendering and backdrop handling
 
 #### Accessibility Testing Example
 
