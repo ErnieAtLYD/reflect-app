@@ -1,9 +1,6 @@
-import { Dialog as HeadlessDialog, Transition } from '@headlessui/react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 
-import { useFocusRestoration, useFocusTrap } from '@/hooks/use-focus-management'
-import { liveRegions } from '@/lib/live-regions'
 import { cn } from '@/lib/utils'
 
 const dialogVariants = cva(
@@ -42,18 +39,6 @@ interface DialogProps extends VariantProps<typeof dialogVariants> {
    */
   description?: string
   /**
-   * Initial focus element selector
-   */
-  initialFocus?: React.RefObject<HTMLElement>
-  /**
-   * Whether to restore focus when the dialog closes
-   */
-  restoreFocus?: boolean
-  /**
-   * Whether to announce the dialog to screen readers
-   */
-  announceToScreenReader?: boolean
-  /**
    * Additional props for the dialog panel
    */
   panelProps?: React.HTMLAttributes<HTMLDivElement>
@@ -74,9 +59,6 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
       onClose,
       title,
       description,
-      initialFocus,
-      restoreFocus = true,
-      announceToScreenReader = true,
       size,
       className,
       panelProps,
@@ -85,118 +67,115 @@ const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
     },
     ref
   ) => {
-    const { saveFocus, restoreFocus: performFocusRestoration } =
-      useFocusRestoration()
-    const { containerRef } = useFocusTrap(false)
+    // Handle escape key
+    React.useEffect(() => {
+      if (!isOpen) return
 
-    // Save focus when dialog opens
+      const handleEscape = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          onClose()
+        }
+      }
+
+      document.addEventListener('keydown', handleEscape)
+      return () => document.removeEventListener('keydown', handleEscape)
+    }, [isOpen, onClose])
+
+    // Prevent body scroll when dialog is open
     React.useEffect(() => {
       if (isOpen) {
-        saveFocus()
-
-        if (announceToScreenReader && title) {
-          liveRegions.announceNavigation(`Dialog opened: ${title}`)
+        document.body.style.overflow = 'hidden'
+        return () => {
+          document.body.style.overflow = ''
         }
       }
-    }, [isOpen, saveFocus, announceToScreenReader, title])
+    }, [isOpen])
 
-    // Handle focus restoration when dialog closes
-    const handleClose = React.useCallback(() => {
-      if (restoreFocus) {
-        // Small delay to ensure dialog is fully closed before restoring focus
-        setTimeout(() => {
-          performFocusRestoration()
-        }, 100)
+    // Focus management
+    const dialogRef = React.useRef<HTMLDivElement>(null)
+    const previousActiveElement = React.useRef<HTMLElement | null>(null)
+
+    React.useEffect(() => {
+      if (isOpen) {
+        // Save the currently focused element
+        previousActiveElement.current = document.activeElement as HTMLElement
+
+        // Focus the dialog
+        if (dialogRef.current) {
+          dialogRef.current.focus()
+        }
+      } else if (previousActiveElement.current) {
+        // Restore focus when dialog closes
+        previousActiveElement.current.focus()
+        previousActiveElement.current = null
       }
+    }, [isOpen])
 
-      if (announceToScreenReader) {
-        liveRegions.announceNavigation('Dialog closed')
-      }
-
-      onClose()
-    }, [restoreFocus, performFocusRestoration, announceToScreenReader, onClose])
-
-    // Merge refs for focus trap
-    const mergedRef = React.useCallback(
+    // Combine refs
+    const combinedRef = React.useCallback(
       (node: HTMLDivElement | null) => {
-        if (containerRef) {
-          containerRef.current = node
-        }
+        dialogRef.current = node
         if (typeof ref === 'function') {
           ref(node)
         } else if (ref) {
           ref.current = node
         }
       },
-      [ref, containerRef]
+      [ref]
     )
+
+    if (!isOpen) {
+      return null
+    }
+
     return (
-      <Transition appear show={isOpen} as={React.Fragment}>
-        <HeadlessDialog
-          as="div"
-          className="relative z-50"
-          onClose={handleClose}
-          initialFocus={initialFocus}
-          data-testid="dialog"
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        data-testid="dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? 'dialog-title' : undefined}
+        aria-describedby={description ? 'dialog-description' : undefined}
+      >
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 bg-black/25 transition-opacity"
+          aria-hidden="true"
+          onClick={onClose}
+        />
+
+        {/* Dialog panel */}
+        <div
+          ref={combinedRef}
+          className={cn(dialogVariants({ size }), className)}
+          data-testid="dialog-panel"
+          tabIndex={-1}
+          {...panelProps}
+          {...props}
         >
-          {/* Backdrop */}
-          <Transition.Child
-            as={React.Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black/25" aria-hidden="true" />
-          </Transition.Child>
+          {title && (
+            <h3
+              id="dialog-title"
+              className="text-foreground mb-2 text-lg leading-6 font-medium"
+              data-testid="dialog-title"
+            >
+              {title}
+            </h3>
+          )}
 
-          {/* Full-screen container to center the panel */}
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={React.Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <HeadlessDialog.Panel
-                  ref={mergedRef}
-                  className={cn(dialogVariants({ size, className }))}
-                  data-testid="dialog-panel"
-                  {...panelProps}
-                  {...props}
-                >
-                  {title && (
-                    <HeadlessDialog.Title
-                      as="h3"
-                      className="text-foreground mb-2 text-lg leading-6 font-medium"
-                      data-testid="dialog-title"
-                    >
-                      {title}
-                    </HeadlessDialog.Title>
-                  )}
+          {description && (
+            <p
+              id="dialog-description"
+              className="text-muted-foreground mb-4 text-sm"
+              data-testid="dialog-description"
+            >
+              {description}
+            </p>
+          )}
 
-                  {description && (
-                    <HeadlessDialog.Description
-                      className="text-muted-foreground mb-4 text-sm"
-                      data-testid="dialog-description"
-                    >
-                      {description}
-                    </HeadlessDialog.Description>
-                  )}
-
-                  {children}
-                </HeadlessDialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </HeadlessDialog>
-      </Transition>
+          {children}
+        </div>
+      </div>
     )
   }
 )

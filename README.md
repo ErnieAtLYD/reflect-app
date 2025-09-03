@@ -25,6 +25,17 @@ A modern journaling application with AI-powered reflection capabilities. Built w
 - **Path aliases** (@/\*) configured
 - **Vercel** deployment ready
 
+### Architecture Philosophy
+
+This application follows a **simplified, standard-first approach**:
+
+- **Standard HTML** elements for accessibility (no over-engineered custom focus management)
+- **Component simplicity** over complex abstractions
+- **Testing reliability** with standard patterns
+- **Maintainability** through clear, readable code
+
+_Note: A comprehensive custom focus management system was removed in September 2025 to reduce complexity and improve maintainability._
+
 ## 📦 Package Manager
 
 This project uses **pnpm** for faster, more efficient dependency management.

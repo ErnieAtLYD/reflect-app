@@ -68,7 +68,7 @@ export const testAccessibility = async (
   ui: React.ReactElement,
   options?: AccessibilityTestOptions
 ): Promise<AxeResults> => {
-  // TODO: Re-enable after fixing HeadlessUI/JSDOM compatibility issues
+  // TODO: Re-enable after fixing JSDOM compatibility issues
   // See GitHub issue for proper solution
   console.warn(
     'Accessibility testing temporarily disabled due to JSDOM compatibility issues'

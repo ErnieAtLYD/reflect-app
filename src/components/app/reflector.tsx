@@ -4,9 +4,8 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import React, { useState } from 'react'
 
-import { DynamicContent } from '@/components/ui/dynamic-content'
+import { Button } from '@/components/ui/button'
 import { FirstTimeTooltip } from '@/components/ui/first-time-tooltip'
-import { FocusableButton } from '@/components/ui/focusable-button'
 import { HistoryToggle } from '@/components/ui/history-toggle'
 import { HistoryView } from '@/components/ui/history-view'
 import { JournalEntryInput } from '@/components/ui/journal-entry-input'
@@ -321,14 +320,11 @@ export const Reflector = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.5 }}
             >
-              <FocusableButton
+              <Button
                 onClick={handleReflectNow}
                 disabled={!isValidEntry || reflectionState === 'loading'}
                 size="lg"
                 className="px-8 py-3 text-base font-semibold"
-                focusMode="enhanced"
-                announceFocus={true}
-                focusAnnouncement="Generate reflection for your journal entry"
                 data-testid="reflect-now-button"
               >
                 {reflectionState === 'loading' ? (
@@ -343,7 +339,7 @@ export const Reflector = () => {
                 ) : (
                   'Reflect Now'
                 )}
-              </FocusableButton>
+              </Button>
             </motion.div>
           </div>
 
@@ -376,37 +372,17 @@ export const Reflector = () => {
         {/* History View */}
         <HistoryView onLoadEntry={handleLoadHistoryEntry} />
 
-        {/* Reflection Display with Dynamic Focus Management */}
-        <DynamicContent
-          state={
-            reflectionState === 'loading'
-              ? 'loading'
-              : reflectionState === 'error'
-                ? 'error'
-                : 'success'
+        {/* Reflection Display */}
+        <ReflectionDisplay
+          state={reflectionState}
+          data={reflectionData}
+          error={
+            retryCountdown !== null && reflectionState === 'loading'
+              ? `Retrying in ${retryCountdown}s...`
+              : reflectionError
           }
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus={true}
-          announceChanges={true}
-          changeAnnouncement={
-            reflectionState === 'success'
-              ? 'Your reflection has been generated'
-              : reflectionState === 'error'
-                ? 'An error occurred while generating your reflection'
-                : undefined
-          }
-        >
-          <ReflectionDisplay
-            state={reflectionState}
-            data={reflectionData}
-            error={
-              retryCountdown !== null && reflectionState === 'loading'
-                ? `Retrying in ${retryCountdown}s...`
-                : reflectionError
-            }
-            onRetry={handleReflectionRetry}
-          />
-        </DynamicContent>
+          onRetry={handleReflectionRetry}
+        />
       </main>
     </div>
   )

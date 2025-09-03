@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 /**
  * Custom hook for clipboard operations with feedback
@@ -12,6 +12,14 @@ import { useState } from 'react'
 export function useClipboard() {
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const timeoutRefs = useRef<NodeJS.Timeout[]>([])
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      timeoutRefs.current.forEach(clearTimeout)
+    }
+  }, [])
 
   /**
    * Copy text to clipboard
@@ -33,7 +41,8 @@ export function useClipboard() {
       setCopied(true)
 
       // Reset copied state after 2 seconds
-      setTimeout(() => setCopied(false), 2000)
+      const copyTimeout = setTimeout(() => setCopied(false), 2000)
+      timeoutRefs.current.push(copyTimeout)
 
       return true
     } catch (err) {
@@ -42,7 +51,8 @@ export function useClipboard() {
       setCopied(false)
 
       // Reset error state after 3 seconds
-      setTimeout(() => setError(null), 3000)
+      const errorTimeout = setTimeout(() => setError(null), 3000)
+      timeoutRefs.current.push(errorTimeout)
 
       return false
     }
