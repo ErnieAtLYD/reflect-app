@@ -157,8 +157,7 @@ src/
 ├── app/
 │   ├── api/
 │   │   └── reflect/           # AI processing endpoint
-│   ├── components-demo/       # Component showcase page
-│   └── page.tsx              # Main application page
+│   │   └── page.tsx              # Main application page
 ├── components/
 │   ├── ui/                   # UI components (buttons, inputs, etc.)
 │   └── __tests__/           # Component unit tests
